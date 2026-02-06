@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "max_retries": 3,
+  "active_blockers": [],
+  "resolved_blockers": [],
+  "escalated_to_human": []
+}

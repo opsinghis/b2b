@@ -1,0 +1,50 @@
+# Progress Tracker - B2B Web
+
+> Machine-readable state is in `state.json` and `blockers.json`
+
+---
+
+## Current State
+
+**Phase**: Phase 6 - Frontend Foundation
+**Status**: NOT STARTED (waiting for b2b-api Phase 4)
+**Last Updated**: 2026-02-06
+
+---
+
+## Dependency
+
+**Requires**: b2b-api Phase 4 complete (API endpoints available)
+
+---
+
+## PRD Summary
+
+| Phase | Items | Status |
+|-------|-------|--------|
+| Phase 6: Foundation | PRD-029 to PRD-034 | Pending |
+| Phase 7: Admin Portal | PRD-035 to PRD-038 | Pending |
+| Phase 8: Customer Portal | PRD-039 to PRD-043 | Pending |
+
+---
+
+## Iteration Log
+
+> Each iteration appends here
+
+---
+
+## Next Action
+
+**Next PRD Item**: PRD-029 (Turborepo Monorepo Setup)
+**Dependencies**: None (but b2b-api should be ready)
+**Max Iterations**: 5
+
+---
+
+## Statistics
+
+- **Total PRD Items**: 15
+- **Completed**: 0
+- **Pending**: 15
+- **Blocked**: 0

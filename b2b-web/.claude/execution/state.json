@@ -1,0 +1,60 @@
+{
+  "project": "b2b-web",
+  "version": "2.0.0",
+  "last_updated": "2026-02-06T00:00:00Z",
+  "depends_on": {
+    "repository": "b2b-api",
+    "minimum_phase": "phase-4",
+    "reason": "Frontend requires backend API to be available"
+  },
+  "current": {
+    "phase": "phase-6",
+    "phase_name": "Frontend Foundation",
+    "prd_item": null,
+    "prd_title": null,
+    "status": "not_started",
+    "iteration": 0,
+    "max_iterations": 10
+  },
+  "subtasks": {
+    "prd_item": null,
+    "total": 0,
+    "completed": 0,
+    "current_subtask": null,
+    "checklist": []
+  },
+  "test_gates": {
+    "unit": { "status": "pending", "passed": 0, "failed": 0, "coverage": 0 },
+    "component": { "status": "pending", "passed": 0, "failed": 0 },
+    "e2e": { "status": "pending", "passed": 0, "failed": 0 },
+    "visual": { "status": "pending", "snapshots_updated": 0 },
+    "a11y": { "status": "pending", "violations": 0 }
+  },
+  "checkpoints": {
+    "last_checkpoint": null,
+    "last_commit_sha": null,
+    "last_commit_message": null,
+    "checkpoint_count": 0
+  },
+  "progress": {
+    "total_items": 15,
+    "completed": 0,
+    "in_progress": 0,
+    "blocked": 0,
+    "pending": 15
+  },
+  "completed_items": [],
+  "blocked_items": [],
+  "session": {
+    "started_at": null,
+    "iterations_this_session": 0,
+    "checkpoints_this_session": 0
+  },
+  "flags": {
+    "needs_human_intervention": false,
+    "intervention_reason": null,
+    "paused": false,
+    "pause_reason": null,
+    "all_tests_required": true
+  }
+}

@@ -1,0 +1,462 @@
+{
+  "project": "B2B API",
+  "version": "1.0.0",
+  "repository": "b2b-api",
+  "methodology": "hybrid-lisa-ralph",
+  "created": "2026-02-06",
+  "phases": [
+    {
+      "id": "phase-0",
+      "name": "Foundation & Testing Infrastructure",
+      "weight": "70% Lisa / 30% Ralph",
+      "items": [
+        {
+          "id": "PRD-000",
+          "title": "NestJS Project Scaffold",
+          "module": "foundation",
+          "priority": "P0",
+          "completion_criteria": [
+            "NestJS 10+ project with TypeScript strict mode",
+            "Directory structure: src/{common,core,business,platform,agentic,infrastructure}",
+            "Path aliases: @common/*, @core/*, @business/*",
+            "ESLint + Prettier configured",
+            "Husky pre-commit hooks",
+            ".env.example with documented variables",
+            "npm run start:dev works",
+            "npm run build works"
+          ],
+          "dependencies": [],
+          "max_iterations": 5,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-001",
+          "title": "Unit Testing Infrastructure",
+          "module": "foundation/testing",
+          "priority": "P0",
+          "completion_criteria": [
+            "Jest configured with ts-jest",
+            "Coverage thresholds: 80%",
+            "npm run test works",
+            "npm run test:cov generates report",
+            "Test utilities in src/common/testing/"
+          ],
+          "dependencies": ["PRD-000"],
+          "max_iterations": 5,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-002",
+          "title": "Integration Testing Infrastructure",
+          "module": "foundation/testing",
+          "priority": "P0",
+          "completion_criteria": [
+            "Testcontainers for PostgreSQL",
+            "npm run test:integration works",
+            "Database reset between tests",
+            "Test factories in test/factories/"
+          ],
+          "dependencies": ["PRD-001", "PRD-004"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-003",
+          "title": "E2E Testing Infrastructure",
+          "module": "foundation/testing",
+          "priority": "P0",
+          "completion_criteria": [
+            "Supertest configured",
+            "npm run test:e2e works",
+            "Auth helper for test tokens",
+            "npm run test:all runs all tests"
+          ],
+          "dependencies": ["PRD-002"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-004",
+          "title": "Database Setup with Prisma",
+          "module": "infrastructure/database",
+          "priority": "P0",
+          "completion_criteria": [
+            "Prisma with base models: Tenant, User",
+            "Multi-tenancy fields on models",
+            "npm run prisma:generate works",
+            "npm run prisma:migrate works",
+            "npm run prisma:seed works"
+          ],
+          "dependencies": ["PRD-000"],
+          "max_iterations": 5,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-005",
+          "title": "Docker Compose - Core",
+          "module": "infrastructure",
+          "priority": "P0",
+          "completion_criteria": [
+            "PostgreSQL, Redis, MinIO, Elasticsearch",
+            "Health checks on all services",
+            "docker-compose up -d works"
+          ],
+          "dependencies": ["PRD-000"],
+          "max_iterations": 6,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-006",
+          "title": "Docker Compose - Workflow & Auth",
+          "module": "infrastructure",
+          "priority": "P0",
+          "completion_criteria": [
+            "Temporal server + UI",
+            "Keycloak",
+            "Separate databases for each"
+          ],
+          "dependencies": ["PRD-005"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-007",
+          "title": "Docker Compose - Observability",
+          "module": "infrastructure",
+          "priority": "P1",
+          "completion_criteria": [
+            "Prometheus, Grafana, Jaeger",
+            "Optional stack in separate file"
+          ],
+          "dependencies": ["PRD-005"],
+          "max_iterations": 6,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-008",
+          "title": "CI Pipeline",
+          "module": "infrastructure/ci",
+          "priority": "P1",
+          "completion_criteria": [
+            ".github/workflows/ci.yml",
+            "Lint, test, build stages",
+            "Pipeline passes"
+          ],
+          "dependencies": ["PRD-003"],
+          "max_iterations": 5,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-1",
+      "name": "Core Infrastructure",
+      "weight": "50% Lisa / 50% Ralph",
+      "items": [
+        {
+          "id": "PRD-009",
+          "title": "Multi-Tenancy Middleware",
+          "module": "core/tenants",
+          "priority": "P0",
+          "completion_criteria": [
+            "TenantMiddleware extracts tenantId",
+            "@TenantContext() decorator",
+            "Unit tests: >90% coverage"
+          ],
+          "dependencies": ["PRD-004"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-010",
+          "title": "PostgreSQL RLS",
+          "module": "core/tenants",
+          "priority": "P0",
+          "completion_criteria": [
+            "RLS policies on tenant-scoped tables",
+            "Integration tests: cross-tenant blocked"
+          ],
+          "dependencies": ["PRD-009"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-011",
+          "title": "Auth - Registration & Login",
+          "module": "core/auth",
+          "priority": "P0",
+          "completion_criteria": [
+            "POST /auth/register",
+            "POST /auth/login returns tokens",
+            "E2E: register -> login -> protected"
+          ],
+          "dependencies": ["PRD-009"],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-012",
+          "title": "Auth - Refresh & Logout",
+          "module": "core/auth",
+          "priority": "P0",
+          "completion_criteria": [
+            "POST /auth/refresh with rotation",
+            "POST /auth/logout"
+          ],
+          "dependencies": ["PRD-011"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-013",
+          "title": "Authorization (CASL)",
+          "module": "core/auth",
+          "priority": "P0",
+          "completion_criteria": [
+            "CASL with role definitions",
+            "AuthorizationGuard",
+            "@CheckAbility() decorator"
+          ],
+          "dependencies": ["PRD-011"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-014",
+          "title": "Audit Logging",
+          "module": "core/audit",
+          "priority": "P0",
+          "completion_criteria": [
+            "AuditLog table",
+            "@AuditLog() decorator",
+            "GET /audit with filters"
+          ],
+          "dependencies": ["PRD-011"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-015",
+          "title": "Error Handling & Logging",
+          "module": "common",
+          "priority": "P0",
+          "completion_criteria": [
+            "GlobalExceptionFilter",
+            "Pino structured logging",
+            "Correlation ID"
+          ],
+          "dependencies": ["PRD-000"],
+          "max_iterations": 6,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Core Modules",
+      "weight": "30% Lisa / 70% Ralph",
+      "items": [
+        {
+          "id": "PRD-016",
+          "title": "Tenants Module",
+          "module": "core/tenants",
+          "priority": "P1",
+          "completion_criteria": [
+            "CRUD endpoints (super_admin)",
+            "TenantConfig JSONB",
+            "Soft delete"
+          ],
+          "dependencies": ["PRD-013"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-017",
+          "title": "Organizations Module",
+          "module": "core/organizations",
+          "priority": "P1",
+          "completion_criteria": [
+            "CRUD with hierarchy",
+            "GET /:id/hierarchy tree"
+          ],
+          "dependencies": ["PRD-016"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-018",
+          "title": "Users Module",
+          "module": "core/users",
+          "priority": "P1",
+          "completion_criteria": [
+            "CRUD endpoints",
+            "GET /me, PATCH /me",
+            "Password change"
+          ],
+          "dependencies": ["PRD-017"],
+          "max_iterations": 10,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Business Modules",
+      "weight": "40% Lisa / 60% Ralph",
+      "items": [
+        {
+          "id": "PRD-019",
+          "title": "Contracts - CRUD",
+          "module": "business/contracts",
+          "priority": "P1",
+          "completion_criteria": [
+            "Contract entity with versioning",
+            "CRUD endpoints",
+            "Version history"
+          ],
+          "dependencies": ["PRD-018"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-020",
+          "title": "Contracts - Workflow",
+          "module": "business/contracts",
+          "priority": "P1",
+          "completion_criteria": [
+            "Submit, approve, reject, activate",
+            "State machine",
+            "Audit on transitions"
+          ],
+          "dependencies": ["PRD-019", "PRD-014"],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-021",
+          "title": "Quotes Module",
+          "module": "business/quotes",
+          "priority": "P1",
+          "completion_criteria": [
+            "CRUD with line items",
+            "Workflow with thresholds",
+            "Convert to contract"
+          ],
+          "dependencies": ["PRD-019"],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-022",
+          "title": "Catalog Module",
+          "module": "business/catalog",
+          "priority": "P2",
+          "completion_criteria": [
+            "Product CRUD",
+            "Pricing tiers"
+          ],
+          "dependencies": ["PRD-018"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-023",
+          "title": "Approvals Module",
+          "module": "business/approvals",
+          "priority": "P2",
+          "completion_criteria": [
+            "Approval chains",
+            "Multi-level with delegation"
+          ],
+          "dependencies": ["PRD-020"],
+          "max_iterations": 12,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Platform Modules",
+      "weight": "30% Lisa / 70% Ralph",
+      "items": [
+        {
+          "id": "PRD-024",
+          "title": "Notifications Module",
+          "module": "platform/notifications",
+          "priority": "P1",
+          "completion_criteria": [
+            "In-app notifications",
+            "Email via BullMQ"
+          ],
+          "dependencies": ["PRD-018"],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-025",
+          "title": "Files Module",
+          "module": "platform/files",
+          "priority": "P1",
+          "completion_criteria": [
+            "Upload to MinIO",
+            "Signed URLs"
+          ],
+          "dependencies": ["PRD-005", "PRD-018"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-026",
+          "title": "Dashboard Module",
+          "module": "platform/dashboard",
+          "priority": "P2",
+          "completion_criteria": [
+            "GET /dashboard/kpis",
+            "Redis caching"
+          ],
+          "dependencies": ["PRD-020", "PRD-021"],
+          "max_iterations": 8,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Agentic Layer",
+      "weight": "60% Lisa / 40% Ralph",
+      "items": [
+        {
+          "id": "PRD-027",
+          "title": "Tool Registry",
+          "module": "agentic/tools",
+          "priority": "P2",
+          "completion_criteria": [
+            "@AgentTool() decorator",
+            "GET /agent/tools"
+          ],
+          "dependencies": ["PRD-013"],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-028",
+          "title": "Agent Orchestrator",
+          "module": "agentic/orchestrator",
+          "priority": "P2",
+          "completion_criteria": [
+            "POST /agent/execute",
+            "Rate limiting"
+          ],
+          "dependencies": ["PRD-027"],
+          "max_iterations": 12,
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "total_items": 29,
+    "estimated_iterations": 250,
+    "completion_promise_format": "<promise>COMPLETE:PRD-XXX</promise>"
+  }
+}
