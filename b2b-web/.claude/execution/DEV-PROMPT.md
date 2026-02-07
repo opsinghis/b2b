@@ -1,4 +1,4 @@
-# Implement: FE-015 - Portal - Contract Workflow (Iteration 1)
+# Implement: FE-019 - Portal - Files & Attachments (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,45 +18,41 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-015
-**Title:** Portal - Contract Workflow
+**ID:** FE-019
+**Title:** Portal - Files & Attachments
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Create contract form
-- Submit for review button
-- Workflow action buttons (based on status)
-- Approve/reject with comments modal
-- Status transition confirmations
+- File upload component with drag-drop
+- File list on contracts/quotes
+- Download via signed URL
+- File type icons
+- Delete file confirmation
 
 ## API Dependencies
-- POST /api/v1/contracts - available
-- POST /api/v1/contracts/:id/submit - available
-- POST /api/v1/contracts/:id/approve - available
-- POST /api/v1/contracts/:id/reject - available
-- POST /api/v1/contracts/:id/activate - available
+- POST /api/v1/files/upload - available
+- GET /api/v1/files/:id/download - available
+- DELETE /api/v1/files/:id - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-015 - Portal - Contract Workflow
+# Plan: FE-019 - Portal - Files & Attachments
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Create contract form
-- [ ] Submit for review button
-- [ ] Workflow action buttons (based on status)
-- [ ] Approve/reject with comments modal
-- [ ] Status transition confirmations
+- [ ] File upload component with drag-drop
+- [ ] File list on contracts/quotes
+- [ ] Download via signed URL
+- [ ] File type icons
+- [ ] Delete file confirmation
 
 ## API Dependencies
-- POST /api/v1/contracts [available]
-- POST /api/v1/contracts/:id/submit [available]
-- POST /api/v1/contracts/:id/approve [available]
-- POST /api/v1/contracts/:id/reject [available]
-- POST /api/v1/contracts/:id/activate [available]
+- POST /api/v1/files/upload [available]
+- GET /api/v1/files/:id/download [available]
+- DELETE /api/v1/files/:id [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -86,7 +82,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-015</promise>
+<promise>COMPLETE:FE-019</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

@@ -226,14 +226,11 @@ run_lisa() {
     
     if [ -n "$missing_apis" ]; then
         log_warning "Missing APIs detected!"
-        echo ""
-        echo "Options:"
-        echo "  1) Create gap requests and mark as waiting (recommended)"
-        echo "  2) Skip this feature for now"
-        echo "  3) Continue anyway (APIs may fail)"
-        echo ""
-        read -p "Choice [1/2/3]: " choice
-        
+
+        # Auto-select option 1: Create gap requests and mark as waiting
+        local choice="1"
+        log_info "Auto-selecting: Create gap requests and mark as waiting"
+
         case "$choice" in
             1)
                 echo "$missing_apis" | while read -r api; do
@@ -474,12 +471,10 @@ run_loop() {
         
         # Ralph phase
         run_ralph "$fid"
-        
-        echo ""
-        read -p "Continue to next feature? [Y/n]: " cont
-        if [ "$cont" = "n" ]; then
-            break
-        fi
+
+        # Auto-continue to next feature (no interactive prompt)
+        log_info "Continuing to next feature..."
+        sleep 1
     done
 }
 

@@ -17,8 +17,12 @@ import {
   User,
   FileText,
   DollarSign,
+  Paperclip,
+  Plus,
+  ChevronUp,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { ContractTimeline, VersionHistory, WorkflowActions } from "../components";
 import {
@@ -31,6 +35,7 @@ import {
   getStatusBadgeColor,
 } from "../hooks";
 
+import { FileList, FileUpload } from "@/components/files";
 import { Header } from "@/components/layout";
 
 function ContractDetailSkeleton() {
@@ -76,6 +81,7 @@ function ContractDetailContent() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const [showUploadForm, setShowUploadForm] = useState(false);
 
   const {
     data: contract,
@@ -307,6 +313,47 @@ function ContractDetailContent() {
                     {formatDate(contract.endDate)}
                   </span>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Files & Attachments */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Paperclip className="h-5 w-5" />
+                  Files & Attachments
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowUploadForm(!showUploadForm)}
+                >
+                  {showUploadForm ? (
+                    <>
+                      <ChevronUp className="mr-2 h-4 w-4" />
+                      Hide Upload
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add File
+                    </>
+                  )}
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {showUploadForm && (
+                  <FileUpload
+                    entityType="contract"
+                    entityId={id}
+                    onUploadComplete={() => setShowUploadForm(false)}
+                  />
+                )}
+                <FileList
+                  entityType="contract"
+                  entityId={id}
+                  variant="inline"
+                />
               </CardContent>
             </Card>
           </div>
