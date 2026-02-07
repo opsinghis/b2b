@@ -89,7 +89,7 @@
             "FE-003"
           ],
           "max_iterations": 12,
-          "status": "pending"
+          "status": "in_progress"
         },
         {
           "id": "FE-005",
@@ -114,7 +114,7 @@
             "FE-001"
           ],
           "max_iterations": 8,
-          "status": "pending"
+          "status": "complete"
         },
         {
           "id": "FE-006",

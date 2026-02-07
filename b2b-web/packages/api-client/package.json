@@ -9,11 +9,16 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts",
       "require": "./src/index.ts"
+    },
+    "./types": {
+      "types": "./src/generated/api.ts",
+      "import": "./src/generated/api.ts"
     }
   },
   "scripts": {
     "build": "tsc",
-    "generate": "openapi-typescript ../../../b2b-api/openapi.json -o src/generated/api.ts",
+    "generate": "openapi-typescript ./openapi.json -o src/generated/api.ts",
+    "generate:fetch": "curl -s http://localhost:3000/docs-json | python3 -m json.tool > openapi.json && pnpm generate",
     "lint": "eslint src/",
     "test": "vitest run",
     "test:watch": "vitest",

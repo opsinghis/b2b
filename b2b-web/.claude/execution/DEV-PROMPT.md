@@ -1,4 +1,4 @@
-# Implement: FE-003 - Next.js Portal Scaffold (Iteration 1)
+# Implement: FE-005 - OpenAPI Client Generation (Iteration 4)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,37 +18,37 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-003
-**Title:** Next.js Portal Scaffold
-**Module:** apps/portal
+**ID:** FE-005
+**Title:** OpenAPI Client Generation
+**Module:** packages/api-client
 
 ## Completion Criteria (ALL must be met)
-- Next.js 14+ with App Router
-- TypeScript strict mode
-- Tailwind CSS configured
-- pnpm --filter portal dev works (port 3003)
-- Basic layout with header placeholder
+- Client generated from b2b-api OpenAPI spec
+- Typed API client with all endpoints
+- pnpm --filter api-client generate works
+- Client usable in apps via @b2b/api-client
+- Includes request/response types
 
 ## API Dependencies
-
+- GET /docs-json - OpenAPI JSON spec
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-003 - Next.js Portal Scaffold
+# Plan: FE-005 - OpenAPI Client Generation
 
-## Module: apps/portal
+## Module: packages/api-client
 
 ## Completion Criteria
-- [ ] Next.js 14+ with App Router
-- [ ] TypeScript strict mode
-- [ ] Tailwind CSS configured
-- [ ] pnpm --filter portal dev works (port 3003)
-- [ ] Basic layout with header placeholder
+- [ ] Client generated from b2b-api OpenAPI spec
+- [ ] Typed API client with all endpoints
+- [ ] pnpm --filter api-client generate works
+- [ ] Client usable in apps via @b2b/api-client
+- [ ] Includes request/response types
 
 ## API Dependencies
-
+- GET /docs-json [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -65,7 +65,29 @@ Swagger Docs: http://localhost:3000/docs
 ## Ready for Ralph: [ ]
 
 ## Previous Iteration Output
+All FE-005 completion criteria have been verified:
 
+## FE-005 Verification Summary
+
+| Criteria | Status | Evidence |
+|----------|--------|----------|
+| Client generated from b2b-api OpenAPI spec | ✅ | `openapi.json` (16,934 lines) exists and is valid |
+| Typed API client with all endpoints | ✅ | `src/generated/api.ts` (8,780 lines) with full `paths`, `components`, `operations` |
+| `pnpm --filter api-client generate` works | ✅ | Command completes in 21ms |
+| Client usable in apps via `@b2b/api-client` | ✅ | Both `apps/admin` and `apps/portal` have `@b2b/api-client: "workspace:*"` |
+| Includes request/response types | ✅ | 75+ DTOs exported (LoginDto, UserResponseDto, TenantResponseDto, etc.) |
+
+### Additional Verification
+- **Tests**: 8/8 passing
+- **TypeCheck**: Clean (no errors)
+- **Build**: Successful
+- **Generate**: Works correctly with openapi-typescript 6.7.6
+
+The api-client package is fully functional and ready for use by both applications.
+
+```
+<promise>COMPLETE:FE-005</promise>
+```
 
 ## Instructions
 1. Implement ALL completion criteria for this feature
@@ -78,7 +100,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-003</promise>
+<promise>COMPLETE:FE-005</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
