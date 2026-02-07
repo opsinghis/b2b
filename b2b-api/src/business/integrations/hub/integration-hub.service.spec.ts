@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { createHash } from 'crypto';
 import { IntegrationHubService, RetryConfig } from './integration-hub.service';
 import { PrismaService } from '@infrastructure/database';
 import {
@@ -8,6 +9,12 @@ import {
   CircuitBreakerState,
   ConnectorHealthStatus,
 } from '@prisma/client';
+
+// Helper function to compute hash the same way the service does
+const computePayloadHash = (payload: Record<string, unknown>): string => {
+  const normalized = JSON.stringify(payload, Object.keys(payload).sort());
+  return createHash('sha256').update(normalized).digest('hex');
+};
 
 describe('IntegrationHubService', () => {
   let service: IntegrationHubService;
@@ -184,6 +191,7 @@ describe('IntegrationHubService', () => {
     it('should create and route a message successfully', async () => {
       prisma.integrationMessage.findFirst.mockResolvedValue(null);
       prisma.integrationConnector.findUnique.mockResolvedValue(mockConnector);
+      prisma.integrationConnector.update.mockResolvedValue(mockConnector); // For rate limit & stats
       prisma.integrationMessage.create.mockResolvedValue(mockMessage);
       prisma.integrationTransformation.findFirst.mockResolvedValue(mockTransformation);
       prisma.integrationMessage.update.mockResolvedValue({
@@ -208,9 +216,15 @@ describe('IntegrationHubService', () => {
     });
 
     it('should detect duplicate message via idempotency key', async () => {
+      // The idempotency check looks for an existing message with the same key
+      // For a duplicate, the hash must also match
+      const payload = { items: [], orderId: '12345' };
+      const expectedHash = computePayloadHash(payload);
+
       prisma.integrationMessage.findFirst.mockResolvedValue({
         ...mockMessage,
         status: IntegrationMessageStatus.COMPLETED,
+        processedHash: expectedHash,
       });
 
       const dto = {
@@ -219,7 +233,7 @@ describe('IntegrationHubService', () => {
         targetConnector: 'ecommerce',
         direction: IntegrationDirection.INBOUND,
         type: 'ORDER_CREATED',
-        sourcePayload: { orderId: '12345', items: [] },
+        sourcePayload: payload,
         idempotencyKey: 'idem-key-001',
       };
 
@@ -450,6 +464,8 @@ describe('IntegrationHubService', () => {
         ...maxRetriesMessage,
         status: IntegrationMessageStatus.DEAD_LETTER,
       });
+      // Mock the connector update for incrementConnectorStats
+      prisma.integrationConnector.update.mockResolvedValue(mockConnector);
 
       await service.scheduleRetry(maxRetriesMessage);
 
@@ -513,9 +529,10 @@ describe('IntegrationHubService', () => {
       prisma.integrationMessage.findUnique.mockResolvedValue(mockMessage);
       prisma.integrationMessage.update.mockResolvedValue({
         ...mockMessage,
-        status: IntegrationMessageStatus.PENDING,
+        status: IntegrationMessageStatus.COMPLETED,
       });
       prisma.integrationConnector.findUnique.mockResolvedValue(mockConnector);
+      prisma.integrationConnector.update.mockResolvedValue(mockConnector); // For incrementConnectorStats
       prisma.integrationTransformation.findFirst.mockResolvedValue(mockTransformation);
 
       const result = await service.reprocessDeadLetter('dlq-123', 'user-123');
@@ -594,13 +611,19 @@ describe('IntegrationHubService', () => {
   });
 
   describe('Idempotency', () => {
-    it('should detect duplicate by idempotency key', async () => {
+    it('should detect duplicate by idempotency key when hash matches', async () => {
+      // The payload hash is computed during checkIdempotency and compared with existing
+      // To make it match, we need to compute the same hash
+      const payload = { items: [], orderId: '12345' };
+      const expectedHash = computePayloadHash(payload);
+
       prisma.integrationMessage.findFirst.mockResolvedValue({
         ...mockMessage,
-        processedHash: 'hash123',
+        processedHash: expectedHash,
+        status: IntegrationMessageStatus.COMPLETED,
       });
 
-      const result = await service.checkIdempotency('idem-key-001', { orderId: '12345', items: [] });
+      const result = await service.checkIdempotency('idem-key-001', payload);
 
       expect(result.isDuplicate).toBe(true);
     });

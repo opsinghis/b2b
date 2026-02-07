@@ -9,11 +9,7 @@ import { DatabaseModule } from '@infrastructure/database';
 import { AuthorizationModule } from '@core/authorization';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    AuthorizationModule,
-    ScheduleModule.forRoot(),
-  ],
+  imports: [DatabaseModule, AuthorizationModule, ScheduleModule.forRoot()],
   controllers: [IntegrationHubController, AdminIntegrationHubController],
   providers: [IntegrationHubService],
   exports: [IntegrationHubService],

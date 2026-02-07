@@ -50,6 +50,8 @@ model Tenant {
   partnerTeamMembers PartnerTeamMember[]
   partnerCommissions PartnerCommission[]
   partnerResources PartnerResource[]
+  connectorConfigs ConnectorConfig[]
+  credentialVaults CredentialVault[]
 
   @@index([slug])
   @@index([isActive])
@@ -1495,9 +1497,18 @@ model IntegrationConnector {
   direction       IntegrationDirection
   isActive        Boolean                   @default(true)
 
+  // Plugin system
+  pluginPath      String?
+  pluginVersion   String?
+  isBuiltIn       Boolean                   @default(false)
+
   // Configuration
   config          Json                      @default("{}")
   credentials     Json                      @default("{}")
+  configSchema    Json?
+
+  // Capability declaration
+  declaredCapabilities String[]
 
   // Rate limiting
   rateLimit       Int?
@@ -1528,6 +1539,10 @@ model IntegrationConnector {
   metadata        Json                      @default("{}")
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
+
+  // Relations
+  configs         ConnectorConfig[]
+  capabilities    ConnectorCapability[]
 
   @@index([code])
   @@index([type])
@@ -1633,4 +1648,211 @@ enum ConnectorHealthStatus {
   DEGRADED
   UNHEALTHY
   UNKNOWN
+}
+
+// ============================================
+// Connector Registry Models
+// ============================================
+
+model ConnectorConfig {
+  id              String                @id @default(cuid())
+  name            String
+  description     String?
+  isActive        Boolean               @default(true)
+  isPrimary       Boolean               @default(false)
+
+  // Configuration
+  config          Json                  @default("{}")
+
+  // Encrypted credentials reference
+  credentialVaultId String?
+
+  // Rate limiting overrides
+  rateLimit       Int?
+  rateLimitWindow Int?
+
+  // Tenant-specific transformation overrides
+  transformationOverrides Json?
+
+  // Capability overrides
+  enabledCapabilities String[]
+
+  // Webhook configuration
+  webhookUrl      String?
+  webhookSecret   String?
+  webhookEvents   String[]
+
+  // Connection validation
+  lastTestedAt    DateTime?
+  lastTestResult  ConnectorTestStatus?
+  lastTestError   String?
+
+  metadata        Json                  @default("{}")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  connectorId     String
+
+  // Relations
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  connector       IntegrationConnector  @relation(fields: [connectorId], references: [id])
+  credentialVault CredentialVault?      @relation(fields: [credentialVaultId], references: [id])
+
+  @@unique([tenantId, connectorId, name])
+  @@index([tenantId])
+  @@index([connectorId])
+  @@index([isActive])
+  @@map("connector_configs")
+}
+
+model CredentialVault {
+  id              String                @id @default(cuid())
+  name            String
+  description     String?
+  type            CredentialType
+
+  // Encrypted credentials (AES-256-GCM)
+  encryptedData   String
+  encryptionKeyId String
+  iv              String
+  authTag         String
+
+  // Access control
+  accessPolicy    Json                  @default("{}")
+
+  // Rotation
+  expiresAt       DateTime?
+  rotatedAt       DateTime?
+  rotationPolicy  Json?
+
+  // Audit
+  lastAccessedAt  DateTime?
+  accessCount     Int                   @default(0)
+
+  metadata        Json                  @default("{}")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  connectorConfigs ConnectorConfig[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([type])
+  @@index([expiresAt])
+  @@map("credential_vaults")
+}
+
+model ConnectorCapability {
+  id              String                @id @default(cuid())
+  code            String
+  name            String
+  description     String?
+  category        CapabilityCategory
+
+  // Capability definition
+  inputSchema     Json?
+  outputSchema    Json?
+  configSchema    Json?
+
+  // Requirements
+  requiredScopes  String[]
+  requiredPermissions String[]
+
+  // Flags
+  isOptional      Boolean               @default(true)
+  isDeprecated    Boolean               @default(false)
+  deprecatedMessage String?
+
+  metadata        Json                  @default("{}")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Foreign Keys
+  connectorId     String
+
+  // Relations
+  connector       IntegrationConnector  @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+
+  @@unique([connectorId, code])
+  @@index([connectorId])
+  @@index([category])
+  @@map("connector_capabilities")
+}
+
+model ConnectorEvent {
+  id              String                @id @default(cuid())
+  eventType       ConnectorEventType
+  connectorCode   String
+  configId        String?
+
+  // Event data
+  data            Json                  @default("{}")
+  error           String?
+  duration        Int?
+
+  // Context
+  tenantId        String?
+  userId          String?
+  correlationId   String?
+
+  metadata        Json                  @default("{}")
+  createdAt       DateTime              @default(now())
+
+  @@index([connectorCode])
+  @@index([eventType])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("connector_events")
+}
+
+enum ConnectorTestStatus {
+  SUCCESS
+  FAILURE
+  TIMEOUT
+  ERROR
+}
+
+enum CredentialType {
+  API_KEY
+  BASIC_AUTH
+  OAUTH2
+  BEARER_TOKEN
+  CLIENT_CREDENTIALS
+  CERTIFICATE
+  SSH_KEY
+  CUSTOM
+}
+
+enum CapabilityCategory {
+  SYNC
+  ASYNC
+  WEBHOOK
+  POLLING
+  BATCH
+  STREAM
+  CRUD
+  SEARCH
+  REPORT
+  CUSTOM
+}
+
+enum ConnectorEventType {
+  REGISTERED
+  CONFIGURED
+  ENABLED
+  DISABLED
+  TESTED
+  CONNECTION_SUCCESS
+  CONNECTION_FAILURE
+  CREDENTIAL_ROTATED
+  CAPABILITY_ENABLED
+  CAPABILITY_DISABLED
+  ERROR
 }

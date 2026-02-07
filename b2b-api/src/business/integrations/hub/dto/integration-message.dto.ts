@@ -11,10 +11,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import {
-  IntegrationDirection,
-  IntegrationMessageStatus,
-} from '@prisma/client';
+import { IntegrationDirection, IntegrationMessageStatus } from '@prisma/client';
 
 export class CreateIntegrationMessageDto {
   @ApiProperty({ description: 'Unique message identifier' })

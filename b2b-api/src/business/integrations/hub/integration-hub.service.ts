@@ -169,7 +169,11 @@ export class IntegrationHubService implements OnModuleInit {
 
       // Move to DLQ if max retries exceeded
       if (message.retryCount >= message.maxRetries) {
-        await this.moveToDeadLetter(message, 'TRANSFORMATION_FAILED', transformResult.errors?.join('; '));
+        await this.moveToDeadLetter(
+          message,
+          'TRANSFORMATION_FAILED',
+          transformResult.errors?.join('; '),
+        );
         return {
           messageId: message.messageId,
           status: IntegrationMessageStatus.DEAD_LETTER,
@@ -257,10 +261,13 @@ export class IntegrationHubService implements OnModuleInit {
     const updateData: Prisma.IntegrationMessageUpdateInput = {};
 
     if (data.status !== undefined) updateData.status = data.status;
-    if (data.canonicalPayload !== undefined) updateData.canonicalPayload = data.canonicalPayload as Prisma.JsonObject;
-    if (data.targetPayload !== undefined) updateData.targetPayload = data.targetPayload as Prisma.JsonObject;
+    if (data.canonicalPayload !== undefined)
+      updateData.canonicalPayload = data.canonicalPayload as Prisma.JsonObject;
+    if (data.targetPayload !== undefined)
+      updateData.targetPayload = data.targetPayload as Prisma.JsonObject;
     if (data.lastError !== undefined) updateData.lastError = data.lastError;
-    if (data.errorDetails !== undefined) updateData.errorDetails = data.errorDetails as Prisma.JsonObject;
+    if (data.errorDetails !== undefined)
+      updateData.errorDetails = data.errorDetails as Prisma.JsonObject;
     if (data.metadata !== undefined) updateData.metadata = data.metadata as Prisma.JsonObject;
     if (data.transformedAt !== undefined) updateData.transformedAt = data.transformedAt;
     if (data.completedAt !== undefined) updateData.completedAt = data.completedAt;
@@ -273,7 +280,10 @@ export class IntegrationHubService implements OnModuleInit {
     });
   }
 
-  async updateMessageStatus(id: string, status: IntegrationMessageStatus): Promise<IntegrationMessage> {
+  async updateMessageStatus(
+    id: string,
+    status: IntegrationMessageStatus,
+  ): Promise<IntegrationMessage> {
     const updates: Prisma.IntegrationMessageUpdateInput = { status };
 
     if (status === IntegrationMessageStatus.COMPLETED) {
@@ -346,7 +356,9 @@ export class IntegrationHubService implements OnModuleInit {
       return {
         success: false,
         sourcePayload,
-        errors: [`No transformation found for ${message.sourceConnector} -> ${message.targetConnector} (${message.type})`],
+        errors: [
+          `No transformation found for ${message.sourceConnector} -> ${message.targetConnector} (${message.type})`,
+        ],
       };
     }
 
@@ -397,7 +409,9 @@ export class IntegrationHubService implements OnModuleInit {
       return {
         success: false,
         sourcePayload: payload,
-        errors: [`No transformation found for ${sourceConnector} -> ${targetConnector} (${sourceType} -> ${targetType})`],
+        errors: [
+          `No transformation found for ${sourceConnector} -> ${targetConnector} (${sourceType} -> ${targetType})`,
+        ],
       };
     }
 
@@ -500,23 +514,27 @@ export class IntegrationHubService implements OnModuleInit {
       const match = expression.match(/concat\(([^)]+)\)/);
       if (match) {
         const fields = match[1].split(',').map((f) => f.trim());
-        return fields.map((f) => {
-          if (f.startsWith("'") && f.endsWith("'")) return f.slice(1, -1);
-          return this.getNestedValue(source, f) ?? this.getNestedValue(current, f) ?? '';
-        }).join('');
+        return fields
+          .map((f) => {
+            if (f.startsWith("'") && f.endsWith("'")) return f.slice(1, -1);
+            return this.getNestedValue(source, f) ?? this.getNestedValue(current, f) ?? '';
+          })
+          .join('');
       }
     }
     if (expression.startsWith('uppercase(')) {
       const match = expression.match(/uppercase\(([^)]+)\)/);
       if (match) {
-        const value = this.getNestedValue(source, match[1]) ?? this.getNestedValue(current, match[1]);
+        const value =
+          this.getNestedValue(source, match[1]) ?? this.getNestedValue(current, match[1]);
         return typeof value === 'string' ? value.toUpperCase() : value;
       }
     }
     if (expression.startsWith('lowercase(')) {
       const match = expression.match(/lowercase\(([^)]+)\)/);
       if (match) {
-        const value = this.getNestedValue(source, match[1]) ?? this.getNestedValue(current, match[1]);
+        const value =
+          this.getNestedValue(source, match[1]) ?? this.getNestedValue(current, match[1]);
         return typeof value === 'string' ? value.toLowerCase() : value;
       }
     }
@@ -537,7 +555,11 @@ export class IntegrationHubService implements OnModuleInit {
     const newRetryCount = message.retryCount + 1;
 
     if (newRetryCount > message.maxRetries) {
-      await this.moveToDeadLetter(message, 'MAX_RETRIES_EXCEEDED', message.lastError ?? 'Unknown error');
+      await this.moveToDeadLetter(
+        message,
+        'MAX_RETRIES_EXCEEDED',
+        message.lastError ?? 'Unknown error',
+      );
       return;
     }
 
@@ -553,7 +575,9 @@ export class IntegrationHubService implements OnModuleInit {
       },
     });
 
-    this.logger.debug(`Scheduled retry ${newRetryCount}/${message.maxRetries} for message ${message.id} at ${nextRetryAt}`);
+    this.logger.debug(
+      `Scheduled retry ${newRetryCount}/${message.maxRetries} for message ${message.id} at ${nextRetryAt}`,
+    );
   }
 
   calculateBackoffDelay(retryCount: number, config: RetryConfig): number {
@@ -1116,12 +1140,14 @@ export class IntegrationHubService implements OnModuleInit {
       updateData.failedMessages = { increment: 1 };
     }
 
-    await this.prisma.integrationConnector.update({
-      where: { code: connectorCode },
-      data: updateData,
-    }).catch(() => {
-      // Connector may not exist, ignore
-    });
+    await this.prisma.integrationConnector
+      .update({
+        where: { code: connectorCode },
+        data: updateData,
+      })
+      .catch(() => {
+        // Connector may not exist, ignore
+      });
   }
 
   // ============================================
@@ -1153,18 +1179,26 @@ export class IntegrationHubService implements OnModuleInit {
     return this.prisma.integrationTransformation.findUnique({ where: { id } });
   }
 
-  async updateTransformation(id: string, dto: UpdateTransformationDto): Promise<IntegrationTransformation> {
+  async updateTransformation(
+    id: string,
+    dto: UpdateTransformationDto,
+  ): Promise<IntegrationTransformation> {
     const updateData: Prisma.IntegrationTransformationUpdateInput = {};
 
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
     if (dto.priority !== undefined) updateData.priority = dto.priority;
-    if (dto.sourceToCanonical !== undefined) updateData.sourceToCanonical = dto.sourceToCanonical as Prisma.JsonObject;
-    if (dto.canonicalToTarget !== undefined) updateData.canonicalToTarget = dto.canonicalToTarget as Prisma.JsonObject;
-    if (dto.sourceSchema !== undefined) updateData.sourceSchema = dto.sourceSchema as Prisma.JsonObject;
-    if (dto.canonicalSchema !== undefined) updateData.canonicalSchema = dto.canonicalSchema as Prisma.JsonObject;
-    if (dto.targetSchema !== undefined) updateData.targetSchema = dto.targetSchema as Prisma.JsonObject;
+    if (dto.sourceToCanonical !== undefined)
+      updateData.sourceToCanonical = dto.sourceToCanonical as Prisma.JsonObject;
+    if (dto.canonicalToTarget !== undefined)
+      updateData.canonicalToTarget = dto.canonicalToTarget as Prisma.JsonObject;
+    if (dto.sourceSchema !== undefined)
+      updateData.sourceSchema = dto.sourceSchema as Prisma.JsonObject;
+    if (dto.canonicalSchema !== undefined)
+      updateData.canonicalSchema = dto.canonicalSchema as Prisma.JsonObject;
+    if (dto.targetSchema !== undefined)
+      updateData.targetSchema = dto.targetSchema as Prisma.JsonObject;
     if (dto.metadata !== undefined) updateData.metadata = dto.metadata as Prisma.JsonObject;
 
     return this.prisma.integrationTransformation.update({
@@ -1219,9 +1253,10 @@ export class IntegrationHubService implements OnModuleInit {
 
     if (!connector) return null;
 
-    const successRate = connector.totalMessages > 0
-      ? (connector.successfulMessages / connector.totalMessages) * 100
-      : 100;
+    const successRate =
+      connector.totalMessages > 0
+        ? (connector.successfulMessages / connector.totalMessages) * 100
+        : 100;
 
     return {
       code: connector.code,
@@ -1246,9 +1281,10 @@ export class IntegrationHubService implements OnModuleInit {
     });
 
     return connectors.map((connector) => {
-      const successRate = connector.totalMessages > 0
-        ? (connector.successfulMessages / connector.totalMessages) * 100
-        : 100;
+      const successRate =
+        connector.totalMessages > 0
+          ? (connector.successfulMessages / connector.totalMessages) * 100
+          : 100;
 
       return {
         code: connector.code,

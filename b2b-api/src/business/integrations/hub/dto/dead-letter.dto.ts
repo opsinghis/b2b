@@ -1,13 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsOptional,
-  IsInt,
-  IsBoolean,
-  IsUUID,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsString, IsOptional, IsInt, IsBoolean, IsUUID, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class DeadLetterQueryDto {

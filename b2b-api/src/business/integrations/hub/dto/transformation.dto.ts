@@ -1,13 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import {
-  IsString,
-  IsOptional,
-  IsInt,
-  IsObject,
-  IsBoolean,
-  Min,
-  Max,
-} from 'class-validator';
+import { IsString, IsOptional, IsInt, IsObject, IsBoolean, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateTransformationDto {

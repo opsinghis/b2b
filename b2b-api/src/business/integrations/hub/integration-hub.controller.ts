@@ -11,13 +11,8 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { CircuitBreakerState } from '@prisma/client';
 import { JwtAuthGuard, RolesGuard, Roles, CurrentUser } from '@core/auth';
 import { IntegrationHubService } from './integration-hub.service';
 import {
@@ -37,7 +32,6 @@ import {
   TransformPayloadDto,
   TransformResultDto,
   DeadLetterQueryDto,
-  DeadLetterResponseDto,
   ReprocessDeadLetterDto,
   BulkReprocessDto,
   BulkReprocessResultDto,
@@ -84,10 +78,7 @@ export class IntegrationHubController {
   @ApiOperation({ summary: 'Reprocess a failed message' })
   @ApiResponse({ status: 200 })
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async reprocessMessage(
-    @Body() dto: ReprocessMessageDto,
-    @CurrentUser('id') userId: string,
-  ) {
+  async reprocessMessage(@Body() dto: ReprocessMessageDto, @CurrentUser('id') _userId: string) {
     const message = await this.hubService.getMessage(dto.id);
     if (!message) {
       return { error: 'Message not found' };
@@ -138,10 +129,7 @@ export class IntegrationHubController {
   @ApiParam({ name: 'id', description: 'Connector ID' })
   @ApiResponse({ status: 200, type: ConnectorResponseDto })
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async updateConnector(
-    @Param('id') id: string,
-    @Body() dto: UpdateConnectorDto,
-  ) {
+  async updateConnector(@Param('id') id: string, @Body() dto: UpdateConnectorDto) {
     return this.hubService.updateConnector(id, dto);
   }
 
@@ -189,10 +177,7 @@ export class IntegrationHubController {
   @ApiParam({ name: 'id', description: 'Transformation ID' })
   @ApiResponse({ status: 200, type: TransformationResponseDto })
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async updateTransformation(
-    @Param('id') id: string,
-    @Body() dto: UpdateTransformationDto,
-  ) {
+  async updateTransformation(@Param('id') id: string, @Body() dto: UpdateTransformationDto) {
     return this.hubService.updateTransformation(id, dto);
   }
 
@@ -249,10 +234,7 @@ export class IntegrationHubController {
   @ApiOperation({ summary: 'Bulk reprocess dead letter messages' })
   @ApiResponse({ status: 200, type: BulkReprocessResultDto })
   @Roles('ADMIN', 'SUPER_ADMIN')
-  async bulkReprocessDeadLetters(
-    @Body() dto: BulkReprocessDto,
-    @CurrentUser('id') userId: string,
-  ) {
+  async bulkReprocessDeadLetters(@Body() dto: BulkReprocessDto, @CurrentUser('id') userId: string) {
     return this.hubService.bulkReprocessDeadLetters(dto, userId);
   }
 
@@ -296,7 +278,7 @@ export class AdminIntegrationHubController {
     }
 
     await this.hubService.updateConnector(connector.id, {
-      circuitState: 'CLOSED' as any,
+      circuitState: CircuitBreakerState.CLOSED,
     });
 
     return { message: `Circuit breaker reset for connector: ${code}` };
