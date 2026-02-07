@@ -30,6 +30,7 @@ import { FilesModule } from './platform/files';
 import { DashboardModule } from './platform/dashboard';
 import { ToolsModule } from './agentic/tools';
 import { OrchestratorModule } from './agentic/orchestrator';
+import { IntegrationHubModule } from './business/integrations/hub';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { OrchestratorModule } from './agentic/orchestrator';
     DashboardModule,
     ToolsModule,
     OrchestratorModule,
+    IntegrationHubModule,
   ],
   controllers: [HealthController],
   providers: [

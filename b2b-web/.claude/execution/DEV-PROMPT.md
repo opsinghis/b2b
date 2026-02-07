@@ -1,4 +1,4 @@
-# Implement: FE-009 - Admin - Organization Management (Iteration 1)
+# Implement: FE-010 - Admin - Master Catalog (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,45 +18,45 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-009
-**Title:** Admin - Organization Management
+**ID:** FE-010
+**Title:** Admin - Master Catalog
 **Module:** apps/admin
 
 ## Completion Criteria (ALL must be met)
-- Organizations list
-- Organization hierarchy tree view
-- Create organization form
-- Edit organization page
-- Assign users to organization
+- Products list with search, filters, pagination
+- Product detail view
+- Create/edit product form
+- Bulk import via JSON upload
+- Status management (active/discontinued/archived)
 
 ## API Dependencies
-- GET /api/v1/organizations - available
-- POST /api/v1/organizations - available
-- GET /api/v1/organizations/:id - available
-- GET /api/v1/organizations/:id/hierarchy - available
-- PATCH /api/v1/organizations/:id - available
+- GET /api/v1/master-catalog/products - available
+- POST /api/v1/master-catalog/products - available
+- GET /api/v1/master-catalog/products/:id - available
+- PATCH /api/v1/master-catalog/products/:id - available
+- POST /api/v1/admin/master-catalog/import - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-009 - Admin - Organization Management
+# Plan: FE-010 - Admin - Master Catalog
 
 ## Module: apps/admin
 
 ## Completion Criteria
-- [ ] Organizations list
-- [ ] Organization hierarchy tree view
-- [ ] Create organization form
-- [ ] Edit organization page
-- [ ] Assign users to organization
+- [ ] Products list with search, filters, pagination
+- [ ] Product detail view
+- [ ] Create/edit product form
+- [ ] Bulk import via JSON upload
+- [ ] Status management (active/discontinued/archived)
 
 ## API Dependencies
-- GET /api/v1/organizations [available]
-- POST /api/v1/organizations [available]
-- GET /api/v1/organizations/:id [available]
-- GET /api/v1/organizations/:id/hierarchy [available]
-- PATCH /api/v1/organizations/:id [available]
+- GET /api/v1/master-catalog/products [available]
+- POST /api/v1/master-catalog/products [available]
+- GET /api/v1/master-catalog/products/:id [available]
+- PATCH /api/v1/master-catalog/products/:id [available]
+- POST /api/v1/admin/master-catalog/import [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -86,7 +86,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-009</promise>
+<promise>COMPLETE:FE-010</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

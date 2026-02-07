@@ -1419,3 +1419,218 @@ enum PartnerCommissionStatus {
   PAID
   CANCELLED
 }
+
+// ============================================
+// Integration Hub Models
+// ============================================
+
+model IntegrationMessage {
+  id              String                    @id @default(cuid())
+  messageId       String                    @unique
+  correlationId   String?
+  sourceConnector String
+  targetConnector String
+  direction       IntegrationDirection
+  type            String
+  status          IntegrationMessageStatus  @default(PENDING)
+  priority        Int                       @default(0)
+
+  // Payload
+  sourcePayload   Json
+  canonicalPayload Json?
+  targetPayload   Json?
+
+  // Transformation
+  transformedAt   DateTime?
+  transformErrors Json?
+
+  // Retry handling
+  retryCount      Int                       @default(0)
+  maxRetries      Int                       @default(3)
+  nextRetryAt     DateTime?
+  lastError       String?
+  errorDetails    Json?
+
+  // Dead-letter queue
+  dlqReason       String?
+  movedToDlqAt    DateTime?
+
+  // Circuit breaker
+  circuitState    String?
+
+  // Idempotency
+  idempotencyKey  String?
+  processedHash   String?
+  isDuplicate     Boolean                   @default(false)
+
+  // Timestamps
+  receivedAt      DateTime                  @default(now())
+  processedAt     DateTime?
+  completedAt     DateTime?
+  failedAt        DateTime?
+
+  metadata        Json                      @default("{}")
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([messageId])
+  @@index([correlationId])
+  @@index([sourceConnector])
+  @@index([targetConnector])
+  @@index([status])
+  @@index([type])
+  @@index([idempotencyKey])
+  @@index([nextRetryAt])
+  @@index([movedToDlqAt])
+  @@index([createdAt])
+  @@map("integration_messages")
+}
+
+model IntegrationConnector {
+  id              String                    @id @default(cuid())
+  code            String                    @unique
+  name            String
+  description     String?
+  type            IntegrationConnectorType
+  direction       IntegrationDirection
+  isActive        Boolean                   @default(true)
+
+  // Configuration
+  config          Json                      @default("{}")
+  credentials     Json                      @default("{}")
+
+  // Rate limiting
+  rateLimit       Int?
+  rateLimitWindow Int?
+  currentCount    Int                       @default(0)
+  windowStart     DateTime?
+
+  // Circuit breaker
+  circuitState    CircuitBreakerState       @default(CLOSED)
+  failureCount    Int                       @default(0)
+  failureThreshold Int                      @default(5)
+  successCount    Int                       @default(0)
+  successThreshold Int                      @default(3)
+  lastFailureAt   DateTime?
+  circuitOpenedAt DateTime?
+  halfOpenAt      DateTime?
+
+  // Health
+  lastHealthCheck DateTime?
+  healthStatus    ConnectorHealthStatus     @default(UNKNOWN)
+  healthDetails   Json?
+
+  // Statistics
+  totalMessages   Int                       @default(0)
+  successfulMessages Int                    @default(0)
+  failedMessages  Int                       @default(0)
+
+  metadata        Json                      @default("{}")
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+  @@index([circuitState])
+  @@index([healthStatus])
+  @@map("integration_connectors")
+}
+
+model IntegrationDeadLetter {
+  id              String                    @id @default(cuid())
+  originalMessageId String
+  connector       String
+  reason          String
+  errorMessage    String?
+  errorStack      String?
+  payload         Json
+  metadata        Json                      @default("{}")
+  retryable       Boolean                   @default(true)
+  reprocessedAt   DateTime?
+  reprocessedById String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@index([originalMessageId])
+  @@index([connector])
+  @@index([reason])
+  @@index([retryable])
+  @@index([createdAt])
+  @@map("integration_dead_letters")
+}
+
+model IntegrationTransformation {
+  id              String                    @id @default(cuid())
+  name            String
+  description     String?
+  sourceConnector String
+  targetConnector String
+  sourceType      String
+  targetType      String
+  isActive        Boolean                   @default(true)
+  priority        Int                       @default(0)
+
+  // Transformation rules
+  sourceToCanonical Json
+  canonicalToTarget Json
+
+  // Validation
+  sourceSchema    Json?
+  canonicalSchema Json?
+  targetSchema    Json?
+
+  metadata        Json                      @default("{}")
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+
+  @@unique([sourceConnector, targetConnector, sourceType, targetType])
+  @@index([sourceConnector])
+  @@index([targetConnector])
+  @@index([isActive])
+  @@map("integration_transformations")
+}
+
+enum IntegrationDirection {
+  INBOUND
+  OUTBOUND
+  BIDIRECTIONAL
+}
+
+enum IntegrationMessageStatus {
+  PENDING
+  TRANSFORMING
+  TRANSFORMED
+  ROUTING
+  PROCESSING
+  COMPLETED
+  FAILED
+  RETRYING
+  DEAD_LETTER
+}
+
+enum IntegrationConnectorType {
+  ERP
+  CRM
+  ECOMMERCE
+  PAYMENT
+  SHIPPING
+  INVENTORY
+  WEBHOOK
+  API
+  FILE
+  CUSTOM
+}
+
+enum CircuitBreakerState {
+  CLOSED
+  OPEN
+  HALF_OPEN
+}
+
+enum ConnectorHealthStatus {
+  HEALTHY
+  DEGRADED
+  UNHEALTHY
+  UNKNOWN
+}
