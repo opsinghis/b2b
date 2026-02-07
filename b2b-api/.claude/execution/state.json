@@ -4,27 +4,67 @@
   "current": {
     "phase": "phase-7",
     "phase_name": "Integration Foundation",
-    "prd_item": "PRD-041",
+    "prd_item": "PRD-042",
     "status": "in_progress",
     "iteration": 1,
-    "max_iterations": 10
+    "max_iterations": 8
   },
   "subtasks": {
-    "prd_item": "PRD-041",
+    "prd_item": "PRD-042",
     "total": 10,
     "completed": 0,
-    "current_subtask": "Create Connector and ConnectorConfig Prisma models",
+    "current_subtask": "Create Generic REST Connector module scaffold",
     "checklist": [
-      { "id": 1, "task": "Create Connector and ConnectorConfig Prisma models", "status": "pending" },
-      { "id": 2, "task": "Define IConnector interface", "status": "pending" },
-      { "id": 3, "task": "Implement ConnectorRegistry service", "status": "pending" },
-      { "id": 4, "task": "Implement credential vault with encryption", "status": "pending" },
-      { "id": 5, "task": "Implement connector lifecycle (register, configure, enable, disable)", "status": "pending" },
-      { "id": 6, "task": "Implement capability declaration system", "status": "pending" },
-      { "id": 7, "task": "Implement dynamic connector loading", "status": "pending" },
-      { "id": 8, "task": "Create Admin CRUD API for connectors", "status": "pending" },
-      { "id": 9, "task": "Create test connection endpoint", "status": "pending" },
-      { "id": 10, "task": "Write unit tests with 80%+ coverage", "status": "pending" }
+      {
+        "id": 1,
+        "task": "Create Generic REST Connector module scaffold",
+        "status": "pending"
+      },
+      {
+        "id": 2,
+        "task": "Implement configurable REST client with HttpService",
+        "status": "pending"
+      },
+      {
+        "id": 3,
+        "task": "Implement auth support (Basic, Bearer, OAuth2, API Key)",
+        "status": "pending"
+      },
+      {
+        "id": 4,
+        "task": "Implement request/response mapping via JSONPath",
+        "status": "pending"
+      },
+      {
+        "id": 5,
+        "task": "Implement configurable endpoints per operation",
+        "status": "pending"
+      },
+      {
+        "id": 6,
+        "task": "Implement pagination handling (offset, cursor, link)",
+        "status": "pending"
+      },
+      {
+        "id": 7,
+        "task": "Implement error mapping and handling",
+        "status": "pending"
+      },
+      {
+        "id": 8,
+        "task": "Implement request/response logging",
+        "status": "pending"
+      },
+      {
+        "id": 9,
+        "task": "Implement webhook receiver for callbacks",
+        "status": "pending"
+      },
+      {
+        "id": 10,
+        "task": "Write unit tests with 80%+ coverage",
+        "status": "pending"
+      }
     ]
   },
   "test_gates": {
@@ -56,16 +96,16 @@
     }
   },
   "checkpoints": {
-    "last_checkpoint": "2026-02-07T20:30:00.000Z",
-    "last_commit_sha": "c8d031d5809a9650d64fbf4db6f55981edc57b6c",
-    "checkpoint_count": 33
+    "last_checkpoint": "2026-02-08T00:35:00.000Z",
+    "last_commit_sha": "9299450c8a48c3d2ee6994bebe85f4764f02cac7",
+    "checkpoint_count": 34
   },
   "progress": {
     "total_items": 61,
-    "completed": 43,
+    "completed": 44,
     "in_progress": 1,
     "blocked": 0,
-    "pending": 17
+    "pending": 16
   },
   "completed_items": [
     "PRD-000",
@@ -108,13 +148,14 @@
     "PRD-034",
     "PRD-035",
     "PRD-036",
-    "PRD-040"
+    "PRD-040",
+    "PRD-041"
   ],
   "blocked_items": [],
   "session": {
     "started_at": "2026-02-07T17:05:59Z",
-    "iterations_this_session": 3,
-    "checkpoints_this_session": 22
+    "iterations_this_session": 4,
+    "checkpoints_this_session": 23
   },
   "flags": {
     "needs_human_intervention": false,

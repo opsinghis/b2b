@@ -2,7 +2,10 @@
 
 import { useAuth } from "@b2b/auth/react";
 import { Button } from "@b2b/ui";
-import { Bell, LogOut, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
+import Link from "next/link";
+
+import { NotificationBell } from "@/app/(dashboard)/components/notification-bell";
 
 interface HeaderProps {
   title?: string;
@@ -18,8 +21,10 @@ export function Header({ title = "Portal" }: HeaderProps) {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-6">
       <div className="flex items-center gap-4">
-        <span className="text-xl font-bold text-primary">B2B Portal</span>
-        {title && (
+        <Link href="/" className="text-xl font-bold text-primary hover:opacity-80 transition-opacity">
+          B2B Portal
+        </Link>
+        {title && title !== "Portal" && (
           <>
             <span className="text-muted-foreground">/</span>
             <h1 className="text-lg font-medium">{title}</h1>
@@ -27,10 +32,7 @@ export function Header({ title = "Portal" }: HeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {isAuthenticated && <NotificationBell />}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">

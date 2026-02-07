@@ -412,7 +412,7 @@
             "FE-006"
           ],
           "max_iterations": 8,
-          "status": "pending"
+          "status": "complete"
         },
         {
           "id": "FE-014",
@@ -1020,7 +1020,7 @@
             "FE-008"
           ],
           "max_iterations": 12,
-          "status": "pending"
+          "status": "waiting_for_api"
         },
         {
           "id": "FE-029",
@@ -1116,7 +1116,7 @@
             "FE-012"
           ],
           "max_iterations": 12,
-          "status": "pending"
+          "status": "waiting_for_api"
         },
         {
           "id": "FE-031",
@@ -1163,7 +1163,7 @@
             "FE-008"
           ],
           "max_iterations": 10,
-          "status": "pending"
+          "status": "waiting_for_api"
         },
         {
           "id": "FE-032",

@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from '@nes
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@infrastructure/database';
 import { CredentialType, CredentialVault, Prisma } from '@prisma/client';
-import { createCipheriv, createDecipheriv, randomBytes, scrypt } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, scrypt, createHash } from 'crypto';
 import { promisify } from 'util';
 
 const scryptAsync = promisify(scrypt);
@@ -62,7 +62,6 @@ export interface DecryptedCredentials {
 
 const ENCRYPTION_ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
-const AUTH_TAG_LENGTH = 16;
 const KEY_LENGTH = 32;
 
 @Injectable()
@@ -77,14 +76,12 @@ export class CredentialVaultService {
     // Get master key from environment (should be set securely)
     const masterKeyEnv = this.configService.get<string>('CREDENTIAL_VAULT_MASTER_KEY');
     if (!masterKeyEnv) {
-      this.logger.warn(
-        'CREDENTIAL_VAULT_MASTER_KEY not set, using derived key from APP_SECRET',
-      );
+      this.logger.warn('CREDENTIAL_VAULT_MASTER_KEY not set, using derived key from APP_SECRET');
       const appSecret = this.configService.get<string>('APP_SECRET', 'default-app-secret-key');
       // Derive a key synchronously for initialization
       this.masterKey = Buffer.alloc(KEY_LENGTH);
       // Use a simple hash for initialization; actual encryption uses scrypt
-      const hash = require('crypto').createHash('sha256').update(appSecret).digest();
+      const hash = createHash('sha256').update(appSecret).digest();
       hash.copy(this.masterKey);
     } else {
       this.masterKey = Buffer.from(masterKeyEnv, 'base64');
@@ -137,13 +134,13 @@ export class CredentialVaultService {
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.expiresAt !== undefined) updateData.expiresAt = dto.expiresAt;
     if (dto.rotationPolicy !== undefined) {
-      updateData.rotationPolicy = dto.rotationPolicy as Prisma.JsonObject;
+      updateData.rotationPolicy = dto.rotationPolicy as unknown as Prisma.JsonObject;
     }
     if (dto.accessPolicy !== undefined) {
-      updateData.accessPolicy = dto.accessPolicy as Prisma.JsonObject;
+      updateData.accessPolicy = dto.accessPolicy as unknown as Prisma.JsonObject;
     }
     if (dto.metadata !== undefined) {
-      updateData.metadata = dto.metadata as Prisma.JsonObject;
+      updateData.metadata = dto.metadata as unknown as Prisma.JsonObject;
     }
 
     // Re-encrypt if credentials are being updated
@@ -295,10 +292,7 @@ export class CredentialVaultService {
         throw new BadRequestException('Access denied: user not in allowed list');
       }
 
-      if (
-        accessPolicy.maxAccessCount &&
-        vault.accessCount >= accessPolicy.maxAccessCount
-      ) {
+      if (accessPolicy.maxAccessCount && vault.accessCount >= accessPolicy.maxAccessCount) {
         throw new BadRequestException('Access denied: max access count reached');
       }
     }
@@ -384,7 +378,10 @@ export class CredentialVaultService {
   /**
    * Get credentials expiring soon
    */
-  async getExpiringCredentials(tenantId: string, withinDays: number = 7): Promise<CredentialVault[]> {
+  async getExpiringCredentials(
+    tenantId: string,
+    withinDays: number = 7,
+  ): Promise<CredentialVault[]> {
     const expirationThreshold = new Date();
     expirationThreshold.setDate(expirationThreshold.getDate() + withinDays);
 
@@ -445,11 +442,7 @@ export class CredentialVaultService {
     const salt = Buffer.from(keyId, 'base64');
     const derivedKey = (await scryptAsync(this.masterKey, salt, KEY_LENGTH)) as Buffer;
 
-    const decipher = createDecipheriv(
-      ENCRYPTION_ALGORITHM,
-      derivedKey,
-      Buffer.from(iv, 'base64'),
-    );
+    const decipher = createDecipheriv(ENCRYPTION_ALGORITHM, derivedKey, Buffer.from(iv, 'base64'));
     decipher.setAuthTag(Buffer.from(authTag, 'base64'));
 
     let decrypted = decipher.update(encryptedData, 'base64', 'utf8');

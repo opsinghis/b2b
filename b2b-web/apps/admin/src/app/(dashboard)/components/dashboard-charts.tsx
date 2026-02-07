@@ -2,24 +2,24 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@b2b/ui";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
   Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 import {
   ContractKpis,
-  QuoteKpis,
   getContractStatusData,
   getQuoteStatusData,
+  QuoteKpis,
 } from "../hooks/use-dashboard";
 
 interface DashboardChartsProps {

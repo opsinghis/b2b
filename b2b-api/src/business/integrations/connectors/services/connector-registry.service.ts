@@ -12,7 +12,6 @@ import {
   ConnectorCapability,
   ConnectorEventType,
   ConnectorTestStatus,
-  CapabilityCategory,
   IntegrationConnectorType,
   IntegrationDirection,
   Prisma,
@@ -20,14 +19,11 @@ import {
 import { CredentialVaultService } from './credential-vault.service';
 import {
   IConnector,
-  IConnectorFactory,
-  ConnectorMetadata,
   ConnectorContext,
   ConnectionTestResult,
   CapabilityDefinition,
   ConfigSchema,
   ConnectorRegistration,
-  ConnectorState,
   ConnectorOperationResult,
 } from '../interfaces';
 
@@ -41,7 +37,7 @@ export interface RegisterConnectorDto {
   pluginVersion?: string;
   isBuiltIn?: boolean;
   config?: Record<string, unknown>;
-  configSchema?: ConfigSchema;
+  configSchema?: Record<string, unknown>;
   declaredCapabilities?: string[];
   rateLimit?: number;
   rateLimitWindow?: number;
@@ -55,7 +51,7 @@ export interface UpdateConnectorRegistrationDto {
   description?: string;
   isActive?: boolean;
   config?: Record<string, unknown>;
-  configSchema?: ConfigSchema;
+  configSchema?: Record<string, unknown>;
   declaredCapabilities?: string[];
   rateLimit?: number;
   rateLimitWindow?: number;
@@ -201,9 +197,9 @@ export class ConnectorRegistryService implements OnModuleInit {
     if (dto.name !== undefined) updateData.name = dto.name;
     if (dto.description !== undefined) updateData.description = dto.description;
     if (dto.isActive !== undefined) updateData.isActive = dto.isActive;
-    if (dto.config !== undefined) updateData.config = dto.config as Prisma.JsonObject;
+    if (dto.config !== undefined) updateData.config = dto.config as unknown as Prisma.JsonObject;
     if (dto.configSchema !== undefined) {
-      updateData.configSchema = dto.configSchema as Prisma.JsonObject;
+      updateData.configSchema = dto.configSchema as unknown as Prisma.JsonObject;
     }
     if (dto.declaredCapabilities !== undefined) {
       updateData.declaredCapabilities = dto.declaredCapabilities;
@@ -212,7 +208,8 @@ export class ConnectorRegistryService implements OnModuleInit {
     if (dto.rateLimitWindow !== undefined) updateData.rateLimitWindow = dto.rateLimitWindow;
     if (dto.failureThreshold !== undefined) updateData.failureThreshold = dto.failureThreshold;
     if (dto.successThreshold !== undefined) updateData.successThreshold = dto.successThreshold;
-    if (dto.metadata !== undefined) updateData.metadata = dto.metadata as Prisma.JsonObject;
+    if (dto.metadata !== undefined)
+      updateData.metadata = dto.metadata as unknown as Prisma.JsonObject;
 
     return this.prisma.integrationConnector.update({
       where: { id },
@@ -388,10 +385,7 @@ export class ConnectorRegistryService implements OnModuleInit {
   /**
    * Update connector configuration
    */
-  async updateConnectorConfig(
-    id: string,
-    dto: UpdateConnectorConfigDto,
-  ): Promise<ConnectorConfig> {
+  async updateConnectorConfig(id: string, dto: UpdateConnectorConfigDto): Promise<ConnectorConfig> {
     const existing = await this.prisma.connectorConfig.findUnique({
       where: { id },
       include: { connector: true },
@@ -711,9 +705,7 @@ export class ConnectorRegistryService implements OnModuleInit {
       return config.connector.capabilities.filter((c) => !c.isOptional);
     }
 
-    return config.connector.capabilities.filter((c) =>
-      config.enabledCapabilities.includes(c.code),
-    );
+    return config.connector.capabilities.filter((c) => config.enabledCapabilities.includes(c.code));
   }
 
   // ============================================
@@ -858,15 +850,13 @@ export class ConnectorRegistryService implements OnModuleInit {
   private async updateTestResult(
     configId: string,
     result: ConnectionTestResult,
-    duration: number,
+    _duration: number,
   ): Promise<void> {
     await this.prisma.connectorConfig.update({
       where: { id: configId },
       data: {
         lastTestedAt: new Date(),
-        lastTestResult: result.success
-          ? ConnectorTestStatus.SUCCESS
-          : ConnectorTestStatus.FAILURE,
+        lastTestResult: result.success ? ConnectorTestStatus.SUCCESS : ConnectorTestStatus.FAILURE,
         lastTestError: result.success ? null : result.message,
       },
     });

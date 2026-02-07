@@ -201,7 +201,10 @@ export interface IConnector {
   /**
    * Handle incoming webhook (optional)
    */
-  handleWebhook?(payload: WebhookPayload, context: ConnectorContext): Promise<WebhookValidationResult>;
+  handleWebhook?(
+    payload: WebhookPayload,
+    context: ConnectorContext,
+  ): Promise<WebhookValidationResult>;
 
   /**
    * Cleanup resources (optional)

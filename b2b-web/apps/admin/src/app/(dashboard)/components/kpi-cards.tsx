@@ -2,21 +2,21 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@b2b/ui";
 import {
-  FileText,
-  FileCheck,
-  DollarSign,
-  Clock,
   AlertTriangle,
+  Clock,
+  DollarSign,
+  FileCheck,
+  FileText,
   TrendingUp,
 } from "lucide-react";
 
 import {
   ContractKpis,
-  QuoteKpis,
   FinancialKpis,
   formatCurrency,
   formatNumber,
   formatPercentage,
+  QuoteKpis,
 } from "../hooks/use-dashboard";
 
 interface KpiCardsProps {
