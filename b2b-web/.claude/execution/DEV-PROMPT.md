@@ -1,4 +1,4 @@
-# Implement: FE-002 - Next.js Admin Scaffold (Iteration 1)
+# Implement: FE-003 - Next.js Portal Scaffold (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,16 +18,16 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-002
-**Title:** Next.js Admin Scaffold
-**Module:** apps/admin
+**ID:** FE-003
+**Title:** Next.js Portal Scaffold
+**Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
 - Next.js 14+ with App Router
 - TypeScript strict mode
 - Tailwind CSS configured
-- pnpm --filter admin dev works (port 3002)
-- Basic layout with sidebar placeholder
+- pnpm --filter portal dev works (port 3003)
+- Basic layout with header placeholder
 
 ## API Dependencies
 
@@ -36,16 +36,16 @@ Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-002 - Next.js Admin Scaffold
+# Plan: FE-003 - Next.js Portal Scaffold
 
-## Module: apps/admin
+## Module: apps/portal
 
 ## Completion Criteria
 - [ ] Next.js 14+ with App Router
 - [ ] TypeScript strict mode
 - [ ] Tailwind CSS configured
-- [ ] pnpm --filter admin dev works (port 3002)
-- [ ] Basic layout with sidebar placeholder
+- [ ] pnpm --filter portal dev works (port 3003)
+- [ ] Basic layout with header placeholder
 
 ## API Dependencies
 
@@ -78,7 +78,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-002</promise>
+<promise>COMPLETE:FE-003</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
