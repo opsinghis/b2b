@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(.claude/planning/backlog/**/*)",
+      "Write(.claude/execution/**/*)",
+      "Edit(.claude/CONTEXT.md)",
+      "Edit(.claude/planning/backlog/**/*)",
+      "Edit(.claude/execution/**/*)",
+      "Bash(pnpm:*)",
+      "Bash(turbo:*)",
+      "Bash(npm run:*)"
+    ]
+  },
+  "backend_api": {
+    "base_url": "http://localhost:3000",
+    "swagger_url": "http://localhost:3000/docs",
+    "postman_collection": "../b2b-api/docs/postman/b2b-api.postman_collection.json"
+  }
+}

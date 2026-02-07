@@ -1,0 +1,129 @@
+{
+  "id": "API-003",
+  "type": "api-blocker",
+  "title": "API Blocker: Salary Deduction Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-024", "FE-027", "FE-031"],
+  "description": "Employee salary deduction payment method - deduct from next month's salary",
+  "required_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/salary-deduction",
+      "description": "Get employee's salary deduction status and limits",
+      "response": {
+        "enabled": "boolean",
+        "monthlyLimit": "decimal",
+        "currentMonthUsed": "decimal",
+        "remaining": "decimal",
+        "nextDeductionDate": "date"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/salary-deduction/history",
+      "description": "Get deduction history by month",
+      "query_params": ["year", "month", "page", "limit"],
+      "response": "Paginated list of deductions with order references"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/users/me/salary-deduction",
+      "description": "Update deduction preferences (opt-in/opt-out)",
+      "request_body": {"enabled": "boolean"},
+      "response": "Updated salary deduction settings"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/me/salary-deduction/limit-request",
+      "description": "Request increase in deduction limit",
+      "request_body": {
+        "requestedLimit": "number",
+        "reason": "string"
+      },
+      "response": "Limit request object"
+    }
+  ],
+  "admin_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/salary-deductions",
+      "description": "List all employee deduction limits",
+      "query_params": ["tenantId", "status", "page", "limit"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/salary-deductions/:userId",
+      "description": "Update employee's deduction limit",
+      "request_body": {"monthlyLimit": "number", "enabled": "boolean"}
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/salary-deductions/report",
+      "description": "Monthly deduction report for payroll",
+      "query_params": ["year", "month", "tenantId"],
+      "response": "Report with all deductions, totals, export options"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/salary-deductions/limit-requests",
+      "description": "List pending limit increase requests",
+      "query_params": ["status", "page", "limit"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/salary-deductions/limit-requests/:id/approve",
+      "description": "Approve limit increase request",
+      "request_body": {"approvedLimit": "number", "notes": "string?"}
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/salary-deductions/limit-requests/:id/reject",
+      "description": "Reject limit increase request",
+      "request_body": {"reason": "string"}
+    }
+  ],
+  "data_model": {
+    "SalaryDeduction": {
+      "id": "uuid",
+      "userId": "uuid",
+      "tenantId": "uuid",
+      "enabled": "boolean",
+      "monthlyLimit": "decimal",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "SalaryDeductionTransaction": {
+      "id": "uuid",
+      "userId": "uuid",
+      "orderId": "uuid",
+      "amount": "decimal",
+      "status": "enum: pending, processed, failed",
+      "payrollMonth": "date (first of month)",
+      "processedAt": "datetime?",
+      "createdAt": "datetime"
+    },
+    "SalaryDeductionLimitRequest": {
+      "id": "uuid",
+      "userId": "uuid",
+      "currentLimit": "decimal",
+      "requestedLimit": "decimal",
+      "reason": "string",
+      "status": "enum: pending, approved, rejected",
+      "approvedLimit": "decimal?",
+      "approverNotes": "string?",
+      "reviewedBy": "uuid?",
+      "reviewedAt": "datetime?",
+      "createdAt": "datetime"
+    }
+  },
+  "business_rules": [
+    "Only employees can use salary deduction",
+    "Monthly limit set per employee by HR/Admin",
+    "Orders using salary deduction are deducted from next month's salary",
+    "Cannot exceed monthly limit",
+    "Deduction report exported to payroll system monthly"
+  ],
+  "priority": "P0",
+  "notes": "Key differentiator for employee purchase program"
+}

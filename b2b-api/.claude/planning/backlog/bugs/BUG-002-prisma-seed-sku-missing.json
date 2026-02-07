@@ -1,0 +1,43 @@
+{
+    "id": "BUG-002",
+    "type": "bug",
+    "title": "Bug: Prisma seed fails with 'Argument sku is missing'",
+    "module": "prisma/seed",
+    "priority": "P1",
+    "created": "2026-02-07",
+    "status": "completed",
+
+    "description": "Running npm run prisma:seed fails because the seed script is not properly mapping the sku field when creating MasterProduct records.",
+
+    "steps_to_reproduce": [
+      "Start Docker infrastructure",
+      "Run npx prisma migrate dev",
+      "Run npm run prisma:seed",
+      "Observe error: Argument sku is missing"
+    ],
+
+    "expected_behavior": "Seed script imports all 9,488 products from cleaned_products.json into MasterProduct table",
+
+    "actual_behavior": "Seed fails with Prisma error: Argument sku is missing at line 107",
+
+    "root_cause_hypothesis": "The seed script is not mapping product_id from JSON to sku field in MasterProduct create",
+
+    "testing": {
+      "regression": [
+        "npm run prisma:seed completes without errors",
+        "MasterProduct table contains 9,488 records"
+      ]
+    },
+
+    "affected_files_guess": [
+      "prisma/seed.ts"
+    ],
+
+    "acceptance_criteria": [
+      "AC1: npm run prisma:seed completes successfully",
+      "AC2: All 9,488 products imported into MasterProduct table",
+      "AC3: No Prisma validation errors"
+    ],
+
+    "max_iterations": 5
+  }

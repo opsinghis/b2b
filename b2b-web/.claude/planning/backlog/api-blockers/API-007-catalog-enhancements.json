@@ -1,0 +1,82 @@
+{
+  "id": "API-007",
+  "type": "api-blocker",
+  "title": "API Blocker: Catalog Enhancements",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-021"],
+  "description": "Additional catalog endpoints needed for product browsing",
+  "current_state": "insufficient",
+  "existing_endpoint": "GET /api/v1/catalog/products",
+  "required_enhancements": [
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/categories",
+      "description": "Get product categories hierarchy",
+      "response": {
+        "categories": [
+          {
+            "id": "uuid",
+            "name": "string",
+            "slug": "string",
+            "parentId": "uuid?",
+            "productCount": "number",
+            "children": "Category[]"
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/products/:id",
+      "description": "Get single product details with images",
+      "response": {
+        "id": "uuid",
+        "sku": "string",
+        "name": "string",
+        "description": "string",
+        "price": "decimal",
+        "discountedPrice": "decimal",
+        "images": "string[]",
+        "category": "object",
+        "attributes": "object",
+        "stockQuantity": "number",
+        "availability": "enum: in_stock, low_stock, out_of_stock"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/products/:id/related",
+      "description": "Get related products",
+      "response": "List of related products"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog/search/suggestions",
+      "description": "Get search autocomplete suggestions",
+      "query_params": ["q"],
+      "response": {
+        "products": "ProductSummary[]",
+        "categories": "Category[]",
+        "suggestions": "string[]"
+      }
+    }
+  ],
+  "existing_endpoint_changes": {
+    "endpoint": "GET /api/v1/catalog/products",
+    "needed_filters": [
+      "categoryId - filter by category",
+      "minPrice - minimum price filter",
+      "maxPrice - maximum price filter",
+      "availability - in_stock, low_stock, out_of_stock",
+      "sortBy - price_asc, price_desc, name_asc, newest"
+    ],
+    "needed_response_fields": [
+      "discountedPrice - price after user's discount tier applied",
+      "availability - stock status",
+      "primaryImage - main product image URL"
+    ]
+  },
+  "priority": "P1",
+  "notes": "Some enhancements to existing catalog endpoint, plus new endpoints"
+}

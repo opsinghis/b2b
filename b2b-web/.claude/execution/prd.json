@@ -3,16 +3,20 @@
   "version": "1.0.0",
   "repository": "b2b-web",
   "methodology": "hybrid-lisa-ralph",
-  "created": "2026-02-06",
-  "depends_on": "b2b-api (Phase 4 complete)",
+  "created": "2026-02-07",
+  "depends_on": {
+    "repository": "b2b-api",
+    "status": "complete",
+    "api_base_url": "http://localhost:3000"
+  },
   "phases": [
     {
-      "id": "phase-6",
+      "id": "phase-1",
       "name": "Frontend Foundation",
       "weight": "70% Lisa / 30% Ralph",
       "items": [
         {
-          "id": "PRD-029",
+          "id": "FE-001",
           "title": "Turborepo Monorepo Setup",
           "module": "foundation",
           "priority": "P0",
@@ -24,12 +28,13 @@
             "pnpm install works",
             "turbo run build works"
           ],
+          "api_dependencies": [],
           "dependencies": [],
           "max_iterations": 5,
-          "status": "pending"
+          "status": "complete"
         },
         {
-          "id": "PRD-030",
+          "id": "FE-002",
           "title": "Next.js Admin Scaffold",
           "module": "apps/admin",
           "priority": "P0",
@@ -40,12 +45,15 @@
             "pnpm --filter admin dev works (port 3002)",
             "Basic layout with sidebar placeholder"
           ],
-          "dependencies": ["PRD-029"],
+          "api_dependencies": [],
+          "dependencies": [
+            "FE-001"
+          ],
           "max_iterations": 5,
           "status": "pending"
         },
         {
-          "id": "PRD-031",
+          "id": "FE-003",
           "title": "Next.js Portal Scaffold",
           "module": "apps/portal",
           "priority": "P0",
@@ -56,28 +64,35 @@
             "pnpm --filter portal dev works (port 3003)",
             "Basic layout with header placeholder"
           ],
-          "dependencies": ["PRD-029"],
+          "api_dependencies": [],
+          "dependencies": [
+            "FE-001"
+          ],
           "max_iterations": 5,
           "status": "pending"
         },
         {
-          "id": "PRD-032",
+          "id": "FE-004",
           "title": "Shared UI Library",
           "module": "packages/ui",
           "priority": "P1",
           "completion_criteria": [
             "Base components: Button, Input, Card, Modal, Table",
-            "Form components: Form, Select, Checkbox",
+            "Form components: Form, Select, Checkbox, DatePicker",
             "Radix UI primitives for accessibility",
-            "Storybook configured",
-            "Components importable in apps"
+            "Storybook configured (port 6006)",
+            "Components importable in apps via @b2b/ui"
           ],
-          "dependencies": ["PRD-030", "PRD-031"],
+          "api_dependencies": [],
+          "dependencies": [
+            "FE-002",
+            "FE-003"
+          ],
           "max_iterations": 12,
           "status": "pending"
         },
         {
-          "id": "PRD-033",
+          "id": "FE-005",
           "title": "OpenAPI Client Generation",
           "module": "packages/api-client",
           "priority": "P1",
@@ -85,171 +100,1189 @@
             "Client generated from b2b-api OpenAPI spec",
             "Typed API client with all endpoints",
             "pnpm --filter api-client generate works",
-            "Client usable in apps"
+            "Client usable in apps via @b2b/api-client",
+            "Includes request/response types"
           ],
-          "dependencies": ["PRD-029"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /docs-json",
+              "status": "available",
+              "notes": "OpenAPI JSON spec"
+            }
+          ],
+          "dependencies": [
+            "FE-001"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
         {
-          "id": "PRD-034",
+          "id": "FE-006",
           "title": "Frontend Authentication",
           "module": "packages/auth",
           "priority": "P0",
           "completion_criteria": [
-            "NextAuth.js with Keycloak provider",
-            "Login/logout pages",
+            "NextAuth.js v5 configured",
+            "Credentials provider (email/password via API)",
+            "Login page with form validation",
+            "Logout functionality",
             "Protected route middleware",
-            "useAuth() hook",
-            "E2E: login -> protected -> logout"
+            "useAuth() hook with user info",
+            "Access token storage and refresh"
           ],
-          "dependencies": ["PRD-030", "PRD-031", "PRD-033"],
+          "api_dependencies": [
+            {
+              "endpoint": "POST /api/v1/auth/login",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/auth/register",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/auth/refresh",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/auth/logout",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-002",
+            "FE-003",
+            "FE-005"
+          ],
           "max_iterations": 12,
           "status": "pending"
         }
       ]
     },
     {
-      "id": "phase-7",
+      "id": "phase-2",
       "name": "Admin Portal",
       "weight": "50% Lisa / 50% Ralph",
       "items": [
         {
-          "id": "PRD-035",
+          "id": "FE-007",
           "title": "Admin - Tenant Management",
           "module": "apps/admin",
           "priority": "P1",
           "completion_criteria": [
             "Tenants list with search, pagination",
-            "Create/edit tenant forms",
-            "Tenant config editor",
+            "Create tenant modal/form",
+            "Edit tenant page",
+            "Tenant config editor (JSON)",
+            "Activate/deactivate tenant",
             "Super admin only access"
           ],
-          "dependencies": ["PRD-034"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/tenants",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/tenants",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/tenants/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/tenants/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "DELETE /api/v1/tenants/:id",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-006"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
         {
-          "id": "PRD-036",
-          "title": "Admin - User & Org Management",
+          "id": "FE-008",
+          "title": "Admin - User Management",
           "module": "apps/admin",
           "priority": "P1",
           "completion_criteria": [
-            "Users list with filters",
-            "Create/edit user forms",
-            "Organizations hierarchy view",
-            "Role management"
+            "Users list with filters (role, status)",
+            "Create user modal/form",
+            "Edit user page",
+            "Role assignment dropdown",
+            "Password reset action",
+            "Deactivate/activate user"
           ],
-          "dependencies": ["PRD-035"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/users",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/users",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/users/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/users/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "DELETE /api/v1/users/:id",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-007"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-009",
+          "title": "Admin - Organization Management",
+          "module": "apps/admin",
+          "priority": "P1",
+          "completion_criteria": [
+            "Organizations list",
+            "Organization hierarchy tree view",
+            "Create organization form",
+            "Edit organization page",
+            "Assign users to organization"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/organizations",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/organizations",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/organizations/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/organizations/:id/hierarchy",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/organizations/:id",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-008"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-010",
+          "title": "Admin - Master Catalog",
+          "module": "apps/admin",
+          "priority": "P1",
+          "completion_criteria": [
+            "Products list with search, filters, pagination",
+            "Product detail view",
+            "Create/edit product form",
+            "Bulk import via JSON upload",
+            "Status management (active/discontinued/archived)"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/master-catalog/products",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/master-catalog/products",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/master-catalog/products/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/master-catalog/products/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/master-catalog/import",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-007"
+          ],
           "max_iterations": 12,
           "status": "pending"
         },
         {
-          "id": "PRD-037",
+          "id": "FE-011",
           "title": "Admin - Audit Log Viewer",
           "module": "apps/admin",
-          "priority": "P1",
+          "priority": "P2",
           "completion_criteria": [
-            "Audit log list with filters",
-            "JSON diff viewer",
-            "Export to CSV"
+            "Audit log list with filters (user, action, entity, date)",
+            "Log detail view with JSON diff",
+            "Export to CSV",
+            "Pagination with date range"
           ],
-          "dependencies": ["PRD-036"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/audit",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-008"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
         {
-          "id": "PRD-038",
+          "id": "FE-012",
           "title": "Admin - Dashboard",
           "module": "apps/admin",
           "priority": "P2",
           "completion_criteria": [
-            "KPI cards",
-            "Charts with Recharts",
-            "Recent activity feed"
+            "KPI cards (users, contracts, quotes)",
+            "Charts with Recharts (trends)",
+            "Recent activity feed",
+            "Quick action buttons"
           ],
-          "dependencies": ["PRD-036"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/dashboard/kpis",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-008"
+          ],
           "max_iterations": 10,
           "status": "pending"
         }
       ]
     },
     {
-      "id": "phase-8",
+      "id": "phase-3",
       "name": "Customer Portal",
       "weight": "40% Lisa / 60% Ralph",
       "items": [
         {
-          "id": "PRD-039",
+          "id": "FE-013",
           "title": "Portal - Dashboard",
           "module": "apps/portal",
           "priority": "P1",
           "completion_criteria": [
-            "Personalized dashboard",
-            "KPI cards",
-            "Quick actions",
-            "Notification bell"
+            "Personalized welcome message",
+            "KPI cards (my quotes, contracts, pending approvals)",
+            "Quick actions (new quote, view contracts)",
+            "Notification bell with dropdown",
+            "Recent activity"
           ],
-          "dependencies": ["PRD-034"],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/dashboard/kpis",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/notifications",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-006"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
         {
-          "id": "PRD-040",
-          "title": "Portal - Contracts",
+          "id": "FE-014",
+          "title": "Portal - Contracts List & Detail",
           "module": "apps/portal",
           "priority": "P1",
           "completion_criteria": [
-            "Contract list with filters",
-            "Contract detail with timeline",
-            "Version diff view",
-            "Submit for review action"
+            "Contracts list with filters (status, date)",
+            "Contract detail page with timeline",
+            "Version history with diff view",
+            "Download contract as PDF placeholder",
+            "Status badge display"
           ],
-          "dependencies": ["PRD-039"],
-          "max_iterations": 12,
-          "status": "pending"
-        },
-        {
-          "id": "PRD-041",
-          "title": "Portal - Quote Builder",
-          "module": "apps/portal",
-          "priority": "P1",
-          "completion_criteria": [
-            "Quote wizard",
-            "Product selector",
-            "Line item editor",
-            "Real-time pricing",
-            "Submit for approval"
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/contracts",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/contracts/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/contracts/:id/versions",
+              "status": "available"
+            }
           ],
-          "dependencies": ["PRD-039"],
-          "max_iterations": 14,
-          "status": "pending"
-        },
-        {
-          "id": "PRD-042",
-          "title": "Portal - Approvals",
-          "module": "apps/portal",
-          "priority": "P1",
-          "completion_criteria": [
-            "Approval inbox",
-            "Approve/reject with comments",
-            "Delegation"
+          "dependencies": [
+            "FE-013"
           ],
-          "dependencies": ["PRD-040", "PRD-041"],
           "max_iterations": 10,
           "status": "pending"
         },
         {
-          "id": "PRD-043",
-          "title": "Portal - Files & Notifications",
+          "id": "FE-015",
+          "title": "Portal - Contract Workflow",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Create contract form",
+            "Submit for review button",
+            "Workflow action buttons (based on status)",
+            "Approve/reject with comments modal",
+            "Status transition confirmations"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "POST /api/v1/contracts",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/contracts/:id/submit",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/contracts/:id/approve",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/contracts/:id/reject",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/contracts/:id/activate",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-014"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-016",
+          "title": "Portal - Quote Builder",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Quote wizard (multi-step form)",
+            "Product selector with search",
+            "Line item editor (quantity, price override)",
+            "Real-time total calculation",
+            "Save as draft",
+            "Submit for approval"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/catalog/products",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/quotes",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/quotes/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/quotes/:id/submit",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-013"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        },
+        {
+          "id": "FE-017",
+          "title": "Portal - Quotes List & Detail",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Quotes list with filters (status, date)",
+            "Quote detail page with line items",
+            "Quote status timeline",
+            "Convert to contract action",
+            "Clone quote action"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/quotes",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/quotes/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/quotes/:id/convert",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-016"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-018",
+          "title": "Portal - Approvals Inbox",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Pending approvals list",
+            "Approval detail view",
+            "Approve/reject with comments",
+            "Delegation to another user",
+            "Approval history"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/approvals/pending",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/approvals/:id",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/approvals/:id/steps/:stepId/approve",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/approvals/:id/steps/:stepId/reject",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/approvals/:id/steps/:stepId/delegate",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-014",
+            "FE-017"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-019",
+          "title": "Portal - Files & Attachments",
           "module": "apps/portal",
           "priority": "P2",
           "completion_criteria": [
-            "File upload/download",
-            "Notification dropdown",
-            "Preferences page"
+            "File upload component with drag-drop",
+            "File list on contracts/quotes",
+            "Download via signed URL",
+            "File type icons",
+            "Delete file confirmation"
           ],
-          "dependencies": ["PRD-039"],
+          "api_dependencies": [
+            {
+              "endpoint": "POST /api/v1/files/upload",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/files/:id/download",
+              "status": "available"
+            },
+            {
+              "endpoint": "DELETE /api/v1/files/:id",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-013"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "FE-020",
+          "title": "Portal - Notifications & Preferences",
+          "module": "apps/portal",
+          "priority": "P2",
+          "completion_criteria": [
+            "Notifications dropdown with badge",
+            "Mark as read/unread",
+            "Mark all as read",
+            "Notification preferences page",
+            "Email notification toggles"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/notifications",
+              "status": "available"
+            },
+            {
+              "endpoint": "PATCH /api/v1/notifications/:id/read",
+              "status": "available"
+            },
+            {
+              "endpoint": "POST /api/v1/notifications/mark-all-read",
+              "status": "available"
+            }
+          ],
+          "dependencies": [
+            "FE-013"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Shopping & Orders",
+      "weight": "40% Lisa / 60% Ralph",
+      "items": [
+        {
+          "id": "FE-021",
+          "title": "Portal - Product Catalog Browser",
+          "module": "apps/portal",
+          "priority": "P0",
+          "completion_criteria": [
+            "Product grid/list view with toggle",
+            "Category navigation sidebar",
+            "Search with autocomplete",
+            "Filters (price range, category, availability)",
+            "Product quick view modal",
+            "Product detail page with images",
+            "Stock availability indicator",
+            "User's discount price displayed"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/catalog/products",
+              "status": "available"
+            },
+            {
+              "endpoint": "GET /api/v1/catalog/categories",
+              "status": "needed",
+              "notes": "Need categories endpoint"
+            },
+            {
+              "endpoint": "GET /api/v1/catalog/products/:id",
+              "status": "needed",
+              "notes": "Need single product detail"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me/discount-tier",
+              "status": "needed",
+              "notes": "Need user's discount tier"
+            }
+          ],
+          "dependencies": [
+            "FE-013"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "FE-022",
+          "title": "Portal - Shopping Cart",
+          "module": "apps/portal",
+          "priority": "P0",
+          "completion_criteria": [
+            "Add to cart from product pages",
+            "Cart icon with item count badge",
+            "Cart drawer/sidebar",
+            "Update quantity in cart",
+            "Remove items from cart",
+            "Cart persistence (localStorage + API sync)",
+            "Real-time subtotal calculation",
+            "Discount applied preview",
+            "Proceed to checkout button"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/cart",
+              "status": "needed",
+              "notes": "Get user's cart"
+            },
+            {
+              "endpoint": "POST /api/v1/cart/items",
+              "status": "needed",
+              "notes": "Add item to cart"
+            },
+            {
+              "endpoint": "PATCH /api/v1/cart/items/:id",
+              "status": "needed",
+              "notes": "Update cart item quantity"
+            },
+            {
+              "endpoint": "DELETE /api/v1/cart/items/:id",
+              "status": "needed",
+              "notes": "Remove item from cart"
+            },
+            {
+              "endpoint": "DELETE /api/v1/cart",
+              "status": "needed",
+              "notes": "Clear cart"
+            }
+          ],
+          "dependencies": [
+            "FE-021"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-023",
+          "title": "Portal - Checkout Flow",
+          "module": "apps/portal",
+          "priority": "P0",
+          "completion_criteria": [
+            "Multi-step checkout wizard",
+            "Delivery address selection/entry",
+            "Delivery method selection",
+            "Order summary with line items",
+            "Discount breakdown display",
+            "Payment method selection",
+            "Order notes/special instructions",
+            "Terms acceptance checkbox",
+            "Place order confirmation"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/users/me/addresses",
+              "status": "needed",
+              "notes": "User's saved addresses"
+            },
+            {
+              "endpoint": "POST /api/v1/users/me/addresses",
+              "status": "needed",
+              "notes": "Add new address"
+            },
+            {
+              "endpoint": "GET /api/v1/delivery-methods",
+              "status": "needed",
+              "notes": "Available delivery options"
+            },
+            {
+              "endpoint": "POST /api/v1/orders",
+              "status": "needed",
+              "notes": "Create order from cart"
+            },
+            {
+              "endpoint": "GET /api/v1/orders/:id",
+              "status": "needed",
+              "notes": "Get order details"
+            }
+          ],
+          "dependencies": [
+            "FE-022"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        },
+        {
+          "id": "FE-024",
+          "title": "Portal - Payment Methods",
+          "module": "apps/portal",
+          "priority": "P0",
+          "completion_criteria": [
+            "Payment method selection UI",
+            "Salary deduction option (employees only)",
+            "Salary deduction limit display",
+            "Salary deduction balance/remaining",
+            "Credit card payment option",
+            "Invoice/PO payment option (partners)",
+            "Payment confirmation screen",
+            "Payment history link"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/payment-methods",
+              "status": "needed",
+              "notes": "Available payment methods for user type"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me/salary-deduction",
+              "status": "needed",
+              "notes": "Employee's salary deduction status/limit"
+            },
+            {
+              "endpoint": "POST /api/v1/orders/:id/pay",
+              "status": "needed",
+              "notes": "Process payment for order"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me/payment-history",
+              "status": "needed",
+              "notes": "User's payment history"
+            }
+          ],
+          "dependencies": [
+            "FE-023"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "FE-025",
+          "title": "Portal - Order Tracking",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Order status timeline/stepper",
+            "Real-time status updates",
+            "Estimated delivery date",
+            "Tracking number with carrier link",
+            "Delivery address display",
+            "Order items summary",
+            "Contact support button",
+            "Cancel order option (if applicable)"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/orders/:id",
+              "status": "needed",
+              "notes": "Order details with status"
+            },
+            {
+              "endpoint": "GET /api/v1/orders/:id/tracking",
+              "status": "needed",
+              "notes": "Tracking information"
+            },
+            {
+              "endpoint": "POST /api/v1/orders/:id/cancel",
+              "status": "needed",
+              "notes": "Cancel order"
+            }
+          ],
+          "dependencies": [
+            "FE-023"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-026",
+          "title": "Portal - Order History",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Orders list with filters (status, date range)",
+            "Order status badges",
+            "Order detail expandable row",
+            "Reorder button (add items to cart)",
+            "Download invoice/receipt",
+            "Pagination and search",
+            "Export orders to CSV"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/orders",
+              "status": "needed",
+              "notes": "List user's orders"
+            },
+            {
+              "endpoint": "GET /api/v1/orders/:id/invoice",
+              "status": "needed",
+              "notes": "Download invoice PDF"
+            },
+            {
+              "endpoint": "POST /api/v1/orders/:id/reorder",
+              "status": "needed",
+              "notes": "Add order items to cart"
+            }
+          ],
+          "dependencies": [
+            "FE-025"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-027",
+          "title": "Portal - Salary Deduction Dashboard",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Monthly deduction limit display",
+            "Current month usage/remaining",
+            "Deduction history by month",
+            "Pending deductions list",
+            "Upcoming payroll deduction preview",
+            "Opt-in/opt-out toggle",
+            "Deduction limit request form"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/users/me/salary-deduction",
+              "status": "needed",
+              "notes": "Salary deduction details"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me/salary-deduction/history",
+              "status": "needed",
+              "notes": "Deduction history"
+            },
+            {
+              "endpoint": "PATCH /api/v1/users/me/salary-deduction",
+              "status": "needed",
+              "notes": "Update deduction preferences"
+            },
+            {
+              "endpoint": "POST /api/v1/users/me/salary-deduction/limit-request",
+              "status": "needed",
+              "notes": "Request limit increase"
+            }
+          ],
+          "dependencies": [
+            "FE-024"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Discounts & Partner Features",
+      "weight": "50% Lisa / 50% Ralph",
+      "items": [
+        {
+          "id": "FE-028",
+          "title": "Admin - Discount Tiers Management",
+          "module": "apps/admin",
+          "priority": "P1",
+          "completion_criteria": [
+            "Discount tiers list",
+            "Create/edit discount tier form",
+            "Tier levels (Bronze, Silver, Gold, Platinum)",
+            "Percentage discount per tier",
+            "Eligibility rules editor",
+            "Assign users/organizations to tiers",
+            "Tier validity period settings",
+            "Bulk tier assignment"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/admin/discount-tiers",
+              "status": "needed",
+              "notes": "List all discount tiers"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/discount-tiers",
+              "status": "needed",
+              "notes": "Create discount tier"
+            },
+            {
+              "endpoint": "PATCH /api/v1/admin/discount-tiers/:id",
+              "status": "needed",
+              "notes": "Update discount tier"
+            },
+            {
+              "endpoint": "DELETE /api/v1/admin/discount-tiers/:id",
+              "status": "needed",
+              "notes": "Delete discount tier"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/discount-tiers/:id/assign",
+              "status": "needed",
+              "notes": "Assign tier to users/orgs"
+            }
+          ],
+          "dependencies": [
+            "FE-008"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "FE-029",
+          "title": "Admin - Promotion & Coupon Management",
+          "module": "apps/admin",
+          "priority": "P2",
+          "completion_criteria": [
+            "Promotions list with status",
+            "Create promotion form",
+            "Promotion types (percentage, fixed, BOGO)",
+            "Promotion conditions (min order, specific products)",
+            "Coupon code generator",
+            "Coupon usage limits",
+            "Promotion scheduling (start/end dates)",
+            "Promotion analytics"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/admin/promotions",
+              "status": "needed",
+              "notes": "List promotions"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/promotions",
+              "status": "needed",
+              "notes": "Create promotion"
+            },
+            {
+              "endpoint": "PATCH /api/v1/admin/promotions/:id",
+              "status": "needed",
+              "notes": "Update promotion"
+            },
+            {
+              "endpoint": "GET /api/v1/admin/promotions/:id/analytics",
+              "status": "needed",
+              "notes": "Promotion usage stats"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/coupons/generate",
+              "status": "needed",
+              "notes": "Generate coupon codes"
+            }
+          ],
+          "dependencies": [
+            "FE-028"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "FE-030",
+          "title": "Admin - Order Management",
+          "module": "apps/admin",
+          "priority": "P1",
+          "completion_criteria": [
+            "All orders list with filters",
+            "Order detail view",
+            "Order status management",
+            "Manual order creation",
+            "Order notes/comments",
+            "Refund processing",
+            "Order export to CSV",
+            "Bulk status update"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/admin/orders",
+              "status": "needed",
+              "notes": "List all orders"
+            },
+            {
+              "endpoint": "GET /api/v1/admin/orders/:id",
+              "status": "needed",
+              "notes": "Order details"
+            },
+            {
+              "endpoint": "PATCH /api/v1/admin/orders/:id/status",
+              "status": "needed",
+              "notes": "Update order status"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/orders",
+              "status": "needed",
+              "notes": "Create order manually"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/orders/:id/refund",
+              "status": "needed",
+              "notes": "Process refund"
+            }
+          ],
+          "dependencies": [
+            "FE-012"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "FE-031",
+          "title": "Admin - Salary Deduction Management",
+          "module": "apps/admin",
+          "priority": "P1",
+          "completion_criteria": [
+            "Employee deduction limits list",
+            "Set/update deduction limits",
+            "Pending deductions approval",
+            "Monthly deduction report",
+            "Payroll export (CSV/Excel)",
+            "Deduction limit requests inbox",
+            "Bulk limit updates"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/admin/salary-deductions",
+              "status": "needed",
+              "notes": "List all employee deductions"
+            },
+            {
+              "endpoint": "PATCH /api/v1/admin/salary-deductions/:userId",
+              "status": "needed",
+              "notes": "Update employee limit"
+            },
+            {
+              "endpoint": "GET /api/v1/admin/salary-deductions/report",
+              "status": "needed",
+              "notes": "Monthly report"
+            },
+            {
+              "endpoint": "GET /api/v1/admin/salary-deductions/limit-requests",
+              "status": "needed",
+              "notes": "Pending limit requests"
+            },
+            {
+              "endpoint": "POST /api/v1/admin/salary-deductions/limit-requests/:id/approve",
+              "status": "needed",
+              "notes": "Approve limit request"
+            }
+          ],
+          "dependencies": [
+            "FE-008"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-032",
+          "title": "Portal - My Discounts & Savings",
+          "module": "apps/portal",
+          "priority": "P2",
+          "completion_criteria": [
+            "Current discount tier display",
+            "Tier benefits breakdown",
+            "Progress to next tier",
+            "Total savings this month/year",
+            "Available promotions list",
+            "Apply coupon code input",
+            "Savings history"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/users/me/discount-tier",
+              "status": "needed",
+              "notes": "User's discount tier"
+            },
+            {
+              "endpoint": "GET /api/v1/users/me/savings",
+              "status": "needed",
+              "notes": "Savings statistics"
+            },
+            {
+              "endpoint": "GET /api/v1/promotions/available",
+              "status": "needed",
+              "notes": "Available promotions for user"
+            },
+            {
+              "endpoint": "POST /api/v1/cart/apply-coupon",
+              "status": "needed",
+              "notes": "Apply coupon to cart"
+            }
+          ],
+          "dependencies": [
+            "FE-021"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "FE-033",
+          "title": "Portal - Partner Dashboard",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Partner-specific welcome",
+            "Partner tier and discount level",
+            "Orders placed (own org)",
+            "Commission earnings (if applicable)",
+            "Team members list",
+            "Quick order for team members",
+            "Partner resources/documents"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/partners/me",
+              "status": "needed",
+              "notes": "Partner profile"
+            },
+            {
+              "endpoint": "GET /api/v1/partners/me/commission",
+              "status": "needed",
+              "notes": "Commission details"
+            },
+            {
+              "endpoint": "GET /api/v1/partners/me/team",
+              "status": "needed",
+              "notes": "Team members"
+            },
+            {
+              "endpoint": "GET /api/v1/partners/me/resources",
+              "status": "needed",
+              "notes": "Partner resources"
+            }
+          ],
+          "dependencies": [
+            "FE-013"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "FE-034",
+          "title": "Portal - Partner Order on Behalf",
+          "module": "apps/portal",
+          "priority": "P1",
+          "completion_criteria": [
+            "Select team member dropdown",
+            "Order on behalf indicator",
+            "Apply team member's discount",
+            "Delivery to team member address",
+            "Notification to team member",
+            "Order attribution tracking"
+          ],
+          "api_dependencies": [
+            {
+              "endpoint": "GET /api/v1/partners/me/team",
+              "status": "needed",
+              "notes": "Team members list"
+            },
+            {
+              "endpoint": "POST /api/v1/orders/on-behalf",
+              "status": "needed",
+              "notes": "Create order on behalf"
+            },
+            {
+              "endpoint": "GET /api/v1/users/:id/addresses",
+              "status": "needed",
+              "notes": "Team member addresses"
+            }
+          ],
+          "dependencies": [
+            "FE-033",
+            "FE-023"
+          ],
           "max_iterations": 10,
           "status": "pending"
         }
@@ -257,8 +1290,40 @@
     }
   ],
   "metadata": {
-    "total_items": 15,
-    "estimated_iterations": 141,
-    "completion_promise_format": "<promise>COMPLETE:PRD-XXX</promise>"
+    "total_items": 34,
+    "estimated_iterations": 322,
+    "phases_summary": {
+      "phase-1": {
+        "items": 6,
+        "name": "Frontend Foundation"
+      },
+      "phase-2": {
+        "items": 6,
+        "name": "Admin Portal"
+      },
+      "phase-3": {
+        "items": 8,
+        "name": "Customer Portal"
+      },
+      "phase-4": {
+        "items": 7,
+        "name": "Shopping & Orders"
+      },
+      "phase-5": {
+        "items": 7,
+        "name": "Discounts & Partner Features"
+      }
+    },
+    "api_status": {
+      "available": "API exists in b2b-api",
+      "needed": "API needs to be built - creates API blocker"
+    },
+    "completion_promise_format": "<promise>COMPLETE:FE-XXX</promise>",
+    "naming_convention": {
+      "features": "FE-XXX",
+      "bugs": "BUG-XXX",
+      "enhancements": "ENH-XXX",
+      "api_blockers": "API-XXX"
+    }
   }
 }

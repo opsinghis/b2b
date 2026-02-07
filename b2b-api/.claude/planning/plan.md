@@ -269,6 +269,185 @@ const ability = defineAbility((can, cannot) => {
 
 ---
 
+## Master Catalog Architecture
+
+### Overview
+
+The Master Catalog is a platform-level product repository that:
+- Stores products centrally (no tenant duplication)
+- Provides tenant-specific pricing via TenantProductAccess
+- Supports discontinued products for existing partners
+- Integrates with quotes for automatic pricing
+
+### Schema
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    MASTER CATALOG                           │
+│  MasterProduct (platform-wide, no tenantId)                 │
+│  - SKU globally unique                                      │
+│  - List price (MSRP)                                        │
+│  - Status: ACTIVE / DISCONTINUED / ARCHIVED                 │
+└─────────────────────┬───────────────────────────────────────┘
+                      │ 1:N
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│              TENANT PRODUCT ACCESS                          │
+│  - Links tenant to master product                           │
+│  - agreedPrice (fixed price override)                       │
+│  - discountPercent (% off list price)                       │
+│  - Quantity limits (minOrderQty, maxOrderQty)               │
+│  - Validity period (validFrom, validUntil)                  │
+└─────────────────────┬───────────────────────────────────────┘
+                      │
+                      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  QUOTE LINE ITEMS                           │
+│  - References masterProductId                               │
+│  - Price from TenantProductAccess for that tenant           │
+│  - Falls back to listPrice if no agreed price               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Pricing Hierarchy
+
+```typescript
+function calculateEffectivePrice(
+  listPrice: number,
+  agreedPrice: number | null,
+  discountPercent: number | null,
+): number {
+  // 1. Agreed price takes precedence (fixed negotiated price)
+  if (agreedPrice !== null) return agreedPrice;
+
+  // 2. Discount percent applied to list price
+  if (discountPercent !== null) {
+    return listPrice * (1 - discountPercent / 100);
+  }
+
+  // 3. Fall back to list price
+  return listPrice;
+}
+```
+
+### Module Structure
+
+```
+src/business/master-catalog/
+├── master-catalog.module.ts
+├── master-catalog.service.ts
+├── master-catalog.controller.ts
+├── master-catalog-admin.controller.ts
+├── import.service.ts
+└── dto/
+    ├── create-master-product.dto.ts
+    ├── update-master-product.dto.ts
+    └── import.dto.ts
+
+src/business/tenant-catalog/
+├── tenant-catalog.module.ts
+├── tenant-catalog.service.ts
+├── tenant-catalog.controller.ts
+└── dto/
+    ├── tenant-product-response.dto.ts
+    ├── list-tenant-products.dto.ts
+    ├── grant-product-access.dto.ts
+    └── update-product-pricing.dto.ts
+```
+
+### API Endpoints
+
+**Master Catalog (Admin)**
+```
+GET    /api/v1/master-catalog/products        # List all products
+GET    /api/v1/master-catalog/products/:id    # Get by ID
+GET    /api/v1/master-catalog/products/sku/:sku  # Get by SKU
+POST   /api/v1/master-catalog/products        # Create
+PATCH  /api/v1/master-catalog/products/:id    # Update
+POST   /api/v1/master-catalog/products/:id/discontinue  # Mark discontinued
+POST   /api/v1/admin/master-catalog/import    # Bulk import (file upload)
+POST   /api/v1/admin/master-catalog/grant-tenant-access  # Bulk grant
+```
+
+**Tenant Catalog (Tenant-scoped)**
+```
+GET    /api/v1/catalog/products               # List tenant's accessible products
+GET    /api/v1/catalog/products/:id           # Get product with tenant pricing
+POST   /api/v1/catalog/products/:id/access    # Grant access (admin)
+PUT    /api/v1/catalog/products/:id/pricing   # Update pricing (admin)
+DELETE /api/v1/catalog/products/:id/access    # Revoke access (admin)
+```
+
+### Import Service
+
+```typescript
+// Batch import configuration
+const BATCH_SIZE = 500;
+
+// Import from JSON file
+async importProducts(
+  data: ImportProductDto[],
+  options: ImportOptionsDto,
+): Promise<ImportResultDto> {
+  // Process in batches with createMany
+  // skipDuplicates for idempotency
+  // Return statistics: created, skipped, failed
+}
+```
+
+### Seed Data Location
+
+Product catalog seed data is stored in `.claude/planning/data/`:
+
+```
+.claude/planning/data/
+├── README.md                 # Documentation
+└── cleaned_products.json     # 9,488 products (23MB)
+```
+
+The seed script (`prisma/seed.ts`) automatically imports this data during setup:
+
+```bash
+npm run prisma:seed
+```
+
+---
+
+## API Documentation
+
+### Swagger/OpenAPI Setup
+
+All API endpoints are documented and available at `/api/docs`:
+
+```typescript
+// main.ts
+const config = new DocumentBuilder()
+  .setTitle('B2B API')
+  .setDescription('B2B Operations Platform API')
+  .setVersion('1.0')
+  .addBearerAuth()
+  .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'tenant-id')
+  .build();
+
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api/docs', app, document);
+```
+
+### Accessing Documentation
+
+- **Swagger UI**: `http://localhost:3000/api/docs`
+- **OpenAPI JSON**: `http://localhost:3000/api/docs-json`
+- **OpenAPI YAML**: `http://localhost:3000/api/docs-yaml`
+
+### Export for Frontend Team
+
+```bash
+npm run openapi:export
+# Output: openapi.json
+```
+
+---
+
 ## Implementation Order (PRD Sequence)
 
 ```
@@ -301,7 +480,10 @@ Phase 3: Business Modules
 ├── PRD-019: Contracts - CRUD
 ├── PRD-020: Contracts - Workflow
 ├── PRD-021: Quotes module
-├── PRD-022: Catalog module
+├── PRD-022: Master Catalog - Schema & Module
+├── PRD-022a: Master Catalog - Admin Import
+├── PRD-022b: Tenant Catalog - Access & Pricing
+├── PRD-022c: Quote Integration - Master Catalog
 └── PRD-023: Approvals module
 
 Phase 4: Platform Modules

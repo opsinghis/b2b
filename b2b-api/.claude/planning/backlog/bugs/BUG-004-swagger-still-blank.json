@@ -1,0 +1,40 @@
+{
+  "id": "BUG-004",
+  "type": "bug",
+  "title": "Bug: Swagger page still shows blank/black after CSP fix",
+  "module": "core/app",
+  "priority": "P0",
+  "created": "2026-02-07",
+  "status": "completed",
+
+  "description": "After BUG-003 fix, /api/docs still shows blank/black page. CSP fix may not be sufficient or there's another issue.",
+
+  "steps_to_reproduce": [
+    "Start application with npm run start:dev",
+    "Navigate to http://localhost:3000/api/docs",
+    "Page is blank/black"
+  ],
+
+  "expected_behavior": "Swagger UI renders with API documentation",
+
+  "actual_behavior": "Blank/black page",
+
+  "testing": {
+    "regression": [
+      "GET /api/docs returns Swagger UI HTML",
+      "Swagger UI renders in browser",
+      "All existing tests pass"
+    ]
+  },
+
+  "affected_files_guess": [
+    "src/main.ts"
+  ],
+
+  "acceptance_criteria": [
+    "AC1: http://localhost:3000/api/docs displays Swagger UI correctly",
+    "AC2: All 433 unit tests pass"
+  ],
+
+  "max_iterations": 5
+}

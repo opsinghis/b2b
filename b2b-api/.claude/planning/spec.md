@@ -241,6 +241,53 @@
 - [ ] Delegation support (out of office)
 - [ ] Escalation on SLA breach
 
+### CATALOG-001: Master Catalog
+**As a** platform administrator
+**I want** a centralized product catalog
+**So that** products are managed once and shared across tenants
+
+**Acceptance Criteria**:
+- [ ] MasterProduct model with SKU, name, description, listPrice
+- [ ] MasterProductStatus: ACTIVE, DISCONTINUED, ARCHIVED
+- [ ] Global SKU uniqueness enforced
+- [ ] Admin-only CRUD endpoints for master products
+- [ ] JSON attributes and metadata fields
+- [ ] Bulk import via file upload (POST /admin/master-catalog/import)
+- [ ] Batch processing (500 products per transaction)
+- [ ] Import statistics returned (created, updated, failed counts)
+- [ ] Seed script to load initial product catalog
+
+### CATALOG-002: Tenant Product Access
+**As a** tenant administrator
+**I want** to control which products my organization can access
+**So that** we only see relevant products with negotiated pricing
+
+**Acceptance Criteria**:
+- [ ] TenantProductAccess links tenant to master products
+- [ ] Pricing options: agreedPrice (fixed) or discountPercent (% off list)
+- [ ] Pricing hierarchy: agreedPrice > discountPercent > listPrice
+- [ ] Quantity limits: minOrderQty, maxOrderQty
+- [ ] Validity period: validFrom, validUntil dates
+- [ ] isEnabled flag to temporarily disable access
+- [ ] GET /catalog/products returns only accessible products
+- [ ] GET /catalog/products/:id returns product with tenant pricing
+- [ ] Bulk access grant for multiple products
+- [ ] Discontinued products visible to existing partners
+
+### CATALOG-003: Quote-Catalog Integration
+**As a** sales representative
+**I want** to add products from catalog to quotes
+**So that** pricing is automatically calculated
+
+**Acceptance Criteria**:
+- [ ] CreateQuoteLineItemDto accepts masterProductId
+- [ ] Product name, SKU, description auto-populated from catalog
+- [ ] Unit price resolved from tenant's effective price
+- [ ] Validation: tenant must have access to product
+- [ ] Validation: product must not be ARCHIVED
+- [ ] Backward compatible: manual line items still supported
+- [ ] Quantities validated against min/max limits
+
 ---
 
 ## Phase 4: Platform Modules

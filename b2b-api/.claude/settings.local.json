@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/feature:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run generate:postman:*)",
+      "Bash(cat:*)",
+      "Bash(npm run lint:check:*)",
+      "Bash(npm run test:*)",
+      "Bash(npx eslint:*)",
+      "Bash(node:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(npm run test:integration:*)",
+      "Bash(ls:*)",
+      "Bash(pgrep:*)",
+      "Bash(jq:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run generate:postman:check:*)",
+      "Bash(/Users/omsingh0/code/b2b/b2b-web/.claude/ralph.sh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

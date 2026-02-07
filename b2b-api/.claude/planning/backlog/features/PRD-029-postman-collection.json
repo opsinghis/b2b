@@ -1,0 +1,148 @@
+{
+  "id": "PRD-029",
+  "type": "feature",
+  "title": "Feature: Postman Collection for API Testing",
+  "module": "platform/docs",
+  "priority": "P2",
+  "created": "2026-02-07",
+  "completed": "2026-02-07",
+  "status": "completed",
+
+  "description": "Generate a Postman collection that can be imported into Postman for testing all API endpoints. Should include authentication flow, environment variables, and pre-request scripts for automatic token handling.",
+
+  "requirements": [
+    "Generate postman_collection.json from OpenAPI/Swagger spec",
+    "Include all API endpoints organized by tags (Auth, Quotes, Contracts, Catalog, etc.)",
+    "Create postman_environment.json with variables: baseUrl, tenantId, accessToken, refreshToken",
+    "Add pre-request script for automatic token refresh when expired",
+    "Auth folder with Login request that auto-sets accessToken variable",
+    "All protected endpoints use {{accessToken}} and {{tenantId}} variables",
+    "Include example request bodies for POST/PUT/PATCH endpoints",
+    "Add npm script: npm run generate:postman",
+    "Output files to /docs/postman/ directory",
+    "Add instructions to README.md for importing into Postman"
+  ],
+
+  "testing": {
+    "unit": [
+      "Postman collection JSON is valid",
+      "All endpoints from Swagger are included",
+      "Environment variables are correctly referenced"
+    ],
+    "integration": [
+      "Collection can be imported into Postman without errors",
+      "Login request works and sets token variable",
+      "Protected endpoints work with token variable"
+    ],
+    "e2e": [],
+    "performance": [],
+    "security": []
+  },
+
+  "acceptance_criteria": [
+    "AC1: npm run generate:postman creates valid postman_collection.json",
+    "AC2: Collection imports into Postman without errors",
+    "AC3: Login request auto-sets accessToken variable",
+    "AC4: All protected endpoints include Authorization header with {{accessToken}}",
+    "AC5: All tenant-scoped endpoints include x-tenant-id header with {{tenantId}}",
+    "AC6: Environment file includes baseUrl=http://localhost:3000, tenantId=default",
+    "AC7: No duplicate x-tenant-id headers (apiKey auth blocks removed)",
+    "AC8: All paths include /api/v1 prefix",
+    "AC9: Login credentials match seeded admin user (admin@b2b.local)"
+  ],
+
+  "out_of_scope": [
+    "Postman Newman CLI runner integration",
+    "Automated Postman test scripts",
+    "CI/CD integration with Postman"
+  ],
+
+  "technical_notes": {
+    "approach": "Use openapi-to-postmanv2 npm package with post-processing",
+    "files_to_create": [
+      "scripts/generate-postman.ts",
+      "docs/postman/b2b-api.postman_collection.json",
+      "docs/postman/b2b-api.postman_environment.json"
+    ],
+    "post_processing": "Add pre-request scripts and variable references after generation"
+  },
+
+  "critical_implementation_details": {
+    "api_prefix": {
+      "issue": "NestJS uses global prefix 'api' and versioning 'v1', but OpenAPI spec doesn't include these in paths",
+      "solution": "Post-process all request paths to prepend ['api', 'v1'] if not already present",
+      "code_location": "scripts/generate-postman.ts - processRequest() function"
+    },
+    "apikey_auth_removal": {
+      "issue": "OpenAPI security scheme for x-tenant-id creates duplicate auth blocks with {{apiKey}} variable",
+      "solution": "Remove request.auth blocks where type === 'apikey' (we handle x-tenant-id via headers instead)",
+      "code_location": "scripts/generate-postman.ts - processRequest() function"
+    },
+    "duplicate_tenant_headers": {
+      "issue": "OpenAPI converter creates x-tenant-id headers with {{apiKey}} value from security scheme",
+      "solution": "Filter out any x-tenant-id headers with {{apiKey}} value before adding proper {{tenantId}} header",
+      "code_location": "scripts/generate-postman.ts - processRequest() function"
+    },
+    "seeded_credentials": {
+      "issue": "Default example credentials don't match seeded admin user",
+      "solution": "Use admin@b2b.local / Admin123! which matches prisma/seed.ts",
+      "seed_location": "prisma/seed.ts lines 50-67"
+    },
+    "auth_endpoint_detection": {
+      "issue": "Login/register endpoints shouldn't have Authorization header",
+      "solution": "Detect auth endpoints by URL path and skip adding Authorization header",
+      "code_location": "scripts/generate-postman.ts - processRequest() function"
+    }
+  },
+
+  "implementation_summary": {
+    "files_created": [
+      "scripts/generate-postman.ts",
+      "docs/postman/b2b-api.postman_collection.json (691KB, 17 folders)",
+      "docs/postman/b2b-api.postman_environment.json (5 variables)"
+    ],
+    "files_modified": [
+      "package.json (added generate:postman script with tsconfig-paths)",
+      "README.md (added Postman section)",
+      ".eslintignore (added scripts directory)"
+    ],
+    "features": [
+      "Collection-level pre-request script for automatic token refresh",
+      "Login test script saves accessToken, refreshToken, tokenExpiry to environment",
+      "All protected endpoints use {{accessToken}} and {{tenantId}} variables",
+      "Auth endpoints (login/register) do not include Authorization header",
+      "All paths correctly prefixed with /api/v1",
+      "No duplicate headers or conflicting auth blocks"
+    ]
+  },
+
+  "known_issues_resolved": [
+    {
+      "issue": "404 on /auth/login",
+      "cause": "Missing /api/v1 prefix",
+      "fix": "Added path prefix logic in processRequest()"
+    },
+    {
+      "issue": "401 Invalid credentials",
+      "cause": "Example credentials didn't match seeded user",
+      "fix": "Changed to admin@b2b.local / Admin123!"
+    },
+    {
+      "issue": "401 Invalid or inactive tenant",
+      "cause": "Duplicate x-tenant-id header with {{apiKey}} value overriding {{tenantId}}",
+      "fix": "Remove apiKey auth blocks and filter {{apiKey}} headers"
+    }
+  ],
+
+  "verification_checklist": [
+    "Run: npm run generate:postman",
+    "Verify: grep -c 'apiKey' docs/postman/b2b-api.postman_collection.json returns 0",
+    "Verify: Login path includes /api/v1/auth/login",
+    "Verify: Login body has admin@b2b.local credentials",
+    "Import into Postman and test login endpoint",
+    "Test a protected endpoint (e.g., /api/v1/master-catalog/products)"
+  ],
+
+  "dependencies": [],
+  "max_iterations": 6
+}

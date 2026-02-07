@@ -1,0 +1,177 @@
+{
+  "id": "API-004",
+  "type": "api-blocker",
+  "title": "API Blocker: Discount Tiers & Promotions Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-021", "FE-028", "FE-029", "FE-032"],
+  "description": "Discount tiers for employees/partners and promotional system",
+  "required_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/discount-tier",
+      "description": "Get current user's discount tier and benefits",
+      "response": {
+        "tierId": "uuid",
+        "tierName": "string",
+        "tierLevel": "number",
+        "discountPercent": "number",
+        "validUntil": "date?",
+        "nextTier": "object?"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/savings",
+      "description": "Get user's savings statistics",
+      "response": {
+        "thisMonth": "decimal",
+        "thisYear": "decimal",
+        "allTime": "decimal",
+        "orderCount": "number"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/promotions/available",
+      "description": "Get promotions available to current user",
+      "response": "List of applicable promotions"
+    }
+  ],
+  "admin_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/discount-tiers",
+      "description": "List all discount tiers"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/discount-tiers",
+      "description": "Create discount tier",
+      "request_body": {
+        "name": "string",
+        "level": "number",
+        "discountPercent": "number",
+        "eligibilityRules": "object",
+        "validFrom": "date?",
+        "validUntil": "date?"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/discount-tiers/:id",
+      "description": "Update discount tier"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/discount-tiers/:id",
+      "description": "Delete discount tier (soft delete)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/discount-tiers/:id/assign",
+      "description": "Assign tier to users or organizations",
+      "request_body": {
+        "userIds": "string[]?",
+        "organizationIds": "string[]?",
+        "validUntil": "date?"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/promotions",
+      "description": "List all promotions"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/promotions",
+      "description": "Create promotion",
+      "request_body": {
+        "name": "string",
+        "type": "enum: percentage, fixed, bogo",
+        "value": "number",
+        "conditions": "object",
+        "startDate": "datetime",
+        "endDate": "datetime",
+        "usageLimit": "number?",
+        "perUserLimit": "number?"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/promotions/:id",
+      "description": "Update promotion"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/promotions/:id/analytics",
+      "description": "Get promotion usage analytics"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/coupons/generate",
+      "description": "Generate coupon codes for a promotion",
+      "request_body": {
+        "promotionId": "string",
+        "count": "number",
+        "prefix": "string?"
+      }
+    }
+  ],
+  "data_model": {
+    "DiscountTier": {
+      "id": "uuid",
+      "tenantId": "uuid",
+      "name": "string",
+      "level": "integer",
+      "discountPercent": "decimal",
+      "eligibilityRules": "jsonb",
+      "isActive": "boolean",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "UserDiscountTier": {
+      "id": "uuid",
+      "userId": "uuid",
+      "discountTierId": "uuid",
+      "assignedBy": "uuid",
+      "validFrom": "datetime",
+      "validUntil": "datetime?",
+      "createdAt": "datetime"
+    },
+    "Promotion": {
+      "id": "uuid",
+      "tenantId": "uuid",
+      "name": "string",
+      "description": "string?",
+      "type": "enum: percentage, fixed, bogo",
+      "value": "decimal",
+      "conditions": "jsonb",
+      "startDate": "datetime",
+      "endDate": "datetime",
+      "usageLimit": "integer?",
+      "usageCount": "integer",
+      "perUserLimit": "integer?",
+      "isActive": "boolean",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "Coupon": {
+      "id": "uuid",
+      "promotionId": "uuid",
+      "code": "string (unique)",
+      "usageLimit": "integer",
+      "usageCount": "integer",
+      "isActive": "boolean",
+      "createdAt": "datetime"
+    }
+  },
+  "tier_examples": [
+    {"name": "Bronze", "level": 1, "discountPercent": 5},
+    {"name": "Silver", "level": 2, "discountPercent": 10},
+    {"name": "Gold", "level": 3, "discountPercent": 15},
+    {"name": "Platinum", "level": 4, "discountPercent": 20}
+  ],
+  "priority": "P1",
+  "notes": "Discount tiers can be assigned to users or entire organizations"
+}

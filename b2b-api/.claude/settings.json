@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Write(.claude/planning/backlog/**/*)",
+      "Write(.claude/execution/**/*)",
+      "Edit(.claude/CONTEXT.md)",
+      "Edit(.claude/planning/backlog/**/*)",
+      "Edit(.claude/execution/**/*)"
+    ]
+  }
+}

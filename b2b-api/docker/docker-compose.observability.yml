@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # Prometheus Metrics
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: b2b-prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheusdata:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:9090/-/healthy']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - b2b-network
+
+  # Grafana Dashboards
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: b2b-grafana
+    ports:
+      - '3001:3000'
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - b2b-network
+
+  # Jaeger Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: b2b-jaeger
+    ports:
+      - '16686:16686'  # UI
+      - '6831:6831/udp'  # UDP Thrift
+      - '14268:14268'  # HTTP Thrift
+      - '14250:14250'  # gRPC
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:16686/']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - b2b-network
+
+volumes:
+  prometheusdata:
+  grafanadata:
+
+networks:
+  b2b-network:
+    external: true
+    name: b2b-api_b2b-network

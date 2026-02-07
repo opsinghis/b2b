@@ -1,0 +1,1421 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Core Models
+// ============================================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  config    Json     @default("{}")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  users         User[]
+  organizations Organization[]
+  auditLogs     AuditLog[]
+  contracts     Contract[]
+  quotes        Quote[]
+  approvals     Approval[]
+  approvalChains ApprovalChain[]
+  approvalRequests ApprovalRequest[]
+  notifications Notification[]
+  masterProductAccess TenantProductAccess[]
+  files         File[]
+  carts         Cart[]
+  orders        Order[]
+  paymentMethods PaymentMethod[]
+  deliveryMethods DeliveryMethod[]
+  userAddresses UserAddress[]
+  payments      Payment[]
+  salaryDeductions SalaryDeduction[]
+  salaryDeductionLimitRequests SalaryDeductionLimitRequest[]
+  discountTiers DiscountTier[]
+  userDiscountTiers UserDiscountTier[]
+  promotions    Promotion[]
+  coupons       Coupon[]
+  promotionUsages PromotionUsage[]
+  partners      Partner[]
+  partnerTeamMembers PartnerTeamMember[]
+  partnerCommissions PartnerCommission[]
+  partnerResources PartnerResource[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("tenants")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         UserRole @default(USER)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  // Foreign Keys
+  tenantId       String
+  organizationId String?
+
+  // Relations
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  auditLogs    AuditLog[]
+  refreshTokens RefreshToken[]
+  contractsCreated  Contract[]  @relation("ContractCreatedBy")
+  contractsApproved Contract[]  @relation("ContractApprovedBy")
+  quotesCreated     Quote[]     @relation("QuoteCreatedBy")
+  quotesApproved    Quote[]     @relation("QuoteApprovedBy")
+  approvalActions   Approval[]
+  notifications     Notification[]
+  filesUploaded     File[]
+  carts             Cart[]
+  orders            Order[]     @relation("OrderUser")
+  ordersCancelled   Order[]     @relation("OrderCancelledBy")
+  ordersRefunded    Order[]     @relation("OrderRefundedBy")
+  addresses         UserAddress[]
+  payments          Payment[]
+  salaryDeduction   SalaryDeduction?
+  salaryLimitRequests SalaryDeductionLimitRequest[] @relation("SalaryLimitRequestUser")
+  salaryLimitReviews  SalaryDeductionLimitRequest[] @relation("SalaryLimitRequestReviewer")
+  discountTier      UserDiscountTier?
+  tiersAssigned     UserDiscountTier[] @relation("TierAssignedBy")
+  couponsAssigned   Coupon[] @relation("CouponAssignedTo")
+  promotionUsages   PromotionUsage[]
+  partner           Partner?
+  partnerTeamMemberships PartnerTeamMember[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
+  @@index([organizationId])
+  @@index([email])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  // Foreign Keys
+  userId String
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  code        String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Hierarchy
+  parentId String?
+
+  // Foreign Keys
+  tenantId String
+
+  // Relations
+  tenant   Tenant        @relation(fields: [tenantId], references: [id])
+  parent   Organization? @relation("OrganizationHierarchy", fields: [parentId], references: [id])
+  children Organization[] @relation("OrganizationHierarchy")
+  users    User[]
+  contracts Contract[]
+  partners Partner[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([parentId])
+  @@map("organizations")
+}
+
+// ============================================
+// Business Models
+// ============================================
+
+model Contract {
+  id              String         @id @default(cuid())
+  contractNumber  String
+  title           String
+  description     String?
+  status          ContractStatus @default(DRAFT)
+  version         Int            @default(1)
+  effectiveDate   DateTime?
+  expirationDate  DateTime?
+  totalValue      Decimal?       @db.Decimal(15, 2)
+  currency        String         @default("USD")
+  terms           Json           @default("{}")
+  metadata        Json           @default("{}")
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  deletedAt       DateTime?
+
+  // Foreign Keys
+  tenantId       String
+  organizationId String?
+  createdById    String
+  approvedById   String?
+
+  // Relations
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  createdBy    User          @relation("ContractCreatedBy", fields: [createdById], references: [id])
+  approvedBy   User?         @relation("ContractApprovedBy", fields: [approvedById], references: [id])
+  versions     ContractVersion[]
+  quotes       Quote[]
+  approvals    Approval[]
+
+  @@unique([tenantId, contractNumber])
+  @@index([tenantId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([createdById])
+  @@map("contracts")
+}
+
+model ContractVersion {
+  id         String   @id @default(cuid())
+  version    Int
+  changes    Json
+  snapshot   Json
+  createdAt  DateTime @default(now())
+
+  // Foreign Keys
+  contractId String
+
+  // Relations
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, version])
+  @@index([contractId])
+  @@map("contract_versions")
+}
+
+model Quote {
+  id           String      @id @default(cuid())
+  quoteNumber  String
+  title        String
+  description  String?
+  status       QuoteStatus @default(DRAFT)
+  validUntil   DateTime?
+  subtotal     Decimal     @db.Decimal(15, 2)
+  discount     Decimal     @default(0) @db.Decimal(15, 2)
+  tax          Decimal     @default(0) @db.Decimal(15, 2)
+  total        Decimal     @db.Decimal(15, 2)
+  currency     String      @default("USD")
+  notes        String?
+  metadata     Json        @default("{}")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  deletedAt    DateTime?
+
+  // Foreign Keys
+  tenantId     String
+  contractId   String?
+  createdById  String
+  approvedById String?
+
+  // Relations
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  contract   Contract?  @relation(fields: [contractId], references: [id])
+  createdBy  User       @relation("QuoteCreatedBy", fields: [createdById], references: [id])
+  approvedBy User?      @relation("QuoteApprovedBy", fields: [approvedById], references: [id])
+  lineItems  QuoteLineItem[]
+  approvals  Approval[]
+
+  @@unique([tenantId, quoteNumber])
+  @@index([tenantId])
+  @@index([contractId])
+  @@index([status])
+  @@index([createdById])
+  @@map("quotes")
+}
+
+model QuoteLineItem {
+  id          String  @id @default(cuid())
+  lineNumber  Int
+  productName String
+  productSku  String?
+  description String?
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(15, 2)
+  discount    Decimal @default(0) @db.Decimal(15, 2)
+  total       Decimal @db.Decimal(15, 2)
+
+  // Foreign Keys
+  quoteId          String
+  masterProductId  String?
+
+  // Relations
+  quote         Quote          @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  masterProduct MasterProduct? @relation(fields: [masterProductId], references: [id])
+
+  @@unique([quoteId, lineNumber])
+  @@index([quoteId])
+  @@index([masterProductId])
+  @@map("quote_line_items")
+}
+
+// ============================================
+// Master Catalog Models
+// ============================================
+
+model Category {
+  id              String     @id @default(cuid())
+  name            String
+  slug            String     @unique
+  description     String?
+  imageUrl        String?
+  isActive        Boolean    @default(true)
+  sortOrder       Int        @default(0)
+  metadata        Json       @default("{}")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Hierarchy
+  parentId        String?
+
+  // Relations
+  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children        Category[] @relation("CategoryHierarchy")
+  products        MasterProduct[]
+
+  @@index([parentId])
+  @@index([slug])
+  @@index([isActive])
+  @@map("categories")
+}
+
+model MasterProduct {
+  id              String              @id @default(cuid())
+  sku             String              @unique
+  name            String
+  description     String?
+  category        String?
+  subcategory     String?
+  brand           String?
+  manufacturer    String?
+  uom             String              @default("EA")
+  listPrice       Decimal             @db.Decimal(15, 2)
+  currency        String              @default("USD")
+  status          MasterProductStatus @default(ACTIVE)
+  availability    ProductAvailability @default(IN_STOCK)
+  primaryImage    String?
+  images          Json                @default("[]")
+  attributes      Json                @default("{}")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Foreign Keys
+  categoryId      String?
+
+  // Relations
+  categoryEntity  Category?           @relation(fields: [categoryId], references: [id])
+  tenantAccess    TenantProductAccess[]
+  quoteLineItems  QuoteLineItem[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+
+  @@index([sku])
+  @@index([category])
+  @@index([categoryId])
+  @@index([status])
+  @@index([availability])
+  @@map("master_products")
+}
+
+model TenantProductAccess {
+  id              String    @id @default(cuid())
+  isActive        Boolean   @default(true)
+  agreedPrice     Decimal?  @db.Decimal(15, 2)
+  discountPercent Decimal?  @db.Decimal(5, 2)
+  minQuantity     Int?
+  maxQuantity     Int?
+  validFrom       DateTime?
+  validUntil      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  masterProductId String
+
+  // Relations
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  masterProduct MasterProduct @relation(fields: [masterProductId], references: [id])
+
+  @@unique([tenantId, masterProductId])
+  @@index([tenantId])
+  @@index([masterProductId])
+  @@map("tenant_product_access")
+}
+
+// ============================================
+// Approval & Workflow Models
+// ============================================
+
+model ApprovalChain {
+  id           String                @id @default(cuid())
+  name         String
+  description  String?
+  entityType   ApprovalEntity
+  isActive     Boolean               @default(true)
+  isDefault    Boolean               @default(false)
+  conditions   Json                  @default("{}")
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  // Foreign Keys
+  tenantId String
+
+  // Relations
+  tenant Tenant              @relation(fields: [tenantId], references: [id])
+  levels ApprovalChainLevel[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([entityType])
+  @@index([isActive])
+  @@map("approval_chains")
+}
+
+model ApprovalChainLevel {
+  id             String         @id @default(cuid())
+  level          Int
+  name           String
+  approverType   ApproverType
+  minApprovers   Int            @default(1)
+  allowDelegation Boolean       @default(false)
+  thresholdMin   Decimal?       @db.Decimal(15, 2)
+  thresholdMax   Decimal?       @db.Decimal(15, 2)
+  timeoutHours   Int?
+  escalationLevel Int?
+
+  // Foreign Keys
+  chainId       String
+  approverUserId String?
+  approverRoleId String?
+
+  // Relations
+  chain ApprovalChain @relation(fields: [chainId], references: [id], onDelete: Cascade)
+
+  @@unique([chainId, level])
+  @@index([chainId])
+  @@map("approval_chain_levels")
+}
+
+model ApprovalRequest {
+  id           String               @id @default(cuid())
+  entityType   ApprovalEntity
+  entityId     String
+  status       ApprovalRequestStatus @default(PENDING)
+  currentLevel Int                  @default(1)
+  metadata     Json                 @default("{}")
+  requestedAt  DateTime             @default(now())
+  completedAt  DateTime?
+  expiresAt    DateTime?
+
+  // Foreign Keys
+  tenantId    String
+  chainId     String
+  requesterId String
+
+  // Relations
+  tenant    Tenant                   @relation(fields: [tenantId], references: [id])
+  steps     ApprovalStep[]
+
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([chainId])
+  @@index([status])
+  @@map("approval_requests")
+}
+
+model ApprovalStep {
+  id           String         @id @default(cuid())
+  level        Int
+  action       ApprovalAction
+  status       ApprovalStatus @default(PENDING)
+  comments     String?
+  delegatedFrom String?
+  requestedAt  DateTime       @default(now())
+  respondedAt  DateTime?
+
+  // Foreign Keys
+  requestId  String
+  approverId String
+
+  // Relations
+  request ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@index([approverId])
+  @@index([status])
+  @@map("approval_steps")
+}
+
+model Approval {
+  id           String         @id @default(cuid())
+  entityType   ApprovalEntity
+  entityId     String
+  action       ApprovalAction
+  status       ApprovalStatus @default(PENDING)
+  comments     String?
+  metadata     Json           @default("{}")
+  requestedAt  DateTime       @default(now())
+  respondedAt  DateTime?
+
+  // Foreign Keys
+  tenantId    String
+  requesterId String
+  approverId  String
+
+  // Relations
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  approver  User      @relation(fields: [approverId], references: [id])
+  contract  Contract? @relation(fields: [entityId], references: [id], map: "approval_contract_fk")
+  quote     Quote?    @relation(fields: [entityId], references: [id], map: "approval_quote_fk")
+
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([approverId])
+  @@index([status])
+  @@map("approvals")
+}
+
+// ============================================
+// Platform Models
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entityType  String
+  entityId    String
+  changes     Json     @default("{}")
+  metadata    Json     @default("{}")
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  // Foreign Keys
+  tenantId String
+  userId   String
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  data      Json             @default("{}")
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  // Foreign Keys
+  tenantId String
+  userId   String
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model File {
+  id           String     @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  bucket       String
+  key          String
+  entityType   String?
+  entityId     String?
+  metadata     Json       @default("{}")
+  isPublic     Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  // Foreign Keys
+  tenantId    String
+  uploadedById String
+
+  // Relations
+  tenant     Tenant @relation(fields: [tenantId], references: [id])
+  uploadedBy User   @relation(fields: [uploadedById], references: [id])
+
+  @@unique([bucket, key])
+  @@index([tenantId])
+  @@index([uploadedById])
+  @@index([entityType, entityId])
+  @@map("files")
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  USER
+  VIEWER
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
+}
+
+enum MasterProductStatus {
+  ACTIVE
+  DISCONTINUED
+  ARCHIVED
+}
+
+enum ProductAvailability {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  PREORDER
+  DISCONTINUED
+}
+
+enum ApprovalEntity {
+  CONTRACT
+  QUOTE
+}
+
+enum ApprovalAction {
+  SUBMIT
+  APPROVE
+  REJECT
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum ApprovalRequestStatus {
+  PENDING
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+enum ApproverType {
+  USER
+  ROLE
+  MANAGER
+  ORGANIZATION_HEAD
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
+  APPROVAL_REQUIRED
+  APPROVAL_COMPLETED
+  CONTRACT_EXPIRING
+  QUOTE_EXPIRING
+}
+
+enum OrderStatus {
+  DRAFT
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+// ============================================
+// E-Commerce Models
+// ============================================
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String
+  status          OrderStatus @default(DRAFT)
+  subtotal        Decimal     @db.Decimal(15, 2)
+  discount        Decimal     @default(0) @db.Decimal(15, 2)
+  couponCode      String?
+  couponDiscount  Decimal     @default(0) @db.Decimal(15, 2)
+  tax             Decimal     @default(0) @db.Decimal(15, 2)
+  total           Decimal     @db.Decimal(15, 2)
+  currency        String      @default("USD")
+  notes           String?
+
+  // Shipping Information
+  shippingAddress Json        @default("{}")
+  billingAddress  Json        @default("{}")
+
+  // Tracking Information
+  trackingNumber  String?
+  trackingUrl     String?
+  carrier         String?
+  estimatedDelivery DateTime?
+
+  // Timestamps
+  confirmedAt     DateTime?
+  processingAt    DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  cancelledAt     DateTime?
+  refundedAt      DateTime?
+
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  userId          String
+  cancelledById   String?
+  refundedById    String?
+
+  // Relations
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  user            User        @relation("OrderUser", fields: [userId], references: [id])
+  cancelledBy     User?       @relation("OrderCancelledBy", fields: [cancelledById], references: [id])
+  refundedBy      User?       @relation("OrderRefundedBy", fields: [refundedById], references: [id])
+  items           OrderItem[]
+  payments        Payment[]
+
+  @@unique([tenantId, orderNumber])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  lineNumber      Int
+  productName     String
+  productSku      String?
+  description     String?
+  quantity        Int
+  unitPrice       Decimal @db.Decimal(15, 2)
+  discount        Decimal @default(0) @db.Decimal(15, 2)
+  total           Decimal @db.Decimal(15, 2)
+  metadata        Json    @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Foreign Keys
+  orderId         String
+  masterProductId String?
+
+  // Relations
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  masterProduct   MasterProduct? @relation(fields: [masterProductId], references: [id])
+
+  @@unique([orderId, lineNumber])
+  @@index([orderId])
+  @@index([masterProductId])
+  @@map("order_items")
+}
+
+model Cart {
+  id           String     @id @default(cuid())
+  subtotal     Decimal    @default(0) @db.Decimal(15, 2)
+  discount     Decimal    @default(0) @db.Decimal(15, 2)
+  tax          Decimal    @default(0) @db.Decimal(15, 2)
+  total        Decimal    @default(0) @db.Decimal(15, 2)
+  couponCode   String?
+  couponDiscount Decimal  @default(0) @db.Decimal(15, 2)
+  metadata     Json       @default("{}")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Foreign Keys
+  tenantId String
+  userId   String
+
+  // Relations
+  tenant Tenant     @relation(fields: [tenantId], references: [id])
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+  @@map("carts")
+}
+
+model CartItem {
+  id          String  @id @default(cuid())
+  productName String
+  productSku  String?
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(15, 2)
+  discount    Decimal @default(0) @db.Decimal(15, 2)
+  total       Decimal @db.Decimal(15, 2)
+  metadata    Json    @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign Keys
+  cartId          String
+  masterProductId String?
+
+  // Relations
+  cart          Cart          @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  masterProduct MasterProduct? @relation(fields: [masterProductId], references: [id])
+
+  @@unique([cartId, masterProductId])
+  @@index([cartId])
+  @@index([masterProductId])
+  @@map("cart_items")
+}
+
+// ============================================
+// Payment & Delivery Models
+// ============================================
+
+model PaymentMethod {
+  id              String             @id @default(cuid())
+  code            String
+  name            String
+  description     String?
+  type            PaymentMethodType
+  isActive        Boolean            @default(true)
+  sortOrder       Int                @default(0)
+  minAmount       Decimal?           @db.Decimal(15, 2)
+  maxAmount       Decimal?           @db.Decimal(15, 2)
+  processingFee   Decimal            @default(0) @db.Decimal(15, 2)
+  processingFeePercent Decimal       @default(0) @db.Decimal(5, 2)
+  config          Json               @default("{}")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant             @relation(fields: [tenantId], references: [id])
+  payments        Payment[]
+  userTypeAccess  PaymentMethodUserType[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([type])
+  @@map("payment_methods")
+}
+
+model PaymentMethodUserType {
+  id              String          @id @default(cuid())
+  userRole        UserRole
+
+  // Foreign Keys
+  paymentMethodId String
+
+  // Relations
+  paymentMethod   PaymentMethod   @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+
+  @@unique([paymentMethodId, userRole])
+  @@index([paymentMethodId])
+  @@map("payment_method_user_types")
+}
+
+model DeliveryMethod {
+  id              String             @id @default(cuid())
+  code            String
+  name            String
+  description     String?
+  isActive        Boolean            @default(true)
+  sortOrder       Int                @default(0)
+  minDays         Int?
+  maxDays         Int?
+  baseCost        Decimal            @default(0) @db.Decimal(15, 2)
+  freeThreshold   Decimal?           @db.Decimal(15, 2)
+  config          Json               @default("{}")
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant             @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("delivery_methods")
+}
+
+model UserAddress {
+  id              String      @id @default(cuid())
+  label           String?
+  firstName       String
+  lastName        String
+  company         String?
+  street1         String
+  street2         String?
+  city            String
+  state           String?
+  postalCode      String
+  country         String      @default("US")
+  phone           String?
+  isDefault       Boolean     @default(false)
+  isShipping      Boolean     @default(true)
+  isBilling       Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
+
+  // Foreign Keys
+  tenantId        String
+  userId          String
+
+  // Relations
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([isDefault])
+  @@map("user_addresses")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  paymentNumber   String
+  amount          Decimal       @db.Decimal(15, 2)
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  externalRef     String?
+  metadata        Json          @default("{}")
+  processedAt     DateTime?
+  failedAt        DateTime?
+  failureReason   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  orderId         String
+  userId          String
+  paymentMethodId String
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  order           Order         @relation(fields: [orderId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+
+  @@unique([tenantId, paymentNumber])
+  @@index([tenantId])
+  @@index([orderId])
+  @@index([userId])
+  @@index([status])
+  @@map("payments")
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  SALARY_DEDUCTION
+  INVOICE
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// ============================================
+// Salary Deduction Models
+// ============================================
+
+model SalaryDeduction {
+  id                String    @id @default(cuid())
+  monthlyLimit      Decimal   @db.Decimal(15, 2)
+  usedAmount        Decimal   @default(0) @db.Decimal(15, 2)
+  remainingAmount   Decimal   @db.Decimal(15, 2)
+  isEnabled         Boolean   @default(true)
+  periodStart       DateTime
+  periodEnd         DateTime
+  autoRenewal       Boolean   @default(true)
+  metadata          Json      @default("{}")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Foreign Keys
+  tenantId          String
+  userId            String    @unique
+
+  // Relations
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  user              User      @relation(fields: [userId], references: [id])
+  transactions      SalaryDeductionTransaction[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([periodStart, periodEnd])
+  @@map("salary_deductions")
+}
+
+model SalaryDeductionTransaction {
+  id              String                     @id @default(cuid())
+  amount          Decimal                    @db.Decimal(15, 2)
+  type            SalaryDeductionTxnType
+  status          SalaryDeductionTxnStatus   @default(PENDING)
+  reference       String?
+  description     String?
+  processedAt     DateTime?
+  metadata        Json                       @default("{}")
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  // Foreign Keys
+  salaryDeductionId String
+  orderId           String?
+  paymentId         String?
+
+  // Relations
+  salaryDeduction SalaryDeduction @relation(fields: [salaryDeductionId], references: [id])
+
+  @@index([salaryDeductionId])
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("salary_deduction_transactions")
+}
+
+model SalaryDeductionLimitRequest {
+  id              String                       @id @default(cuid())
+  requestedLimit  Decimal                      @db.Decimal(15, 2)
+  currentLimit    Decimal                      @db.Decimal(15, 2)
+  reason          String?
+  status          SalaryDeductionRequestStatus @default(PENDING)
+  reviewedAt      DateTime?
+  reviewNotes     String?
+  metadata        Json                         @default("{}")
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  userId          String
+  reviewedById    String?
+
+  // Relations
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  user            User      @relation("SalaryLimitRequestUser", fields: [userId], references: [id])
+  reviewedBy      User?     @relation("SalaryLimitRequestReviewer", fields: [reviewedById], references: [id])
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([status])
+  @@map("salary_deduction_limit_requests")
+}
+
+enum SalaryDeductionTxnType {
+  DEDUCTION
+  REFUND
+  ADJUSTMENT
+}
+
+enum SalaryDeductionTxnStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum SalaryDeductionRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+// ============================================
+// Discount Tiers Models
+// ============================================
+
+model DiscountTier {
+  id              String            @id @default(cuid())
+  name            String
+  code            String
+  description     String?
+  level           Int               @default(0)
+  discountPercent Decimal           @db.Decimal(5, 2)
+  minSpend        Decimal?          @db.Decimal(15, 2)
+  minOrders       Int?
+  isActive        Boolean           @default(true)
+  color           String?
+  icon            String?
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  userAssignments UserDiscountTier[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([level])
+  @@index([isActive])
+  @@map("discount_tiers")
+}
+
+model UserDiscountTier {
+  id              String       @id @default(cuid())
+  assignedAt      DateTime     @default(now())
+  expiresAt       DateTime?
+  reason          String?
+  totalSpend      Decimal      @default(0) @db.Decimal(15, 2)
+  totalOrders     Int          @default(0)
+  totalSavings    Decimal      @default(0) @db.Decimal(15, 2)
+  metadata        Json         @default("{}")
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  userId          String       @unique
+  discountTierId  String
+  assignedById    String?
+
+  // Relations
+  tenant          Tenant       @relation(fields: [tenantId], references: [id])
+  user            User         @relation(fields: [userId], references: [id])
+  discountTier    DiscountTier @relation(fields: [discountTierId], references: [id])
+  assignedBy      User?        @relation("TierAssignedBy", fields: [assignedById], references: [id])
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([discountTierId])
+  @@map("user_discount_tiers")
+}
+
+// ============================================
+// Promotions & Coupons Models
+// ============================================
+
+model Promotion {
+  id              String          @id @default(cuid())
+  name            String
+  code            String
+  description     String?
+  type            PromotionType
+  discountValue   Decimal         @db.Decimal(15, 2)
+  discountType    DiscountType
+  minOrderAmount  Decimal?        @db.Decimal(15, 2)
+  maxDiscount     Decimal?        @db.Decimal(15, 2)
+  usageLimit      Int?
+  usageCount      Int             @default(0)
+  perUserLimit    Int?
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean         @default(true)
+  targetUserRoles UserRole[]
+  conditions      Json            @default("{}")
+  metadata        Json            @default("{}")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  createdById     String?
+
+  // Relations
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  coupons         Coupon[]
+  usages          PromotionUsage[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@index([type])
+  @@map("promotions")
+}
+
+model Coupon {
+  id              String        @id @default(cuid())
+  code            String
+  isActive        Boolean       @default(true)
+  usageLimit      Int           @default(1)
+  usageCount      Int           @default(0)
+  expiresAt       DateTime?
+  metadata        Json          @default("{}")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  promotionId     String
+  assignedToId    String?
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  promotion       Promotion     @relation(fields: [promotionId], references: [id])
+  assignedTo      User?         @relation("CouponAssignedTo", fields: [assignedToId], references: [id])
+  usages          PromotionUsage[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([promotionId])
+  @@index([assignedToId])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+model PromotionUsage {
+  id              String        @id @default(cuid())
+  discountApplied Decimal       @db.Decimal(15, 2)
+  usedAt          DateTime      @default(now())
+  metadata        Json          @default("{}")
+
+  // Foreign Keys
+  tenantId        String
+  promotionId     String
+  couponId        String?
+  userId          String
+  orderId         String?
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  promotion       Promotion     @relation(fields: [promotionId], references: [id])
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([promotionId])
+  @@index([couponId])
+  @@index([userId])
+  @@index([usedAt])
+  @@map("promotion_usages")
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  BOGO
+  FREE_SHIPPING
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+// ============================================
+// Partner Models
+// ============================================
+
+model Partner {
+  id                String           @id @default(cuid())
+  code              String
+  name              String
+  description       String?
+  commissionRate    Decimal          @default(0) @db.Decimal(5, 2)
+  isActive          Boolean          @default(true)
+  onboardedAt       DateTime         @default(now())
+  metadata          Json             @default("{}")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  // Foreign Keys
+  tenantId          String
+  userId            String           @unique
+  organizationId    String?
+
+  // Relations
+  tenant            Tenant           @relation(fields: [tenantId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
+  organization      Organization?    @relation(fields: [organizationId], references: [id])
+  teamMembers       PartnerTeamMember[]
+  commissions       PartnerCommission[]
+  resources         PartnerResource[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("partners")
+}
+
+model PartnerTeamMember {
+  id              String    @id @default(cuid())
+  role            String?
+  isActive        Boolean   @default(true)
+  joinedAt        DateTime  @default(now())
+  leftAt          DateTime?
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  partnerId       String
+  userId          String
+
+  // Relations
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  partner         Partner   @relation(fields: [partnerId], references: [id])
+  user            User      @relation(fields: [userId], references: [id])
+
+  @@unique([partnerId, userId])
+  @@index([tenantId])
+  @@index([partnerId])
+  @@index([userId])
+  @@index([isActive])
+  @@map("partner_team_members")
+}
+
+model PartnerCommission {
+  id              String                @id @default(cuid())
+  amount          Decimal               @db.Decimal(15, 2)
+  rate            Decimal               @db.Decimal(5, 2)
+  orderTotal      Decimal               @db.Decimal(15, 2)
+  status          PartnerCommissionStatus @default(PENDING)
+  paidAt          DateTime?
+  metadata        Json                  @default("{}")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  partnerId       String
+  orderId         String
+  teamMemberId    String
+
+  // Relations
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  partner         Partner               @relation(fields: [partnerId], references: [id])
+
+  @@unique([partnerId, orderId])
+  @@index([tenantId])
+  @@index([partnerId])
+  @@index([orderId])
+  @@index([teamMemberId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("partner_commissions")
+}
+
+model PartnerResource {
+  id              String    @id @default(cuid())
+  title           String
+  description     String?
+  type            String
+  url             String?
+  fileKey         String?
+  isPublic        Boolean   @default(false)
+  sortOrder       Int       @default(0)
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  partnerId       String?
+  uploadedById    String?
+
+  // Relations
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  partner         Partner?  @relation(fields: [partnerId], references: [id])
+
+  @@index([tenantId])
+  @@index([partnerId])
+  @@index([type])
+  @@index([isPublic])
+  @@map("partner_resources")
+}
+
+enum PartnerCommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}

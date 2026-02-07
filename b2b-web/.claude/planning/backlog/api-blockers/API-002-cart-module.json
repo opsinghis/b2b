@@ -1,0 +1,83 @@
+{
+  "id": "API-002",
+  "type": "api-blocker",
+  "title": "API Blocker: Shopping Cart Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-022", "FE-023"],
+  "description": "Shopping cart management for e-commerce functionality",
+  "required_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/cart",
+      "description": "Get current user's cart",
+      "response": {
+        "id": "uuid",
+        "items": "CartItem[]",
+        "subtotal": "decimal",
+        "discountAmount": "decimal",
+        "estimatedTotal": "decimal"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cart/items",
+      "description": "Add item to cart",
+      "request_body": {
+        "productId": "string",
+        "quantity": "number"
+      },
+      "response": "Updated cart"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/cart/items/:id",
+      "description": "Update cart item quantity",
+      "request_body": {"quantity": "number"},
+      "response": "Updated cart"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cart/items/:id",
+      "description": "Remove item from cart",
+      "response": "Updated cart"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cart",
+      "description": "Clear entire cart",
+      "response": "Empty cart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cart/apply-coupon",
+      "description": "Apply coupon code to cart",
+      "request_body": {"code": "string"},
+      "response": "Updated cart with discount applied"
+    }
+  ],
+  "data_model": {
+    "Cart": {
+      "id": "uuid",
+      "userId": "uuid",
+      "tenantId": "uuid",
+      "items": "CartItem[]",
+      "couponCode": "string?",
+      "subtotal": "decimal",
+      "discountAmount": "decimal",
+      "estimatedTotal": "decimal",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "CartItem": {
+      "id": "uuid",
+      "cartId": "uuid",
+      "productId": "uuid",
+      "quantity": "integer",
+      "unitPrice": "decimal",
+      "discountedPrice": "decimal"
+    }
+  },
+  "priority": "P0",
+  "notes": "Cart should persist across sessions. Consider Redis for performance."
+}

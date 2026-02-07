@@ -1,0 +1,104 @@
+{
+  "id": "API-006",
+  "type": "api-blocker",
+  "title": "API Blocker: Partner Features Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-033", "FE-034"],
+  "description": "Partner-specific features including team management and order-on-behalf",
+  "required_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/partners/me",
+      "description": "Get current partner profile",
+      "response": {
+        "id": "uuid",
+        "organizationId": "uuid",
+        "partnerTier": "string",
+        "discountPercent": "number",
+        "commissionEnabled": "boolean",
+        "teamSize": "number"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/partners/me/commission",
+      "description": "Get partner commission details",
+      "response": {
+        "currentMonth": "decimal",
+        "lastMonth": "decimal",
+        "pendingPayout": "decimal",
+        "payoutHistory": "array"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/partners/me/team",
+      "description": "Get partner's team members",
+      "response": "List of team members with their discount tiers and order stats"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/partners/me/resources",
+      "description": "Get partner resources and documents",
+      "response": "List of downloadable resources"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/partners/me/team",
+      "description": "Add team member to partner organization",
+      "request_body": {
+        "email": "string",
+        "firstName": "string",
+        "lastName": "string"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/partners/me/team/:userId",
+      "description": "Remove team member from partner organization"
+    }
+  ],
+  "data_model": {
+    "Partner": {
+      "id": "uuid",
+      "organizationId": "uuid",
+      "tenantId": "uuid",
+      "partnerTierId": "uuid",
+      "commissionRate": "decimal?",
+      "commissionEnabled": "boolean",
+      "status": "enum: active, suspended, terminated",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "PartnerCommission": {
+      "id": "uuid",
+      "partnerId": "uuid",
+      "orderId": "uuid",
+      "orderAmount": "decimal",
+      "commissionRate": "decimal",
+      "commissionAmount": "decimal",
+      "status": "enum: pending, approved, paid",
+      "paidAt": "datetime?",
+      "createdAt": "datetime"
+    },
+    "PartnerResource": {
+      "id": "uuid",
+      "tenantId": "uuid",
+      "title": "string",
+      "description": "string?",
+      "fileUrl": "string",
+      "category": "string",
+      "isActive": "boolean",
+      "createdAt": "datetime"
+    }
+  },
+  "business_rules": [
+    "Partners can place orders on behalf of their team members",
+    "Partner discount applies to all team member orders",
+    "Commission calculated on team member orders",
+    "Partner resources restricted to active partners"
+  ],
+  "priority": "P1",
+  "notes": "Partners are organizations that resell or manage purchases for their teams"
+}

@@ -1,0 +1,120 @@
+{
+  "id": "API-005",
+  "type": "api-blocker",
+  "title": "API Blocker: Payment Methods & Delivery Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-023", "FE-024"],
+  "description": "Payment methods and delivery options for checkout",
+  "required_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/payment-methods",
+      "description": "Get available payment methods for current user",
+      "response": [
+        {"id": "salary-deduction", "name": "Salary Deduction", "available": true, "limit": 500},
+        {"id": "credit-card", "name": "Credit Card", "available": true},
+        {"id": "invoice", "name": "Invoice/PO", "available": false, "reason": "Partners only"}
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/:id/pay",
+      "description": "Process payment for order",
+      "request_body": {
+        "paymentMethodId": "string",
+        "paymentDetails": "object (method-specific)"
+      },
+      "response": "Payment result with status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/payment-history",
+      "description": "Get user's payment history",
+      "query_params": ["page", "limit", "dateFrom", "dateTo"],
+      "response": "Paginated payment records"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/delivery-methods",
+      "description": "Get available delivery methods",
+      "response": [
+        {"id": "standard", "name": "Standard Delivery", "estimatedDays": "3-5", "price": 5.99},
+        {"id": "express", "name": "Express Delivery", "estimatedDays": "1-2", "price": 12.99},
+        {"id": "pickup", "name": "Office Pickup", "estimatedDays": "1", "price": 0}
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users/me/addresses",
+      "description": "Get user's saved addresses",
+      "response": "List of addresses"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/users/me/addresses",
+      "description": "Add new address",
+      "request_body": {
+        "label": "string",
+        "street": "string",
+        "city": "string",
+        "state": "string",
+        "postalCode": "string",
+        "country": "string",
+        "isDefault": "boolean"
+      }
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/users/me/addresses/:id",
+      "description": "Update address"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/users/me/addresses/:id",
+      "description": "Delete address"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/users/:id/addresses",
+      "description": "Get another user's addresses (for partner order-on-behalf)",
+      "notes": "Requires partner role and team member relationship"
+    }
+  ],
+  "data_model": {
+    "UserAddress": {
+      "id": "uuid",
+      "userId": "uuid",
+      "label": "string",
+      "street": "string",
+      "city": "string",
+      "state": "string",
+      "postalCode": "string",
+      "country": "string",
+      "isDefault": "boolean",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "PaymentTransaction": {
+      "id": "uuid",
+      "orderId": "uuid",
+      "userId": "uuid",
+      "paymentMethodId": "string",
+      "amount": "decimal",
+      "status": "enum: pending, completed, failed, refunded",
+      "externalRef": "string?",
+      "createdAt": "datetime",
+      "processedAt": "datetime?"
+    },
+    "DeliveryMethod": {
+      "id": "uuid",
+      "tenantId": "uuid",
+      "name": "string",
+      "estimatedDays": "string",
+      "price": "decimal",
+      "isActive": "boolean"
+    }
+  },
+  "priority": "P0",
+  "notes": "Payment methods available depend on user type (employee vs partner)"
+}

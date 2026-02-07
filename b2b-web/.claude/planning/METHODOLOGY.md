@@ -363,3 +363,167 @@ If YES:
 - Ignoring failing tests to "finish faster"
 - Not reading existing patterns before coding
 - Spinning on unclear requirements instead of documenting blockers
+
+---
+
+## Frontend-Specific Workflow
+
+### Phase Matrix (Frontend)
+
+| Phase | Weight | Focus | Key Activities |
+|-------|--------|-------|----------------|
+| **Phase 1: Foundation** | 70% Lisa / 30% Ralph | Project setup, tooling | Turborepo, scaffolds, shared packages |
+| **Phase 2: Admin Portal** | 50% Lisa / 50% Ralph | Admin UI | Management screens, data tables |
+| **Phase 3: Customer Portal** | 40% Lisa / 60% Ralph | User-facing | Contracts, quotes, approvals |
+| **Phase 4: Shopping & Orders** | 40% Lisa / 60% Ralph | E-commerce | Cart, checkout, order tracking |
+| **Phase 5: Discounts & Partners** | 50% Lisa / 50% Ralph | Advanced | Discount tiers, partner features |
+
+### API Dependency Management
+
+Frontend development depends on backend APIs. Each PRD item includes:
+
+```json
+{
+  "api_dependencies": [
+    {"endpoint": "GET /api/v1/users", "status": "available"},
+    {"endpoint": "POST /api/v1/orders", "status": "needed"}
+  ]
+}
+```
+
+**Status Values:**
+- `available` - API exists and is tested in b2b-api
+- `needed` - API needs to be built (creates blocker)
+
+**When API is Needed:**
+1. Create API blocker in `.claude/planning/backlog/api-blockers/`
+2. Mark frontend feature as blocked
+3. Switch to b2b-api to build the API
+4. Return to frontend when API is available
+
+### Ralph Loop Scripts
+
+The frontend uses these orchestration scripts:
+
+```bash
+# Main development loop
+.claude/ralph.sh
+
+# Continuous development with Claude
+.claude/dev-loop.sh
+
+# Check API dependencies
+.claude/check-apis.sh
+
+# Run all tests
+.claude/run-tests.sh
+```
+
+### Development Flow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    ralph.sh starts                          │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 1. Check API dependencies                                   │
+│    - Fetch OpenAPI spec from backend                        │
+│    - Verify all required endpoints exist                    │
+│    - Flag blockers if APIs missing                          │
+└─────────────────────────────────────────────────────────────┘
+                           │
+            ┌──────────────┴──────────────┐
+            │                             │
+            ▼                             ▼
+    ┌───────────────┐            ┌───────────────┐
+    │ APIs Missing  │            │ APIs Ready    │
+    │ → Block       │            │ → Continue    │
+    └───────────────┘            └───────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 2. Lisa Phase (based on weight)                             │
+│    - Analyze requirements                                    │
+│    - Plan component architecture                             │
+│    - Design state management                                 │
+│    - Create test strategy                                    │
+│    - Output: .claude/execution/plans/FE-XXX-plan.md         │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 3. Ralph Iterations (until complete)                        │
+│    - Generate DEV-PROMPT.md                                  │
+│    - Claude implements next piece                            │
+│    - Run tests after each iteration                          │
+│    - Track progress in dev-state.json                        │
+│    - Continue until <promise>COMPLETE:FE-XXX</promise>       │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 4. Verification                                              │
+│    - pnpm build (must pass)                                  │
+│    - pnpm lint (must pass)                                   │
+│    - pnpm test (unit tests)                                  │
+│    - pnpm test:e2e (if configured)                           │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│ 5. Complete                                                  │
+│    - Update prd.json status                                  │
+│    - Update CONTEXT.md                                       │
+│    - Move to next feature                                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Testing Strategy
+
+Each feature should include:
+
+| Test Type | Tools | Coverage |
+|-----------|-------|----------|
+| Unit Tests | Vitest | Components, hooks, utilities |
+| Component Tests | Storybook | Visual states, interactions |
+| Integration Tests | Vitest + MSW | API integration, state |
+| E2E Tests | Playwright | User flows, critical paths |
+| Accessibility | jest-axe | A11y compliance |
+
+### Completion Criteria
+
+A feature is complete when:
+1. All completion criteria from PRD are met
+2. `pnpm build` passes
+3. `pnpm lint` passes
+4. `pnpm test` passes
+5. E2E tests pass (if applicable)
+6. Component has Storybook story (if UI)
+7. CONTEXT.md is updated
+
+### File Organization
+
+```
+b2b-web/
+├── .claude/
+│   ├── ralph.sh              # Main orchestrator
+│   ├── dev-loop.sh           # Continuous dev
+│   ├── check-apis.sh         # API checker
+│   ├── run-tests.sh          # Test runner
+│   ├── execution/
+│   │   ├── prd.json          # All PRD items
+│   │   ├── dev-state.json    # Current state
+│   │   ├── DEV-PROMPT.md     # Claude prompt
+│   │   ├── plans/            # Lisa outputs
+│   │   └── iterations/       # Ralph notes
+│   └── planning/
+│       ├── METHODOLOGY.md    # This file
+│       └── backlog/
+│           ├── bugs/
+│           ├── features/
+│           ├── enhancements/
+│           └── api-blockers/
+└── ...
+```

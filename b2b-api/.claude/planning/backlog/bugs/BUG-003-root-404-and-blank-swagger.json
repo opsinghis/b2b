@@ -1,0 +1,47 @@
+{
+  "id": "BUG-003",
+  "type": "bug",
+  "title": "Bug: Root URL returns 404 and /api/docs shows blank page",
+  "module": "core/app",
+  "priority": "P1",
+  "created": "2026-02-07",
+  "status": "completed",
+
+  "description": "Accessing http://localhost:3000 returns 404 error and http://localhost:3000/api/docs loads a blank page instead of Swagger documentation.",
+
+  "steps_to_reproduce": [
+    "Start the application with npm run start:dev",
+    "Navigate to http://localhost:3000",
+    "Observe 404 error",
+    "Navigate to http://localhost:3000/api/docs",
+    "Observe blank page"
+  ],
+
+  "expected_behavior": "Root URL should redirect or show welcome message. /api/docs should display Swagger UI with API documentation.",
+
+  "actual_behavior": "Root returns {statusCode:404, message:'Cannot GET /'}, /api/docs shows blank page",
+
+  "root_cause_hypothesis": "Swagger setup may be incorrect or missing assets. Root path has no controller mapped.",
+
+  "testing": {
+    "regression": [
+      "GET / returns 200 or redirect",
+      "GET /api/docs returns Swagger UI",
+      "All existing tests pass"
+    ]
+  },
+
+  "affected_files_guess": [
+    "src/main.ts",
+    "src/app.module.ts",
+    "src/health.controller.ts"
+  ],
+
+  "acceptance_criteria": [
+    "AC1: http://localhost:3000/api/docs displays Swagger UI correctly",
+    "AC2: Root URL returns helpful response (not 404)",
+    "AC3: All existing unit tests pass"
+  ],
+
+  "max_iterations": 5
+}

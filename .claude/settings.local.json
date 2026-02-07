@@ -3,7 +3,27 @@
     "allow": [
       "WebSearch",
       "Bash(chmod:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(node -e:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker-compose:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run prisma:seed:*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run test:integration:*)",
+      "Bash(docker info:*)",
+      "Bash(DOCKER_HOST=unix:///Users/omsingh0/.rd/docker.sock TESTCONTAINERS_RYUK_DISABLED=true npm run test:integration:*)",
+      "Bash(DOCKER_HOST=unix:///Users/omsingh0/.rd/docker.sock npm run test:e2e:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(timeout 5 npm run start:dev)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

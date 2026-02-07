@@ -1,0 +1,33 @@
+{
+  "name": "@b2b/api-client",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "generate": "openapi-typescript ../../../b2b-api/openapi.json -o src/generated/api.ts",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo node_modules"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.9.3"
+  },
+  "devDependencies": {
+    "@b2b/config": "workspace:*",
+    "@types/node": "^20.11.30",
+    "openapi-typescript": "^6.7.5",
+    "typescript": "^5.4.2",
+    "vitest": "^1.4.0"
+  }
+}

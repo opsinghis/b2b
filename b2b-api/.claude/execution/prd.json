@@ -16,17 +16,27 @@
           "module": "foundation",
           "priority": "P0",
           "completion_criteria": [
-            "NestJS 10+ project with TypeScript strict mode",
-            "Directory structure: src/{common,core,business,platform,agentic,infrastructure}",
-            "Path aliases: @common/*, @core/*, @business/*",
-            "ESLint + Prettier configured",
-            "Husky pre-commit hooks",
-            ".env.example with documented variables",
+            "Initialize npm project with package.json (name: b2b-api, version: 1.0.0)",
+            "Install NestJS 10+ with dependencies: @nestjs/core, @nestjs/common, @nestjs/platform-express, reflect-metadata, rxjs",
+            "Install dev dependencies: typescript, @types/node, ts-node, @nestjs/cli, @nestjs/schematics",
+            "Create tsconfig.json with strict mode, paths aliases (@common/*, @core/*, @business/*, @platform/*, @agentic/*)",
+            "Create tsconfig.build.json for production builds",
+            "Create nest-cli.json with sourceRoot and compilerOptions",
+            "Create .eslintrc.js with @typescript-eslint, NestJS recommended rules",
+            "Create .prettierrc with singleQuote: true, trailingComma: all, printWidth: 100",
+            "Create .prettierignore and .eslintignore",
+            "Create .gitignore for node_modules, dist, coverage, .env, etc.",
+            "Create .husky/ with pre-commit hook running lint-staged",
+            "Create .env.example with DATABASE_URL, REDIS_URL, JWT_SECRET, etc.",
+            "Create directory structure: src/{common,core,business,platform,agentic,infrastructure}",
+            "Create src/main.ts with NestFactory bootstrap, helmet (CSP disabled in dev), Swagger at /docs, root redirect to /docs",
+            "Create src/app.module.ts as root module",
+            "Add npm scripts: start, start:dev, start:debug, start:prod, build, lint, format, typecheck",
             "npm run start:dev works",
             "npm run build works"
           ],
           "dependencies": [],
-          "max_iterations": 5,
+          "max_iterations": 8,
           "status": "pending"
         },
         {
@@ -35,13 +45,19 @@
           "module": "foundation/testing",
           "priority": "P0",
           "completion_criteria": [
-            "Jest configured with ts-jest",
-            "Coverage thresholds: 80%",
-            "npm run test works",
-            "npm run test:cov generates report",
-            "Test utilities in src/common/testing/"
+            "Install jest, ts-jest, @types/jest as dev dependencies",
+            "Create jest.config.js with ts-jest preset, moduleNameMapper for path aliases",
+            "Configure coverage thresholds: 80% for branches, functions, lines, statements",
+            "Configure collectCoverageFrom to include src/**/*.ts, exclude *.module.ts, main.ts",
+            "Create src/common/testing/test-utils.ts with mock helpers",
+            "Create src/common/testing/index.ts barrel export",
+            "Add npm scripts: test, test:watch, test:cov, test:debug",
+            "npm run test works (runs Jest)",
+            "npm run test:cov generates HTML coverage report in coverage/"
           ],
-          "dependencies": ["PRD-000"],
+          "dependencies": [
+            "PRD-000"
+          ],
           "max_iterations": 5,
           "status": "pending"
         },
@@ -51,12 +67,23 @@
           "module": "foundation/testing",
           "priority": "P0",
           "completion_criteria": [
-            "Testcontainers for PostgreSQL",
-            "npm run test:integration works",
-            "Database reset between tests",
-            "Test factories in test/factories/"
+            "Install testcontainers, @testcontainers/postgresql as dev dependencies",
+            "Create test/integration/ directory structure",
+            "Create test/integration/jest.integration.config.js extending base jest.config",
+            "Create test/integration/setup-global.ts for container startup",
+            "Create test/integration/setup-after-env.ts for Prisma client and factories",
+            "Create test/factories/tenant.factory.ts with create, createMany methods",
+            "Create test/factories/user.factory.ts with create, createMany methods",
+            "Create test/factories/index.ts barrel export",
+            "Create .testcontainers.properties with ryuk.disabled=true for CI",
+            "Database truncated between each test via beforeEach hook",
+            "Add npm script: test:integration pointing to integration config",
+            "npm run test:integration works with real PostgreSQL container"
           ],
-          "dependencies": ["PRD-001", "PRD-004"],
+          "dependencies": [
+            "PRD-001",
+            "PRD-004"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -71,7 +98,9 @@
             "Auth helper for test tokens",
             "npm run test:all runs all tests"
           ],
-          "dependencies": ["PRD-002"],
+          "dependencies": [
+            "PRD-002"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -81,14 +110,23 @@
           "module": "infrastructure/database",
           "priority": "P0",
           "completion_criteria": [
-            "Prisma with base models: Tenant, User",
-            "Multi-tenancy fields on models",
-            "npm run prisma:generate works",
-            "npm run prisma:migrate works",
-            "npm run prisma:seed works"
+            "Install prisma, @prisma/client as dependencies",
+            "Create prisma/schema.prisma with PostgreSQL datasource",
+            "Configure DATABASE_URL from environment variable",
+            "Create Tenant model: id (cuid), name, slug (unique), config (Json), createdAt, updatedAt",
+            "Create User model: id, email (unique per tenant), passwordHash, firstName, lastName, role, tenantId (FK), createdAt, updatedAt",
+            "Add tenantId field to User with relation to Tenant",
+            "Create prisma/seed.ts that creates default tenant and admin user",
+            "Seed script reads master catalog from .claude/planning/data/cleaned_products.json if exists",
+            "Add npm scripts: prisma:generate, prisma:migrate, prisma:studio, prisma:seed",
+            "npm run prisma:generate creates Prisma client",
+            "npm run prisma:migrate creates migration and applies to database",
+            "npm run prisma:seed populates initial data"
           ],
-          "dependencies": ["PRD-000"],
-          "max_iterations": 5,
+          "dependencies": [
+            "PRD-000"
+          ],
+          "max_iterations": 6,
           "status": "pending"
         },
         {
@@ -97,11 +135,21 @@
           "module": "infrastructure",
           "priority": "P0",
           "completion_criteria": [
-            "PostgreSQL, Redis, MinIO, Elasticsearch",
-            "Health checks on all services",
-            "docker-compose up -d works"
+            "Create docker/ directory",
+            "Create docker/docker-compose.yml with version 3.8",
+            "PostgreSQL 15 service: image postgres:15-alpine, port 5432, volume pgdata, env POSTGRES_USER/PASSWORD/DB",
+            "Redis 7 service: image redis:7-alpine, port 6379, volume redisdata, command with appendonly",
+            "MinIO service: image minio/minio, ports 9000 (API) and 9001 (console), volume miniodata, command server /data --console-address :9001",
+            "Elasticsearch 8 service: image elasticsearch:8.11.0, port 9200, volume esdata, env discovery.type=single-node, xpack.security.enabled=false",
+            "Health checks on all services with proper intervals and timeouts",
+            "Named volumes: pgdata, redisdata, miniodata, esdata",
+            "Network: b2b-network (bridge driver)",
+            "docker-compose -f docker/docker-compose.yml up -d starts all services",
+            "All services healthy within 60 seconds"
           ],
-          "dependencies": ["PRD-000"],
+          "dependencies": [
+            "PRD-000"
+          ],
           "max_iterations": 6,
           "status": "pending"
         },
@@ -111,11 +159,20 @@
           "module": "infrastructure",
           "priority": "P0",
           "completion_criteria": [
-            "Temporal server + UI",
-            "Keycloak",
-            "Separate databases for each"
+            "Add to docker/docker-compose.yml or create docker/docker-compose.override.yml",
+            "Temporal PostgreSQL: separate postgres instance for temporal, port 5433, volume temporal_pgdata",
+            "Temporal server: image temporalio/auto-setup:1.22, port 7233 (gRPC), depends on temporal postgres",
+            "Temporal UI: image temporalio/ui:2.21, port 8080, env TEMPORAL_ADDRESS=temporal:7233",
+            "Keycloak PostgreSQL: separate postgres instance, port 5434, volume keycloak_pgdata",
+            "Keycloak: image quay.io/keycloak/keycloak:23.0, port 8180, command start-dev, env KC_DB, KC_DB_URL, KEYCLOAK_ADMIN/PASSWORD",
+            "Health checks on Temporal and Keycloak services",
+            "All services on b2b-network",
+            "Temporal UI accessible at http://localhost:8080",
+            "Keycloak admin console accessible at http://localhost:8180"
           ],
-          "dependencies": ["PRD-005"],
+          "dependencies": [
+            "PRD-005"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -125,10 +182,19 @@
           "module": "infrastructure",
           "priority": "P1",
           "completion_criteria": [
-            "Prometheus, Grafana, Jaeger",
-            "Optional stack in separate file"
+            "Create docker/docker-compose.observability.yml as optional overlay",
+            "Prometheus: image prom/prometheus:v2.47.0, port 9090, volume for config and data",
+            "Create docker/prometheus/prometheus.yml with scrape configs for API metrics",
+            "Grafana: image grafana/grafana:10.2.0, port 3001, volume grafanadata, env GF_SECURITY_ADMIN_PASSWORD",
+            "Jaeger: image jaegertracing/all-in-one:1.51, ports 16686 (UI), 6831 (UDP), 14268 (HTTP)",
+            "All services on b2b-network",
+            "docker-compose -f docker/docker-compose.yml -f docker/docker-compose.observability.yml up -d works",
+            "Grafana accessible at http://localhost:3001",
+            "Jaeger UI accessible at http://localhost:16686"
           ],
-          "dependencies": ["PRD-005"],
+          "dependencies": [
+            "PRD-005"
+          ],
           "max_iterations": 6,
           "status": "pending"
         },
@@ -138,11 +204,21 @@
           "module": "infrastructure/ci",
           "priority": "P1",
           "completion_criteria": [
-            ".github/workflows/ci.yml",
-            "Lint, test, build stages",
-            "Pipeline passes"
+            "Create .github/workflows/ directory",
+            "Create .github/workflows/ci.yml triggered on push and pull_request",
+            "Use ubuntu-latest runner with Node.js 20",
+            "Job 1 - Lint: npm ci, npm run lint, npm run typecheck",
+            "Job 2 - Test: npm ci, npm run test:cov, upload coverage artifact",
+            "Job 3 - Build: npm ci, npm run build, upload dist artifact",
+            "Cache node_modules using actions/cache",
+            "PostgreSQL service container for integration tests",
+            "Set DATABASE_URL environment variable for tests",
+            "All jobs run in parallel where possible",
+            "Pipeline passes on clean codebase"
           ],
-          "dependencies": ["PRD-003"],
+          "dependencies": [
+            "PRD-003"
+          ],
           "max_iterations": 5,
           "status": "pending"
         }
@@ -163,7 +239,9 @@
             "@TenantContext() decorator",
             "Unit tests: >90% coverage"
           ],
-          "dependencies": ["PRD-004"],
+          "dependencies": [
+            "PRD-004"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -176,7 +254,9 @@
             "RLS policies on tenant-scoped tables",
             "Integration tests: cross-tenant blocked"
           ],
-          "dependencies": ["PRD-009"],
+          "dependencies": [
+            "PRD-009"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -190,7 +270,9 @@
             "POST /auth/login returns tokens",
             "E2E: register -> login -> protected"
           ],
-          "dependencies": ["PRD-009"],
+          "dependencies": [
+            "PRD-009"
+          ],
           "max_iterations": 12,
           "status": "pending"
         },
@@ -203,7 +285,9 @@
             "POST /auth/refresh with rotation",
             "POST /auth/logout"
           ],
-          "dependencies": ["PRD-011"],
+          "dependencies": [
+            "PRD-011"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -217,7 +301,9 @@
             "AuthorizationGuard",
             "@CheckAbility() decorator"
           ],
-          "dependencies": ["PRD-011"],
+          "dependencies": [
+            "PRD-011"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -231,7 +317,9 @@
             "@AuditLog() decorator",
             "GET /audit with filters"
           ],
-          "dependencies": ["PRD-011"],
+          "dependencies": [
+            "PRD-011"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -245,7 +333,9 @@
             "Pino structured logging",
             "Correlation ID"
           ],
-          "dependencies": ["PRD-000"],
+          "dependencies": [
+            "PRD-000"
+          ],
           "max_iterations": 6,
           "status": "pending"
         }
@@ -266,7 +356,9 @@
             "TenantConfig JSONB",
             "Soft delete"
           ],
-          "dependencies": ["PRD-013"],
+          "dependencies": [
+            "PRD-013"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -279,7 +371,9 @@
             "CRUD with hierarchy",
             "GET /:id/hierarchy tree"
           ],
-          "dependencies": ["PRD-016"],
+          "dependencies": [
+            "PRD-016"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -293,7 +387,9 @@
             "GET /me, PATCH /me",
             "Password change"
           ],
-          "dependencies": ["PRD-017"],
+          "dependencies": [
+            "PRD-017"
+          ],
           "max_iterations": 10,
           "status": "pending"
         }
@@ -314,7 +410,9 @@
             "CRUD endpoints",
             "Version history"
           ],
-          "dependencies": ["PRD-018"],
+          "dependencies": [
+            "PRD-018"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -328,7 +426,10 @@
             "State machine",
             "Audit on transitions"
           ],
-          "dependencies": ["PRD-019", "PRD-014"],
+          "dependencies": [
+            "PRD-019",
+            "PRD-014"
+          ],
           "max_iterations": 12,
           "status": "pending"
         },
@@ -342,20 +443,90 @@
             "Workflow with thresholds",
             "Convert to contract"
           ],
-          "dependencies": ["PRD-019"],
+          "dependencies": [
+            "PRD-019"
+          ],
           "max_iterations": 12,
           "status": "pending"
         },
         {
           "id": "PRD-022",
-          "title": "Catalog Module",
-          "module": "business/catalog",
-          "priority": "P2",
+          "title": "Master Catalog - Schema & Module",
+          "module": "business/master-catalog",
+          "priority": "P1",
           "completion_criteria": [
-            "Product CRUD",
-            "Pricing tiers"
+            "MasterProduct model in Prisma schema",
+            "MasterProductStatus enum (ACTIVE, DISCONTINUED, ARCHIVED)",
+            "TenantProductAccess model with pricing fields",
+            "MasterCatalogModule with service and controller",
+            "CRUD endpoints: GET/POST/PATCH /master-catalog/products",
+            "Admin-only access via CASL",
+            "Unit tests: >80% coverage"
           ],
-          "dependencies": ["PRD-018"],
+          "dependencies": [
+            "PRD-018"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-022a",
+          "title": "Master Catalog - Admin Import",
+          "module": "business/master-catalog",
+          "priority": "P1",
+          "completion_criteria": [
+            "POST /admin/master-catalog/import endpoint",
+            "JSON file upload with Multer",
+            "Batch import (500 products/transaction)",
+            "Import statistics returned",
+            "Idempotent (skipDuplicates)",
+            "Seed script for master catalog data",
+            "Integration tests for import"
+          ],
+          "dependencies": [
+            "PRD-022"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-022b",
+          "title": "Tenant Catalog - Access & Pricing",
+          "module": "business/tenant-catalog",
+          "priority": "P1",
+          "completion_criteria": [
+            "TenantCatalogModule with service and controller",
+            "GET /catalog/products (tenant-scoped)",
+            "GET /catalog/products/:id with tenant pricing",
+            "POST /catalog/products/:id/access (grant access)",
+            "PUT /catalog/products/:id/pricing (set pricing)",
+            "Pricing hierarchy: agreedPrice > discountPercent > listPrice",
+            "Support validity periods and quantity limits",
+            "Unit and integration tests"
+          ],
+          "dependencies": [
+            "PRD-022"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-022c",
+          "title": "Quote Integration - Master Catalog",
+          "module": "business/quotes",
+          "priority": "P1",
+          "completion_criteria": [
+            "CreateQuoteLineItemDto accepts masterProductId",
+            "Auto-resolve product name, SKU, price from catalog",
+            "Validate tenant has access to product",
+            "Apply tenant-specific pricing",
+            "Backward compatible (manual entry still works)",
+            "Unit tests for pricing resolution"
+          ],
+          "dependencies": [
+            "PRD-021",
+            "PRD-022b"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -368,7 +539,9 @@
             "Approval chains",
             "Multi-level with delegation"
           ],
-          "dependencies": ["PRD-020"],
+          "dependencies": [
+            "PRD-020"
+          ],
           "max_iterations": 12,
           "status": "pending"
         }
@@ -388,7 +561,9 @@
             "In-app notifications",
             "Email via BullMQ"
           ],
-          "dependencies": ["PRD-018"],
+          "dependencies": [
+            "PRD-018"
+          ],
           "max_iterations": 8,
           "status": "pending"
         },
@@ -401,7 +576,10 @@
             "Upload to MinIO",
             "Signed URLs"
           ],
-          "dependencies": ["PRD-005", "PRD-018"],
+          "dependencies": [
+            "PRD-005",
+            "PRD-018"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -414,7 +592,10 @@
             "GET /dashboard/kpis",
             "Redis caching"
           ],
-          "dependencies": ["PRD-020", "PRD-021"],
+          "dependencies": [
+            "PRD-020",
+            "PRD-021"
+          ],
           "max_iterations": 8,
           "status": "pending"
         }
@@ -434,7 +615,9 @@
             "@AgentTool() decorator",
             "GET /agent/tools"
           ],
-          "dependencies": ["PRD-013"],
+          "dependencies": [
+            "PRD-013"
+          ],
           "max_iterations": 10,
           "status": "pending"
         },
@@ -447,16 +630,235 @@
             "POST /agent/execute",
             "Rate limiting"
           ],
-          "dependencies": ["PRD-027"],
+          "dependencies": [
+            "PRD-027"
+          ],
           "max_iterations": 12,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-6",
+      "name": "E-Commerce & Orders",
+      "weight": "50% Lisa / 50% Ralph",
+      "items": [
+        {
+          "id": "PRD-029",
+          "title": "Shopping Cart Module",
+          "module": "business/cart",
+          "priority": "P0",
+          "completion_criteria": [
+            "Cart entity with CartItem relation",
+            "GET /api/v1/cart - Get current user cart",
+            "POST /api/v1/cart/items - Add item to cart",
+            "PATCH /api/v1/cart/items/:id - Update quantity",
+            "DELETE /api/v1/cart/items/:id - Remove item",
+            "DELETE /api/v1/cart - Clear cart",
+            "POST /api/v1/cart/apply-coupon - Apply coupon code",
+            "Cart scoped to user and tenant",
+            "Real-time price calculation with discounts",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-021"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-030",
+          "title": "Orders Module",
+          "module": "business/orders",
+          "priority": "P0",
+          "completion_criteria": [
+            "Order entity with OrderItem, status enum",
+            "POST /api/v1/orders - Create order from cart",
+            "GET /api/v1/orders - List user orders with filters",
+            "GET /api/v1/orders/:id - Order details",
+            "GET /api/v1/orders/:id/tracking - Tracking info",
+            "POST /api/v1/orders/:id/cancel - Cancel order",
+            "GET /api/v1/orders/:id/invoice - Download invoice",
+            "POST /api/v1/orders/:id/reorder - Add to cart",
+            "Order number generation (ORD-YYYY-NNNNN)",
+            "Status workflow: draft→pending→confirmed→processing→shipped→delivered",
+            "Admin endpoints: GET/PATCH /admin/orders",
+            "POST /api/v1/admin/orders/:id/refund",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-029"
+          ],
+          "max_iterations": 15,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-031",
+          "title": "Payment & Delivery Module",
+          "module": "business/payments",
+          "priority": "P0",
+          "completion_criteria": [
+            "PaymentMethod entity",
+            "DeliveryMethod entity",
+            "UserAddress entity",
+            "GET /api/v1/payment-methods - Available methods for user",
+            "POST /api/v1/orders/:id/pay - Process payment",
+            "GET /api/v1/users/me/payment-history",
+            "GET /api/v1/delivery-methods - List delivery options",
+            "GET /api/v1/users/me/addresses - User addresses",
+            "POST /api/v1/users/me/addresses - Add address",
+            "PATCH /api/v1/users/me/addresses/:id - Update",
+            "DELETE /api/v1/users/me/addresses/:id - Delete",
+            "Payment method availability by user type",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-030"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-032",
+          "title": "Salary Deduction Module",
+          "module": "business/salary-deduction",
+          "priority": "P0",
+          "completion_criteria": [
+            "SalaryDeduction entity with limits",
+            "SalaryDeductionTransaction entity",
+            "SalaryDeductionLimitRequest entity",
+            "GET /api/v1/users/me/salary-deduction - Status and limits",
+            "GET /api/v1/users/me/salary-deduction/history - Deduction history",
+            "PATCH /api/v1/users/me/salary-deduction - Update preferences",
+            "POST /api/v1/users/me/salary-deduction/limit-request",
+            "Admin: GET /api/v1/admin/salary-deductions",
+            "Admin: PATCH /api/v1/admin/salary-deductions/:userId",
+            "Admin: GET /api/v1/admin/salary-deductions/report",
+            "Admin: GET /api/v1/admin/salary-deductions/limit-requests",
+            "Admin: POST .../limit-requests/:id/approve",
+            "Admin: POST .../limit-requests/:id/reject",
+            "Monthly limit enforcement",
+            "Payroll export functionality",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-031"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-033",
+          "title": "Discount Tiers Module",
+          "module": "business/discounts",
+          "priority": "P1",
+          "completion_criteria": [
+            "DiscountTier entity",
+            "UserDiscountTier assignment entity",
+            "GET /api/v1/users/me/discount-tier - User tier info",
+            "GET /api/v1/users/me/savings - Savings stats",
+            "Admin: GET /api/v1/admin/discount-tiers",
+            "Admin: POST /api/v1/admin/discount-tiers",
+            "Admin: PATCH /api/v1/admin/discount-tiers/:id",
+            "Admin: DELETE /api/v1/admin/discount-tiers/:id",
+            "Admin: POST /api/v1/admin/discount-tiers/:id/assign",
+            "Tier levels: Bronze, Silver, Gold, Platinum",
+            "Discount calculation in cart/orders",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-029"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-034",
+          "title": "Promotions & Coupons Module",
+          "module": "business/promotions",
+          "priority": "P2",
+          "completion_criteria": [
+            "Promotion entity with conditions",
+            "Coupon entity",
+            "GET /api/v1/promotions/available - For current user",
+            "Admin: GET /api/v1/admin/promotions",
+            "Admin: POST /api/v1/admin/promotions",
+            "Admin: PATCH /api/v1/admin/promotions/:id",
+            "Admin: GET /api/v1/admin/promotions/:id/analytics",
+            "Admin: POST /api/v1/admin/coupons/generate",
+            "Promotion types: percentage, fixed, BOGO",
+            "Usage limits and tracking",
+            "Date-based activation",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-033"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-035",
+          "title": "Partner Module",
+          "module": "business/partners",
+          "priority": "P1",
+          "completion_criteria": [
+            "Partner entity linked to Organization",
+            "PartnerCommission entity",
+            "PartnerResource entity",
+            "GET /api/v1/partners/me - Partner profile",
+            "GET /api/v1/partners/me/commission - Commission details",
+            "GET /api/v1/partners/me/team - Team members",
+            "GET /api/v1/partners/me/resources - Partner docs",
+            "POST /api/v1/partners/me/team - Add team member",
+            "DELETE /api/v1/partners/me/team/:userId",
+            "POST /api/v1/orders/on-behalf - Order for team member",
+            "Commission calculation on team orders",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-030"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-036",
+          "title": "Catalog Enhancements",
+          "module": "business/catalog",
+          "priority": "P1",
+          "completion_criteria": [
+            "Category entity with hierarchy",
+            "GET /api/v1/catalog/categories - Category tree",
+            "GET /api/v1/catalog/products/:id - Single product detail",
+            "GET /api/v1/catalog/products/:id/related - Related products",
+            "GET /api/v1/catalog/search/suggestions - Autocomplete",
+            "Enhanced filters: categoryId, minPrice, maxPrice, availability",
+            "Add discountedPrice to product response",
+            "Add availability status to products",
+            "Add primaryImage field",
+            "Unit tests with 80% coverage",
+            "Integration tests for all endpoints"
+          ],
+          "dependencies": [
+            "PRD-021"
+          ],
+          "max_iterations": 10,
           "status": "pending"
         }
       ]
     }
   ],
   "metadata": {
-    "total_items": 29,
-    "estimated_iterations": 250,
+    "total_items": 32,
+    "estimated_iterations": 286,
     "completion_promise_format": "<promise>COMPLETE:PRD-XXX</promise>"
   }
 }

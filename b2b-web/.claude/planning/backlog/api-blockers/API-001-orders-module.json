@@ -1,0 +1,141 @@
+{
+  "id": "API-001",
+  "type": "api-blocker",
+  "title": "API Blocker: Orders Module",
+  "created": "2026-02-07",
+  "status": "resolved",
+  "blocking_features": ["FE-023", "FE-025", "FE-026", "FE-030"],
+  "description": "Complete orders management module needed for e-commerce functionality",
+  "required_endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/orders",
+      "description": "Create order from cart",
+      "request_body": {
+        "cartId": "string",
+        "deliveryAddressId": "string",
+        "deliveryMethodId": "string",
+        "paymentMethodId": "string",
+        "notes": "string?"
+      },
+      "response": "Order object with id, status, items, totals"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders",
+      "description": "List user's orders with pagination and filters",
+      "query_params": ["status", "dateFrom", "dateTo", "page", "limit"],
+      "response": "Paginated list of orders"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/:id",
+      "description": "Get order details",
+      "response": "Order with items, status history, payment info"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/:id/tracking",
+      "description": "Get order tracking information",
+      "response": "Tracking number, carrier, status updates, estimated delivery"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/:id/cancel",
+      "description": "Cancel an order (if eligible)",
+      "request_body": {"reason": "string"},
+      "response": "Updated order with cancelled status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/:id/invoice",
+      "description": "Download order invoice as PDF",
+      "response": "PDF file or signed URL"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/:id/reorder",
+      "description": "Add order items to cart for reordering",
+      "response": "Updated cart"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/orders/on-behalf",
+      "description": "Partner creates order on behalf of team member",
+      "request_body": {
+        "userId": "string",
+        "cartItems": "array",
+        "deliveryAddressId": "string"
+      },
+      "response": "Order object"
+    }
+  ],
+  "admin_endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/orders",
+      "description": "List all orders (admin)",
+      "query_params": ["status", "userId", "dateFrom", "dateTo", "page", "limit"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/orders/:id",
+      "description": "Get any order details (admin)"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/admin/orders/:id/status",
+      "description": "Update order status",
+      "request_body": {"status": "string", "notes": "string?"}
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/orders",
+      "description": "Create order manually (admin)"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/orders/:id/refund",
+      "description": "Process order refund",
+      "request_body": {"amount": "number", "reason": "string"}
+    }
+  ],
+  "data_model": {
+    "Order": {
+      "id": "uuid",
+      "orderNumber": "string (e.g., ORD-2026-00001)",
+      "userId": "uuid",
+      "tenantId": "uuid",
+      "status": "enum: draft, pending, confirmed, processing, shipped, delivered, cancelled, refunded",
+      "items": "OrderItem[]",
+      "subtotal": "decimal",
+      "discountAmount": "decimal",
+      "taxAmount": "decimal",
+      "shippingAmount": "decimal",
+      "total": "decimal",
+      "deliveryAddressId": "uuid",
+      "deliveryMethodId": "uuid",
+      "paymentMethodId": "uuid",
+      "paymentStatus": "enum: pending, paid, failed, refunded",
+      "notes": "string?",
+      "trackingNumber": "string?",
+      "carrier": "string?",
+      "estimatedDelivery": "datetime?",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    },
+    "OrderItem": {
+      "id": "uuid",
+      "orderId": "uuid",
+      "productId": "uuid",
+      "sku": "string",
+      "name": "string",
+      "quantity": "integer",
+      "unitPrice": "decimal",
+      "discountPercent": "decimal",
+      "total": "decimal"
+    }
+  },
+  "priority": "P0",
+  "notes": "Core e-commerce functionality - required before any order features can be built"
+}
