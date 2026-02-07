@@ -1,10 +1,12 @@
 "use client";
 
-import { cn } from "@b2b/ui";
+import { useAuth } from "@b2b/auth/react";
+import { Button, cn } from "@b2b/ui";
 import {
   Building2,
   FileText,
   LayoutDashboard,
+  LogOut,
   Package,
   Settings,
   Users,
@@ -23,6 +25,11 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, logout, isAuthenticated } = useAuth();
+
+  const handleLogout = async () => {
+    await logout("/login");
+  };
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-card">
@@ -53,13 +60,38 @@ export function Sidebar() {
         })}
       </nav>
       <div className="border-t p-4">
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground">
-          <div className="h-8 w-8 rounded-full bg-muted" />
-          <div className="flex-1 truncate">
-            <p className="font-medium text-foreground">Admin User</p>
-            <p className="text-xs">admin@example.com</p>
+        {isAuthenticated && user ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-medium">
+                {user.firstName?.[0]}
+                {user.lastName?.[0]}
+              </div>
+              <div className="flex-1 truncate">
+                <p className="font-medium text-foreground">
+                  {user.firstName} {user.lastName}
+                </p>
+                <p className="text-xs">{user.email}</p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground">
+            <div className="h-8 w-8 rounded-full bg-muted" />
+            <div className="flex-1 truncate">
+              <p className="font-medium text-foreground">Not signed in</p>
+            </div>
+          </div>
+        )}
       </div>
     </aside>
   );

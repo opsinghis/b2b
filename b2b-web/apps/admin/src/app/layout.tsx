@@ -1,3 +1,4 @@
+import { AuthProvider } from "@b2b/auth/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -20,10 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex h-screen">
-          <Sidebar />
-          <main className="flex-1 overflow-auto">{children}</main>
-        </div>
+        <AuthProvider>
+          <div className="flex h-screen">
+            <Sidebar />
+            <main className="flex-1 overflow-auto">{children}</main>
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@b2b/api-client": "workspace:*",
+    "@b2b/auth": "workspace:*",
     "@b2b/ui": "workspace:*",
     "@radix-ui/react-slot": "^1.0.2",
     "@tanstack/react-query": "^5.28.0",

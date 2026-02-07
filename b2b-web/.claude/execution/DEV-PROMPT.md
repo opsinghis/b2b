@@ -1,4 +1,4 @@
-# Implement: FE-005 - OpenAPI Client Generation (Iteration 4)
+# Implement: FE-006 - Frontend Authentication (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,37 +18,49 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-005
-**Title:** OpenAPI Client Generation
-**Module:** packages/api-client
+**ID:** FE-006
+**Title:** Frontend Authentication
+**Module:** packages/auth
 
 ## Completion Criteria (ALL must be met)
-- Client generated from b2b-api OpenAPI spec
-- Typed API client with all endpoints
-- pnpm --filter api-client generate works
-- Client usable in apps via @b2b/api-client
-- Includes request/response types
+- NextAuth.js v5 configured
+- Credentials provider (email/password via API)
+- Login page with form validation
+- Logout functionality
+- Protected route middleware
+- useAuth() hook with user info
+- Access token storage and refresh
 
 ## API Dependencies
-- GET /docs-json - OpenAPI JSON spec
+- POST /api/v1/auth/login - available
+- POST /api/v1/auth/register - available
+- POST /api/v1/auth/refresh - available
+- POST /api/v1/auth/logout - available
+- GET /api/v1/users/me - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-005 - OpenAPI Client Generation
+# Plan: FE-006 - Frontend Authentication
 
-## Module: packages/api-client
+## Module: packages/auth
 
 ## Completion Criteria
-- [ ] Client generated from b2b-api OpenAPI spec
-- [ ] Typed API client with all endpoints
-- [ ] pnpm --filter api-client generate works
-- [ ] Client usable in apps via @b2b/api-client
-- [ ] Includes request/response types
+- [ ] NextAuth.js v5 configured
+- [ ] Credentials provider (email/password via API)
+- [ ] Login page with form validation
+- [ ] Logout functionality
+- [ ] Protected route middleware
+- [ ] useAuth() hook with user info
+- [ ] Access token storage and refresh
 
 ## API Dependencies
-- GET /docs-json [available]
+- POST /api/v1/auth/login [available]
+- POST /api/v1/auth/register [available]
+- POST /api/v1/auth/refresh [available]
+- POST /api/v1/auth/logout [available]
+- GET /api/v1/users/me [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -65,29 +77,7 @@ Swagger Docs: http://localhost:3000/docs
 ## Ready for Ralph: [ ]
 
 ## Previous Iteration Output
-All FE-005 completion criteria have been verified:
 
-## FE-005 Verification Summary
-
-| Criteria | Status | Evidence |
-|----------|--------|----------|
-| Client generated from b2b-api OpenAPI spec | ✅ | `openapi.json` (16,934 lines) exists and is valid |
-| Typed API client with all endpoints | ✅ | `src/generated/api.ts` (8,780 lines) with full `paths`, `components`, `operations` |
-| `pnpm --filter api-client generate` works | ✅ | Command completes in 21ms |
-| Client usable in apps via `@b2b/api-client` | ✅ | Both `apps/admin` and `apps/portal` have `@b2b/api-client: "workspace:*"` |
-| Includes request/response types | ✅ | 75+ DTOs exported (LoginDto, UserResponseDto, TenantResponseDto, etc.) |
-
-### Additional Verification
-- **Tests**: 8/8 passing
-- **TypeCheck**: Clean (no errors)
-- **Build**: Successful
-- **Generate**: Works correctly with openapi-typescript 6.7.6
-
-The api-client package is fully functional and ready for use by both applications.
-
-```
-<promise>COMPLETE:FE-005</promise>
-```
 
 ## Instructions
 1. Implement ALL completion criteria for this feature
@@ -100,7 +90,7 @@ The api-client package is fully functional and ready for use by both application
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-005</promise>
+<promise>COMPLETE:FE-006</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
