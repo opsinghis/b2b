@@ -19,7 +19,8 @@ export class JsonPathMapperService {
    */
   extractValue(data: unknown, path: string): unknown {
     try {
-      const result = JSONPath({ path, json: data, wrap: false });
+      const json = data as null | boolean | number | string | object | unknown[];
+      const result = JSONPath({ path, json, wrap: false });
       return result;
     } catch (error) {
       this.logger.debug(`JSONPath extraction failed for path '${path}': ${(error as Error).message}`);
@@ -32,7 +33,8 @@ export class JsonPathMapperService {
    */
   extractValues(data: unknown, path: string): unknown[] {
     try {
-      const result = JSONPath({ path, json: data, wrap: true });
+      const json = data as null | boolean | number | string | object | unknown[];
+      const result = JSONPath({ path, json, wrap: true });
       return Array.isArray(result) ? result : [result];
     } catch (error) {
       this.logger.debug(`JSONPath extraction failed for path '${path}': ${(error as Error).message}`);

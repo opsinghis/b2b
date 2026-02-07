@@ -19,7 +19,9 @@
       "Bash(npm run build:*)",
       "Bash(npm run generate:postman:check:*)",
       "Bash(/Users/omsingh0/code/b2b/b2b-web/.claude/ralph.sh:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(pnpm run lint:check:*)",
+      "Bash(pnpm run build:*)"
     ],
     "deny": [],
     "ask": []

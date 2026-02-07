@@ -20,3 +20,18 @@ export {
   CredentialVaultResponseDto,
   CapabilityResponseDto,
 } from './connectors/dto';
+
+// REST Connector exports
+export {
+  RestConnectorModule,
+  RestConnectorController,
+  RestConnectorService,
+  AuthProviderService,
+  JsonPathMapperService,
+  PaginationHandlerService,
+  ErrorMapperService,
+  RequestLoggerService,
+  WebhookReceiverService,
+  GenericRestConnector,
+  GenericRestConnectorFactory,
+} from './connectors/rest';

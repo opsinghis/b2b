@@ -32,6 +32,7 @@ import { ToolsModule } from './agentic/tools';
 import { OrchestratorModule } from './agentic/orchestrator';
 import { IntegrationHubModule } from './business/integrations/hub';
 import { ConnectorRegistryModule } from './business/integrations/connectors';
+import { RestConnectorModule } from './business/integrations/connectors/rest';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { ConnectorRegistryModule } from './business/integrations/connectors';
     OrchestratorModule,
     IntegrationHubModule,
     ConnectorRegistryModule,
+    RestConnectorModule,
   ],
   controllers: [HealthController],
   providers: [

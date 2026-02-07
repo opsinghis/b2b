@@ -212,11 +212,15 @@ export class AuthProviderService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post(authConfig.tokenUrl, params.toString(), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+        this.httpService.post<{ access_token: string; refresh_token?: string; expires_in?: number }>(
+          authConfig.tokenUrl,
+          params.toString(),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-        }),
+        ),
       );
 
       const data = response.data;
@@ -250,11 +254,15 @@ export class AuthProviderService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post(url, params.toString(), {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+        this.httpService.post<{ access_token: string; refresh_token?: string; expires_in?: number }>(
+          url,
+          params.toString(),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-        }),
+        ),
       );
 
       const data = response.data;
