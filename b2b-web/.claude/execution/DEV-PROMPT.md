@@ -1,4 +1,4 @@
-# Implement: FE-007 - Admin - Tenant Management (Iteration 1)
+# Implement: FE-008 - Admin - User Management (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,47 +18,47 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-007
-**Title:** Admin - Tenant Management
+**ID:** FE-008
+**Title:** Admin - User Management
 **Module:** apps/admin
 
 ## Completion Criteria (ALL must be met)
-- Tenants list with search, pagination
-- Create tenant modal/form
-- Edit tenant page
-- Tenant config editor (JSON)
-- Activate/deactivate tenant
-- Super admin only access
+- Users list with filters (role, status)
+- Create user modal/form
+- Edit user page
+- Role assignment dropdown
+- Password reset action
+- Deactivate/activate user
 
 ## API Dependencies
-- GET /api/v1/tenants - available
-- POST /api/v1/tenants - available
-- GET /api/v1/tenants/:id - available
-- PATCH /api/v1/tenants/:id - available
-- DELETE /api/v1/tenants/:id - available
+- GET /api/v1/users - available
+- POST /api/v1/users - available
+- GET /api/v1/users/:id - available
+- PATCH /api/v1/users/:id - available
+- DELETE /api/v1/users/:id - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-007 - Admin - Tenant Management
+# Plan: FE-008 - Admin - User Management
 
 ## Module: apps/admin
 
 ## Completion Criteria
-- [ ] Tenants list with search, pagination
-- [ ] Create tenant modal/form
-- [ ] Edit tenant page
-- [ ] Tenant config editor (JSON)
-- [ ] Activate/deactivate tenant
-- [ ] Super admin only access
+- [ ] Users list with filters (role, status)
+- [ ] Create user modal/form
+- [ ] Edit user page
+- [ ] Role assignment dropdown
+- [ ] Password reset action
+- [ ] Deactivate/activate user
 
 ## API Dependencies
-- GET /api/v1/tenants [available]
-- POST /api/v1/tenants [available]
-- GET /api/v1/tenants/:id [available]
-- PATCH /api/v1/tenants/:id [available]
-- DELETE /api/v1/tenants/:id [available]
+- GET /api/v1/users [available]
+- POST /api/v1/users [available]
+- GET /api/v1/users/:id [available]
+- PATCH /api/v1/users/:id [available]
+- DELETE /api/v1/users/:id [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -88,7 +88,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-007</promise>
+<promise>COMPLETE:FE-008</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
