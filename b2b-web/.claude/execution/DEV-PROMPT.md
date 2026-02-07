@@ -1,4 +1,4 @@
-# Implement: FE-001 - Turborepo Monorepo Setup (Iteration 1)
+# Implement: FE-002 - Next.js Admin Scaffold (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,17 +18,16 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-001
-**Title:** Turborepo Monorepo Setup
-**Module:** foundation
+**ID:** FE-002
+**Title:** Next.js Admin Scaffold
+**Module:** apps/admin
 
 ## Completion Criteria (ALL must be met)
-- Turborepo with pnpm workspaces
-- apps/admin, apps/portal directories
-- packages/ui, packages/api-client, packages/config
-- turbo.json with build, lint, test pipelines
-- pnpm install works
-- turbo run build works
+- Next.js 14+ with App Router
+- TypeScript strict mode
+- Tailwind CSS configured
+- pnpm --filter admin dev works (port 3002)
+- Basic layout with sidebar placeholder
 
 ## API Dependencies
 
@@ -37,17 +36,16 @@ Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-001 - Turborepo Monorepo Setup
+# Plan: FE-002 - Next.js Admin Scaffold
 
-## Module: foundation
+## Module: apps/admin
 
 ## Completion Criteria
-- [ ] Turborepo with pnpm workspaces
-- [ ] apps/admin, apps/portal directories
-- [ ] packages/ui, packages/api-client, packages/config
-- [ ] turbo.json with build, lint, test pipelines
-- [ ] pnpm install works
-- [ ] turbo run build works
+- [ ] Next.js 14+ with App Router
+- [ ] TypeScript strict mode
+- [ ] Tailwind CSS configured
+- [ ] pnpm --filter admin dev works (port 3002)
+- [ ] Basic layout with sidebar placeholder
 
 ## API Dependencies
 
@@ -80,7 +78,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-001</promise>
+<promise>COMPLETE:FE-002</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

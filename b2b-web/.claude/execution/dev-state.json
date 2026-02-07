@@ -4,7 +4,8 @@
   "current_phase": "idle",
   "current_iteration": 0,
   "completed": [
-    "FE-001"
+    "FE-001",
+    "FE-002"
   ],
   "waiting_for_api": [],
   "gap_counter": 0
