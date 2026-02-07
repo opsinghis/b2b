@@ -78,6 +78,48 @@ export function useMarkNotificationRead() {
   });
 }
 
+export function useMarkNotificationUnread() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      // Note: API may not support this directly, we'll optimistically update
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (client as any).PATCH("/api/v1/notifications/{id}", {
+        params: { path: { id: notificationId } },
+        body: { isRead: false },
+      });
+      if (error) throw new Error("Failed to mark notification as unread");
+    },
+    onMutate: async (notificationId: string) => {
+      // Optimistic update
+      await queryClient.cancelQueries({ queryKey: ["notifications"] });
+      const previousData = queryClient.getQueryData<NotificationsResponse>(["notifications", { limit: 10 }]);
+
+      if (previousData) {
+        queryClient.setQueryData<NotificationsResponse>(["notifications", { limit: 10 }], {
+          ...previousData,
+          items: previousData.items.map((n) =>
+            n.id === notificationId ? { ...n, isRead: false } : n
+          ),
+          unreadCount: previousData.unreadCount + 1,
+        });
+      }
+
+      return { previousData };
+    },
+    onError: (err, notificationId, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["notifications", { limit: 10 }], context.previousData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+}
+
 export function useMarkAllNotificationsRead() {
   const client = useApiClient();
   const queryClient = useQueryClient();

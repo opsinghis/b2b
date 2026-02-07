@@ -1,4 +1,4 @@
-# Implement: FE-019 - Portal - Files & Attachments (Iteration 1)
+# Implement: FE-020 - Portal - Notifications & Preferences (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,41 +18,41 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-019
-**Title:** Portal - Files & Attachments
+**ID:** FE-020
+**Title:** Portal - Notifications & Preferences
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- File upload component with drag-drop
-- File list on contracts/quotes
-- Download via signed URL
-- File type icons
-- Delete file confirmation
+- Notifications dropdown with badge
+- Mark as read/unread
+- Mark all as read
+- Notification preferences page
+- Email notification toggles
 
 ## API Dependencies
-- POST /api/v1/files/upload - available
-- GET /api/v1/files/:id/download - available
-- DELETE /api/v1/files/:id - available
+- GET /api/v1/notifications - available
+- PATCH /api/v1/notifications/:id/read - available
+- POST /api/v1/notifications/mark-all-read - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-019 - Portal - Files & Attachments
+# Plan: FE-020 - Portal - Notifications & Preferences
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] File upload component with drag-drop
-- [ ] File list on contracts/quotes
-- [ ] Download via signed URL
-- [ ] File type icons
-- [ ] Delete file confirmation
+- [ ] Notifications dropdown with badge
+- [ ] Mark as read/unread
+- [ ] Mark all as read
+- [ ] Notification preferences page
+- [ ] Email notification toggles
 
 ## API Dependencies
-- POST /api/v1/files/upload [available]
-- GET /api/v1/files/:id/download [available]
-- DELETE /api/v1/files/:id [available]
+- GET /api/v1/notifications [available]
+- PATCH /api/v1/notifications/:id/read [available]
+- POST /api/v1/notifications/mark-all-read [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -82,7 +82,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-019</promise>
+<promise>COMPLETE:FE-020</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

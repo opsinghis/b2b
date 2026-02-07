@@ -74,5 +74,7 @@ export type { CalendarProps } from "./components/calendar";
 export { DatePicker } from "./components/date-picker";
 export type { DatePickerProps } from "./components/date-picker";
 
+export { Switch } from "./components/switch";
+
 // Utilities
 export { cn } from "./lib/utils";
