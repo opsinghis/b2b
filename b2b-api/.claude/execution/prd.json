@@ -854,11 +854,533 @@
           "status": "pending"
         }
       ]
+    },
+    {
+      "id": "phase-7",
+      "name": "Integration Foundation",
+      "items": [
+        {
+          "id": "PRD-040",
+          "title": "Integration Hub Core",
+          "module": "integrations/hub",
+          "priority": "P0",
+          "completion_criteria": [
+            "IntegrationHub service with message routing",
+            "IntegrationMessage model in Prisma schema",
+            "Transformation pipeline (source → canonical → target)",
+            "Retry policy with exponential backoff",
+            "Dead-letter queue for failed messages",
+            "Circuit breaker pattern implementation",
+            "Idempotency handling with deduplication",
+            "Rate limiting per connector",
+            "Health check endpoints",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-041",
+          "title": "Connector Registry & Plugin System",
+          "module": "integrations/connectors",
+          "priority": "P0",
+          "completion_criteria": [
+            "Connector and ConnectorConfig models in Prisma",
+            "IConnector interface definition",
+            "ConnectorRegistry service for plugin management",
+            "Credential vault with encrypted storage",
+            "Connector lifecycle (register, configure, enable, disable)",
+            "Capability declaration system",
+            "Dynamic connector loading",
+            "Admin CRUD API for connectors",
+            "Test connection endpoint",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-042",
+          "title": "Generic REST Connector",
+          "module": "integrations/connectors/rest",
+          "priority": "P0",
+          "completion_criteria": [
+            "Configurable REST client",
+            "Auth support: Basic, Bearer, OAuth2, API Key",
+            "Request/response mapping via JSONPath",
+            "Configurable endpoints per operation",
+            "Pagination handling (offset, cursor, link)",
+            "Error mapping and handling",
+            "Request/response logging",
+            "Webhook receiver for callbacks",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-041"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-043",
+          "title": "Message Queue Integration",
+          "module": "integrations/events",
+          "priority": "P0",
+          "completion_criteria": [
+            "Event publisher service",
+            "Event subscriber service",
+            "BullMQ job queues for async processing",
+            "Event types: ORDER_*, INVOICE_*, INVENTORY_*",
+            "Event replay capability",
+            "Event filtering by tenant/type",
+            "Webhook delivery for external systems",
+            "Event log with retention policy",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-044",
+          "title": "Integration Monitoring & Logging",
+          "module": "integrations/monitoring",
+          "priority": "P1",
+          "completion_criteria": [
+            "Integration dashboard KPIs endpoint",
+            "Message throughput metrics",
+            "Error rate tracking",
+            "Latency percentiles (p50, p95, p99)",
+            "Connector health status",
+            "Alert configuration (thresholds)",
+            "Audit log for all integration actions",
+            "Log retention and archival",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040",
+            "PRD-041"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-8",
+      "name": "ERP Connectors",
+      "items": [
+        {
+          "id": "PRD-045",
+          "title": "SAP S/4HANA Connector",
+          "module": "integrations/connectors/sap",
+          "priority": "P1",
+          "completion_criteria": [
+            "SAP OData V4 client implementation",
+            "OAuth2 authentication with SAP",
+            "Sales Order creation (A_SalesOrder)",
+            "Sales Order status retrieval",
+            "Customer master sync (A_BusinessPartner)",
+            "Product/Material sync (A_Product)",
+            "Invoice retrieval",
+            "Inventory check (ATP)",
+            "Error handling for SAP-specific codes",
+            "Mapping to canonical models",
+            "Configuration UI schema",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-042"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-046",
+          "title": "Microsoft Dynamics 365 Connector",
+          "module": "integrations/connectors/dynamics",
+          "priority": "P1",
+          "completion_criteria": [
+            "Dynamics 365 Web API client",
+            "Azure AD OAuth2 authentication",
+            "Sales Order creation",
+            "Sales Order status sync",
+            "Customer/Account sync",
+            "Product catalog sync",
+            "Invoice retrieval",
+            "Price list sync",
+            "Mapping to canonical models",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-042"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-047",
+          "title": "NetSuite Connector",
+          "module": "integrations/connectors/netsuite",
+          "priority": "P1",
+          "completion_criteria": [
+            "NetSuite REST/SuiteTalk client",
+            "Token-based authentication (TBA)",
+            "Sales Order creation",
+            "Customer sync",
+            "Item/Product sync",
+            "Invoice sync",
+            "Inventory check",
+            "Saved search execution",
+            "Mapping to canonical models",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-042"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-048",
+          "title": "Oracle ERP Cloud Connector",
+          "module": "integrations/connectors/oracle",
+          "priority": "P2",
+          "completion_criteria": [
+            "Oracle REST API client",
+            "OAuth2 authentication",
+            "Sales Order creation",
+            "Order status sync",
+            "Customer sync",
+            "Item master sync",
+            "Invoice sync",
+            "Mapping to canonical models",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-042"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-049",
+          "title": "QuickBooks Connector",
+          "module": "integrations/connectors/quickbooks",
+          "priority": "P2",
+          "completion_criteria": [
+            "QuickBooks Online API client",
+            "OAuth2 authentication",
+            "Sales Receipt/Invoice creation",
+            "Customer sync",
+            "Item sync",
+            "Payment sync",
+            "Mapping to canonical models",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-042"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-9",
+      "name": "EDI & E-Invoicing",
+      "items": [
+        {
+          "id": "PRD-050",
+          "title": "EDI X12 Parser/Generator",
+          "module": "integrations/edi/x12",
+          "priority": "P1",
+          "completion_criteria": [
+            "X12 lexer/parser implementation",
+            "X12 generator implementation",
+            "Transaction sets: 850, 855, 856, 810, 997",
+            "ISA/GS/ST envelope handling",
+            "Segment/element validation",
+            "Partner-specific delimiters",
+            "Version support (4010, 5010)",
+            "Mapping to/from canonical models",
+            "Parse error reporting with location",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-051",
+          "title": "EDIFACT Parser/Generator",
+          "module": "integrations/edi/edifact",
+          "priority": "P1",
+          "completion_criteria": [
+            "EDIFACT parser implementation",
+            "EDIFACT generator implementation",
+            "Message types: ORDERS, ORDRSP, DESADV, INVOIC",
+            "UNB/UNH envelope handling",
+            "Syntax version support (D96A, D01B)",
+            "Mapping to/from canonical models",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-052",
+          "title": "AS2/SFTP Transport",
+          "module": "integrations/edi/transport",
+          "priority": "P1",
+          "completion_criteria": [
+            "AS2 client implementation",
+            "AS2 server (receive) implementation",
+            "MDN (receipt) handling",
+            "Certificate management",
+            "SFTP client for file exchange",
+            "Partner trading profile configuration",
+            "Inbound file polling",
+            "Outbound file delivery",
+            "Transport logging",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-050",
+            "PRD-051"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-053",
+          "title": "E-Invoicing - Peppol (EU)",
+          "module": "integrations/einvoice/peppol",
+          "priority": "P1",
+          "completion_criteria": [
+            "UBL 2.1 Invoice generation",
+            "UBL 2.1 Credit Note generation",
+            "Peppol BIS Billing 3.0 compliance",
+            "Schematron validation",
+            "Participant lookup (SMP)",
+            "Access Point API integration",
+            "Document status tracking",
+            "XRechnung extension (Germany)",
+            "PDF/A-3 with embedded XML",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-054",
+          "title": "E-Invoicing - CFDI 4.0 (Mexico)",
+          "module": "integrations/einvoice/cfdi",
+          "priority": "P1",
+          "completion_criteria": [
+            "CFDI 4.0 XML generation",
+            "Digital signature with CSD",
+            "PAC integration for timbrado",
+            "UUID tracking",
+            "Cancellation with motivo",
+            "Pagos 2.0 complement",
+            "Comercio Exterior complement",
+            "SAT validation integration",
+            "PDF representation",
+            "Common addenda support",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-055",
+          "title": "E-Invoicing - NF-e (Brazil)",
+          "module": "integrations/einvoice/nfe",
+          "priority": "P2",
+          "completion_criteria": [
+            "NF-e XML generation (layout 4.0)",
+            "Digital signature (A1/A3 certificate)",
+            "SEFAZ webservice integration",
+            "Authorization and status check",
+            "Cancellation (Evento)",
+            "Correction letter (CC-e)",
+            "DANFE PDF generation",
+            "Contingency modes",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040"
+          ],
+          "max_iterations": 14,
+          "status": "pending"
+        }
+      ]
+    },
+    {
+      "id": "phase-10",
+      "name": "Business Flows",
+      "items": [
+        {
+          "id": "PRD-056",
+          "title": "Order-to-Cash Flow",
+          "module": "integrations/flows/o2c",
+          "priority": "P0",
+          "completion_criteria": [
+            "Flow orchestration engine",
+            "Order sync trigger on ORDER_CREATED",
+            "Credit check step (real-time)",
+            "Order status polling/webhook",
+            "Shipment/ASN sync",
+            "Invoice generation trigger",
+            "Invoice sync back to B2B",
+            "Payment status sync",
+            "Flow configuration per tenant",
+            "Flow execution logging",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040",
+            "PRD-041",
+            "PRD-043"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-057",
+          "title": "Procure-to-Pay Flow",
+          "module": "integrations/flows/p2p",
+          "priority": "P1",
+          "completion_criteria": [
+            "PO receipt from ERP",
+            "PO acknowledgment generation",
+            "Goods receipt sync",
+            "Invoice submission to ERP",
+            "3-way match support",
+            "Payment status tracking",
+            "Flow configuration per tenant",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-056"
+          ],
+          "max_iterations": 12,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-058",
+          "title": "Inventory/ATP Sync",
+          "module": "integrations/flows/inventory",
+          "priority": "P0",
+          "completion_criteria": [
+            "InventoryLevel model in Prisma",
+            "InventoryReservation model",
+            "Real-time stock check API",
+            "Batch inventory sync job",
+            "ATP calculation logic",
+            "Multi-warehouse support",
+            "Safety stock configuration",
+            "Low stock alerts",
+            "Reservation on checkout",
+            "Reservation timeout/release",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040",
+            "PRD-043"
+          ],
+          "max_iterations": 10,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-059",
+          "title": "Price List Sync",
+          "module": "integrations/flows/pricing",
+          "priority": "P1",
+          "completion_criteria": [
+            "Price list import from ERP",
+            "Customer-specific pricing",
+            "Currency support",
+            "Effective date handling",
+            "Price override rules",
+            "Batch sync job",
+            "Delta sync support",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040",
+            "PRD-043"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        },
+        {
+          "id": "PRD-060",
+          "title": "Customer Master Sync",
+          "module": "integrations/flows/customer",
+          "priority": "P1",
+          "completion_criteria": [
+            "New customer push to ERP",
+            "Customer update sync (bidirectional)",
+            "Address sync",
+            "Tax ID validation",
+            "Credit limit sync from ERP",
+            "Payment terms sync",
+            "Customer hierarchy support",
+            "Unit tests with 80%+ coverage"
+          ],
+          "api_dependencies": [],
+          "dependencies": [
+            "PRD-040",
+            "PRD-043"
+          ],
+          "max_iterations": 8,
+          "status": "pending"
+        }
+      ]
     }
   ],
   "metadata": {
-    "total_items": 32,
-    "estimated_iterations": 286,
+    "total_items": 61,
+    "estimated_iterations": 607,
     "completion_promise_format": "<promise>COMPLETE:PRD-XXX</promise>"
   }
 }

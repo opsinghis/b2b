@@ -7,6 +7,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  Network,
   Package,
   Settings,
   Users,
@@ -17,6 +18,7 @@ import { usePathname } from "next/navigation";
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Tenants", href: "/tenants", icon: Building2 },
+  { name: "Organizations", href: "/organizations", icon: Network },
   { name: "Users", href: "/users", icon: Users },
   { name: "Catalog", href: "/catalog", icon: Package },
   { name: "Audit Log", href: "/audit", icon: FileText },
@@ -41,7 +43,10 @@ export function Sidebar() {
       </div>
       <nav className="flex-1 space-y-1 p-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive =
+            item.href === "/"
+              ? pathname === "/"
+              : pathname === item.href || pathname.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.name}
