@@ -4,60 +4,60 @@
   "current": {
     "phase": "phase-7",
     "phase_name": "Integration Foundation",
-    "prd_item": "PRD-042",
+    "prd_item": "PRD-043",
     "status": "in_progress",
     "iteration": 1,
     "max_iterations": 8
   },
   "subtasks": {
-    "prd_item": "PRD-042",
+    "prd_item": "PRD-043",
     "total": 10,
     "completed": 0,
-    "current_subtask": "Create Generic REST Connector module scaffold",
+    "current_subtask": "Create Message Queue module scaffold",
     "checklist": [
       {
         "id": 1,
-        "task": "Create Generic REST Connector module scaffold",
+        "task": "Create Message Queue module scaffold",
         "status": "pending"
       },
       {
         "id": 2,
-        "task": "Implement configurable REST client with HttpService",
+        "task": "Implement Event publisher service",
         "status": "pending"
       },
       {
         "id": 3,
-        "task": "Implement auth support (Basic, Bearer, OAuth2, API Key)",
+        "task": "Implement Event subscriber service",
         "status": "pending"
       },
       {
         "id": 4,
-        "task": "Implement request/response mapping via JSONPath",
+        "task": "Implement BullMQ job queues for async processing",
         "status": "pending"
       },
       {
         "id": 5,
-        "task": "Implement configurable endpoints per operation",
+        "task": "Define event types: ORDER_*, INVOICE_*, INVENTORY_*",
         "status": "pending"
       },
       {
         "id": 6,
-        "task": "Implement pagination handling (offset, cursor, link)",
+        "task": "Implement event replay capability",
         "status": "pending"
       },
       {
         "id": 7,
-        "task": "Implement error mapping and handling",
+        "task": "Implement event filtering by tenant/type",
         "status": "pending"
       },
       {
         "id": 8,
-        "task": "Implement request/response logging",
+        "task": "Implement webhook delivery for external systems",
         "status": "pending"
       },
       {
         "id": 9,
-        "task": "Implement webhook receiver for callbacks",
+        "task": "Implement event log with retention policy",
         "status": "pending"
       },
       {
@@ -69,10 +69,10 @@
   },
   "test_gates": {
     "unit": {
-      "status": "pending",
-      "passed": 0,
+      "status": "passed",
+      "passed": 166,
       "failed": 0,
-      "coverage": 0
+      "coverage": 80
     },
     "integration": {
       "status": "pending",
@@ -96,14 +96,14 @@
     }
   },
   "checkpoints": {
-    "last_checkpoint": "2026-02-08T00:35:00.000Z",
-    "last_commit_sha": "9299450c8a48c3d2ee6994bebe85f4764f02cac7",
-    "checkpoint_count": 34
+    "last_checkpoint": "2026-02-08T01:30:00.000Z",
+    "last_commit_sha": "17482fb4f65f2cc7a7db5a1b9f5e46fa4917725d",
+    "checkpoint_count": 35
   },
   "progress": {
     "total_items": 61,
-    "completed": 44,
-    "in_progress": 1,
+    "completed": 45,
+    "in_progress": 0,
     "blocked": 0,
     "pending": 16
   },
@@ -149,13 +149,14 @@
     "PRD-035",
     "PRD-036",
     "PRD-040",
-    "PRD-041"
+    "PRD-041",
+    "PRD-042"
   ],
   "blocked_items": [],
   "session": {
     "started_at": "2026-02-07T17:05:59Z",
-    "iterations_this_session": 4,
-    "checkpoints_this_session": 23
+    "iterations_this_session": 5,
+    "checkpoints_this_session": 24
   },
   "flags": {
     "needs_human_intervention": false,

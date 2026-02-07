@@ -35,3 +35,29 @@ export {
   GenericRestConnector,
   GenericRestConnectorFactory,
 } from './connectors/rest';
+
+// Events (Message Queue) exports
+export {
+  EventsModule,
+  EventPublisherService,
+  EventSubscriberService,
+  EventLogService,
+  EventReplayService,
+  WebhookDeliveryService,
+  EventProcessor,
+  WebhookProcessor,
+} from './events';
+export * from './events/interfaces';
+export {
+  PublishEventDto,
+  PublishBatchDto,
+  CreateSubscriptionDto,
+  UpdateSubscriptionDto,
+  EventReplayRequestDto,
+  EventLogQueryDto,
+  RetentionPolicyDto,
+  PublishedEventResponseDto,
+  EventStatsResponseDto,
+  QueueStatsResponseDto,
+  ReplayStatusResponseDto,
+} from './events/dto';

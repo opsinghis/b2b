@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
-import { ContractTimeline, VersionHistory } from "../components";
+import { ContractTimeline, VersionHistory, WorkflowActions } from "../components";
 import {
   useContract,
   useContractVersions,
@@ -133,6 +133,14 @@ function ContractDetailContent() {
             </Button>
           </div>
         </div>
+
+        {/* Workflow Actions */}
+        <WorkflowActions
+          contractId={contract.id}
+          contractTitle={contract.title}
+          status={contract.status}
+          onSuccess={() => refetchContract()}
+        />
 
         {/* Contract Header */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">

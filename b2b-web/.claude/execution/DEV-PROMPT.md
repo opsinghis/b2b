@@ -1,4 +1,4 @@
-# Implement: FE-014 - Portal - Contracts List & Detail (Iteration 1)
+# Implement: FE-015 - Portal - Contract Workflow (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,41 +18,45 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-014
-**Title:** Portal - Contracts List & Detail
+**ID:** FE-015
+**Title:** Portal - Contract Workflow
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Contracts list with filters (status, date)
-- Contract detail page with timeline
-- Version history with diff view
-- Download contract as PDF placeholder
-- Status badge display
+- Create contract form
+- Submit for review button
+- Workflow action buttons (based on status)
+- Approve/reject with comments modal
+- Status transition confirmations
 
 ## API Dependencies
-- GET /api/v1/contracts - available
-- GET /api/v1/contracts/:id - available
-- GET /api/v1/contracts/:id/versions - available
+- POST /api/v1/contracts - available
+- POST /api/v1/contracts/:id/submit - available
+- POST /api/v1/contracts/:id/approve - available
+- POST /api/v1/contracts/:id/reject - available
+- POST /api/v1/contracts/:id/activate - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-014 - Portal - Contracts List & Detail
+# Plan: FE-015 - Portal - Contract Workflow
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Contracts list with filters (status, date)
-- [ ] Contract detail page with timeline
-- [ ] Version history with diff view
-- [ ] Download contract as PDF placeholder
-- [ ] Status badge display
+- [ ] Create contract form
+- [ ] Submit for review button
+- [ ] Workflow action buttons (based on status)
+- [ ] Approve/reject with comments modal
+- [ ] Status transition confirmations
 
 ## API Dependencies
-- GET /api/v1/contracts [available]
-- GET /api/v1/contracts/:id [available]
-- GET /api/v1/contracts/:id/versions [available]
+- POST /api/v1/contracts [available]
+- POST /api/v1/contracts/:id/submit [available]
+- POST /api/v1/contracts/:id/approve [available]
+- POST /api/v1/contracts/:id/reject [available]
+- POST /api/v1/contracts/:id/activate [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -82,7 +86,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-014</promise>
+<promise>COMPLETE:FE-015</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

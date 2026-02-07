@@ -3,7 +3,7 @@
 import { RequireAuth } from "@b2b/auth/react";
 import { Button, Input } from "@b2b/ui";
 import { format } from "date-fns";
-import { RefreshCw, Search, FileText } from "lucide-react";
+import { RefreshCw, Search, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 
@@ -101,12 +101,20 @@ function ContractsContent() {
               View and manage your contracts
             </p>
           </div>
-          <Link href="/">
-            <Button variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              Back to Dashboard
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/contracts/new">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Contract
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button variant="outline">
+                <FileText className="mr-2 h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Search and Filters Bar */}

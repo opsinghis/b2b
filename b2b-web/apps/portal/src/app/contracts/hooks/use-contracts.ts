@@ -2,7 +2,7 @@
 
 import { createApiClient } from "@b2b/api-client";
 import { useAuth } from "@b2b/auth/react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // =============================================================================
 // Types
@@ -185,6 +185,162 @@ export function useContractVersions(contractId: string) {
       return data as unknown as ContractVersionsResponse;
     },
     enabled: !!contractId && !!user?.tenantId,
+  });
+}
+
+// =============================================================================
+// Create Contract Types
+// =============================================================================
+
+export interface CreateContractData {
+  title: string;
+  description?: string;
+  effectiveDate?: string;
+  expirationDate?: string;
+  totalValue?: number;
+  currency?: string;
+  organizationId?: string;
+}
+
+// =============================================================================
+// Mutation Hooks
+// =============================================================================
+
+export function useCreateContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: CreateContractData): Promise<ContractDto> => {
+      const { data: result, error } = await client.POST("/api/v1/contracts", {
+        body: data,
+      });
+      if (error) throw new Error("Failed to create contract");
+      return result as unknown as ContractDto;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+    },
+  });
+}
+
+export function useSubmitContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      comments,
+    }: {
+      id: string;
+      comments?: string;
+    }): Promise<ContractDto> => {
+      const { data, error } = await client.POST(
+        "/api/v1/contracts/{id}/submit",
+        {
+          params: { path: { id } },
+          body: { comments },
+        }
+      );
+      if (error) throw new Error("Failed to submit contract");
+      return data as unknown as ContractDto;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id, "versions"] });
+    },
+  });
+}
+
+export function useApproveContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      comments,
+    }: {
+      id: string;
+      comments?: string;
+    }): Promise<ContractDto> => {
+      const { data, error } = await client.POST(
+        "/api/v1/contracts/{id}/approve",
+        {
+          params: { path: { id } },
+          body: { comments },
+        }
+      );
+      if (error) throw new Error("Failed to approve contract");
+      return data as unknown as ContractDto;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id, "versions"] });
+    },
+  });
+}
+
+export function useRejectContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      comments,
+    }: {
+      id: string;
+      comments?: string;
+    }): Promise<ContractDto> => {
+      const { data, error } = await client.POST(
+        "/api/v1/contracts/{id}/reject",
+        {
+          params: { path: { id } },
+          body: { comments },
+        }
+      );
+      if (error) throw new Error("Failed to reject contract");
+      return data as unknown as ContractDto;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id, "versions"] });
+    },
+  });
+}
+
+export function useActivateContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      comments,
+    }: {
+      id: string;
+      comments?: string;
+    }): Promise<ContractDto> => {
+      const { data, error } = await client.POST(
+        "/api/v1/contracts/{id}/activate",
+        {
+          params: { path: { id } },
+          body: { comments },
+        }
+      );
+      if (error) throw new Error("Failed to activate contract");
+      return data as unknown as ContractDto;
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id] });
+      queryClient.invalidateQueries({ queryKey: ["contracts", id, "versions"] });
+    },
   });
 }
 
