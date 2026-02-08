@@ -437,3 +437,88 @@ export function canApproveQuote(status: QuoteStatus): boolean {
 export function canSendQuote(status: QuoteStatus): boolean {
   return status === "APPROVED";
 }
+
+export function canConvertToContract(status: QuoteStatus): boolean {
+  return status === "ACCEPTED";
+}
+
+export function canCloneQuote(_status: QuoteStatus): boolean {
+  // Can clone any quote regardless of status
+  return true;
+}
+
+// =============================================================================
+// Additional Mutation Hooks
+// =============================================================================
+
+export function useConvertQuoteToContract() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      comments,
+    }: {
+      id: string;
+      comments?: string;
+    }): Promise<{ contractId: string }> => {
+      const { data, error } = await client.POST("/api/v1/quotes/{id}/convert-to-contract", {
+        params: { path: { id } },
+        body: { comments },
+      });
+      if (error) throw new Error("Failed to convert quote to contract");
+      return data as unknown as { contractId: string };
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["quotes"] });
+      queryClient.invalidateQueries({ queryKey: ["quotes", id] });
+      queryClient.invalidateQueries({ queryKey: ["contracts"] });
+    },
+  });
+}
+
+export function useCloneQuote() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      sourceQuote,
+      title,
+    }: {
+      sourceQuote: QuoteDto;
+      title?: string;
+    }): Promise<QuoteDto> => {
+      // Clone by creating a new quote with the same data
+      const createData: CreateQuoteData = {
+        title: title || `Copy of ${sourceQuote.title}`,
+        description: sourceQuote.description,
+        customerId: sourceQuote.customerId,
+        customerName: sourceQuote.customerName,
+        customerEmail: sourceQuote.customerEmail,
+        lineItems: sourceQuote.lineItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: item.priceOverride ? parseFloat(item.unitPrice) : undefined,
+          notes: item.notes,
+        })),
+        discountPercent: sourceQuote.discountPercent
+          ? parseFloat(sourceQuote.discountPercent)
+          : undefined,
+        validUntil: undefined, // Don't copy validity date
+        notes: sourceQuote.notes,
+        internalNotes: sourceQuote.internalNotes,
+      };
+
+      const { data, error } = await client.POST("/api/v1/quotes", {
+        body: createData,
+      });
+      if (error) throw new Error("Failed to clone quote");
+      return data as unknown as QuoteDto;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quotes"] });
+    },
+  });
+}

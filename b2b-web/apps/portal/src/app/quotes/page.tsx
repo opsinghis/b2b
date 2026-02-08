@@ -10,15 +10,18 @@ import {
   CardTitle,
   Input,
 } from "@b2b/ui";
+import { format } from "date-fns";
 import {
   FileText,
   Loader2,
   Plus,
+  RefreshCw,
   Search,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import * as React from "react";
 
+import { QuotesFilters } from "./components";
 import {
   useQuotes,
   formatDate,
@@ -27,15 +30,6 @@ import {
   getStatusBadgeColor,
   type QuoteStatus,
 } from "./hooks/use-quotes";
-
-const STATUS_FILTERS: { value: QuoteStatus | "ALL"; label: string }[] = [
-  { value: "ALL", label: "All Quotes" },
-  { value: "DRAFT", label: "Drafts" },
-  { value: "PENDING_APPROVAL", label: "Pending" },
-  { value: "APPROVED", label: "Approved" },
-  { value: "SENT", label: "Sent" },
-  { value: "ACCEPTED", label: "Accepted" },
-];
 
 function QuotesListSkeleton() {
   return (
@@ -55,19 +49,59 @@ function QuotesListSkeleton() {
 }
 
 function QuotesListContent() {
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<QuoteStatus | "ALL">("ALL");
-  const [page, setPage] = useState(1);
+  // Search state
+  const [search, setSearch] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
 
-  const { data, isLoading, isError } = useQuotes({
+  // Filter state
+  const [statusFilter, setStatusFilter] = React.useState<QuoteStatus | undefined>();
+  const [startDate, setStartDate] = React.useState<Date | undefined>();
+  const [endDate, setEndDate] = React.useState<Date | undefined>();
+
+  // Pagination state
+  const [page, setPage] = React.useState(1);
+  const limit = 10;
+
+  // Debounce search
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  // Reset page when filters change
+  React.useEffect(() => {
+    setPage(1);
+  }, [statusFilter, startDate, endDate]);
+
+  // Format dates for API
+  const formattedStartDate = startDate
+    ? format(startDate, "yyyy-MM-dd")
+    : undefined;
+  const formattedEndDate = endDate
+    ? format(endDate, "yyyy-MM-dd")
+    : undefined;
+
+  const { data, isLoading, isError, refetch } = useQuotes({
     page,
-    limit: 10,
-    search: search || undefined,
-    status: statusFilter === "ALL" ? undefined : statusFilter,
+    limit,
+    search: debouncedSearch || undefined,
+    status: statusFilter,
+    startDate: formattedStartDate,
+    endDate: formattedEndDate,
   });
 
   const quotes = data?.data ?? [];
   const meta = data?.meta;
+
+  const handleClearFilters = () => {
+    setStatusFilter(undefined);
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setSearch("");
+  };
 
   return (
     <div className="container py-8 space-y-6">
@@ -79,43 +113,49 @@ function QuotesListContent() {
             Manage and track your quotes
           </p>
         </div>
-        <Button asChild>
-          <Link href="/quotes/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Quote
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link href="/quotes/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Quote
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+            />
+          </Button>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative flex-1">
+      {/* Search and Filters Bar */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+        {/* Search Input */}
+        <div className="relative w-full lg:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search quotes..."
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
-          {STATUS_FILTERS.map((filter) => (
-            <Button
-              key={filter.value}
-              variant={statusFilter === filter.value ? "default" : "outline"}
-              size="sm"
-              onClick={() => {
-                setStatusFilter(filter.value);
-                setPage(1);
-              }}
-            >
-              {filter.label}
-            </Button>
-          ))}
-        </div>
+
+        {/* Filters */}
+        <QuotesFilters
+          statusFilter={statusFilter}
+          startDate={startDate}
+          endDate={endDate}
+          onStatusChange={setStatusFilter}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onClearFilters={handleClearFilters}
+        />
       </div>
 
       {/* Quotes List */}
