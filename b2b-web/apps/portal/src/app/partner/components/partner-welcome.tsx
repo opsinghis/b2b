@@ -1,7 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, cn } from "@b2b/ui";
-import { Award, Building2, Percent, TrendingUp } from "lucide-react";
+import { Button, Card, CardContent, CardHeader, CardTitle, cn } from "@b2b/ui";
+import { Award, Building2, Percent, TrendingUp, Users, ShoppingCart } from "lucide-react";
+import Link from "next/link";
 
 import type { PartnerProfile } from "../hooks";
 import { formatPercent, getTierBgColor, formatPrice } from "../hooks";
@@ -107,6 +108,34 @@ export function PartnerWelcome({ profile, firstName }: PartnerWelcomeProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-semibold">Quick Actions</h3>
+              <p className="text-sm text-muted-foreground">
+                Manage your team and place orders on their behalf
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <Link href="/partner#team">
+                  <Users className="h-4 w-4 mr-2" />
+                  Manage Team
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/partner/order-on-behalf">
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  Order on Behalf
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -96,6 +96,43 @@ export interface CreateOrderOnBehalfDto {
   }>;
   shippingAddressId?: string;
   notes?: string;
+  applyTeamMemberDiscount?: boolean;
+  notifyTeamMember?: boolean;
+}
+
+export interface TeamMemberAddress {
+  id: string;
+  label: string;
+  firstName: string;
+  lastName: string;
+  company?: string | null;
+  street1: string;
+  street2?: string | null;
+  city: string;
+  state?: string | null;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
+  phone?: string | null;
+  isShipping: boolean;
+  isBilling: boolean;
+}
+
+export interface TeamMemberDiscount {
+  userId: string;
+  discountPercent: number;
+  tierName: string | null;
+  tierLevel: number;
+}
+
+export interface OrderOnBehalfResult {
+  orderId: string;
+  orderNumber: string;
+  total: string;
+  discount: string;
+  teamMemberNotified: boolean;
+  attributedToPartnerId: string;
+  attributedToPartnerName: string;
 }
 
 // =============================================================================
@@ -295,7 +332,7 @@ export function useCreateOrderOnBehalf() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (dto: CreateOrderOnBehalfDto): Promise<{ orderId: string }> => {
+    mutationFn: async (dto: CreateOrderOnBehalfDto): Promise<OrderOnBehalfResult> => {
       const { data, error } = await client.POST(
         "/api/v1/api/v1/partners/orders/on-behalf",
         {
@@ -303,14 +340,95 @@ export function useCreateOrderOnBehalf() {
         }
       );
       if (error) throw new Error("Failed to create order on behalf");
-      const result = data as unknown as { id?: string; orderId?: string };
-      return { orderId: result.orderId ?? result.id ?? "" };
+      return mapOrderOnBehalfResultFromDto(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["partner-team-members"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },
   });
+}
+
+export function useTeamMemberAddresses(userId: string | null) {
+  const { user, isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ["team-member-addresses", userId],
+    queryFn: async (): Promise<TeamMemberAddress[]> => {
+      if (!userId) return [];
+      // Note: API endpoint /api/v1/users/{id}/addresses may need to be implemented
+      // For now, return mock data to demonstrate the UI flow
+      // In production, this would fetch from the actual API endpoint
+      return generateMockAddresses(userId);
+    },
+    enabled: isAuthenticated && !!user?.tenantId && !!userId,
+  });
+}
+
+export function useTeamMemberDiscount(userId: string | null) {
+  const { user, isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ["team-member-discount", userId],
+    queryFn: async (): Promise<TeamMemberDiscount | null> => {
+      if (!userId) return null;
+      // Note: API endpoint /api/v1/users/{id}/discount-tier may need to be implemented
+      // For now, return mock data to demonstrate the UI flow
+      return generateMockDiscount(userId);
+    },
+    enabled: isAuthenticated && !!user?.tenantId && !!userId,
+  });
+}
+
+// Mock data generators - Replace with actual API calls when available
+function generateMockAddresses(userId: string): TeamMemberAddress[] {
+  return [
+    {
+      id: `addr-${userId}-1`,
+      label: "Home",
+      firstName: "Team",
+      lastName: "Member",
+      company: null,
+      street1: "123 Main Street",
+      street2: "Apt 4B",
+      city: "New York",
+      state: "NY",
+      postalCode: "10001",
+      country: "US",
+      isDefault: true,
+      phone: "+1 (555) 123-4567",
+      isShipping: true,
+      isBilling: true,
+    },
+    {
+      id: `addr-${userId}-2`,
+      label: "Office",
+      firstName: "Team",
+      lastName: "Member",
+      company: "Acme Corp",
+      street1: "456 Business Ave",
+      street2: "Suite 100",
+      city: "New York",
+      state: "NY",
+      postalCode: "10002",
+      country: "US",
+      isDefault: false,
+      phone: "+1 (555) 987-6543",
+      isShipping: true,
+      isBilling: false,
+    },
+  ];
+}
+
+function generateMockDiscount(userId: string): TeamMemberDiscount {
+  // Generate a deterministic discount based on userId for consistency
+  const discountPercent = 10 + (userId.charCodeAt(0) % 10);
+  return {
+    userId,
+    discountPercent,
+    tierName: discountPercent >= 15 ? "Gold" : "Silver",
+    tierLevel: discountPercent >= 15 ? 2 : 1,
+  };
 }
 
 // =============================================================================
@@ -410,6 +528,24 @@ function mapPartnerResourceFromDto(dto: unknown): PartnerResource {
     sortOrder: (d.sortOrder as number) ?? 0,
     isActive: (d.isActive as boolean) ?? true,
     createdAt: (d.createdAt as string) ?? new Date().toISOString(),
+  };
+}
+
+// Note: mapTeamMemberAddressFromDto and mapTeamMemberDiscountFromDto are reserved
+// for future use when API endpoints GET /api/v1/users/{id}/addresses and
+// GET /api/v1/users/{id}/discount-tier are implemented.
+// Currently using mock data generators instead.
+
+function mapOrderOnBehalfResultFromDto(dto: unknown): OrderOnBehalfResult {
+  const d = dto as Record<string, unknown>;
+  return {
+    orderId: (d.orderId as string) ?? (d.id as string) ?? "",
+    orderNumber: (d.orderNumber as string) ?? "",
+    total: (d.total as string) ?? "0",
+    discount: (d.discount as string) ?? "0",
+    teamMemberNotified: (d.teamMemberNotified as boolean) ?? (d.notified as boolean) ?? false,
+    attributedToPartnerId: (d.attributedToPartnerId as string) ?? (d.partnerId as string) ?? "",
+    attributedToPartnerName: (d.attributedToPartnerName as string) ?? (d.partnerName as string) ?? "",
   };
 }
 

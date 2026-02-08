@@ -1,4 +1,4 @@
-# Implement: FE-033 - Portal - Partner Dashboard (Iteration 1)
+# Implement: FE-034 - Portal - Partner Order on Behalf (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,47 +18,43 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-033
-**Title:** Portal - Partner Dashboard
+**ID:** FE-034
+**Title:** Portal - Partner Order on Behalf
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Partner-specific welcome
-- Partner tier and discount level
-- Orders placed (own org)
-- Commission earnings (if applicable)
-- Team members list
-- Quick order for team members
-- Partner resources/documents
+- Select team member dropdown
+- Order on behalf indicator
+- Apply team member's discount
+- Delivery to team member address
+- Notification to team member
+- Order attribution tracking
 
 ## API Dependencies
-- GET /api/v1/partners/me - Partner profile
-- GET /api/v1/partners/me/commission - Commission details
-- GET /api/v1/partners/me/team - Team members
-- GET /api/v1/partners/me/resources - Partner resources
+- GET /api/v1/partners/me/team - Team members list
+- POST /api/v1/orders/on-behalf - Create order on behalf
+- GET /api/v1/users/:id/addresses - Team member addresses
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-033 - Portal - Partner Dashboard
+# Plan: FE-034 - Portal - Partner Order on Behalf
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Partner-specific welcome
-- [ ] Partner tier and discount level
-- [ ] Orders placed (own org)
-- [ ] Commission earnings (if applicable)
-- [ ] Team members list
-- [ ] Quick order for team members
-- [ ] Partner resources/documents
+- [ ] Select team member dropdown
+- [ ] Order on behalf indicator
+- [ ] Apply team member's discount
+- [ ] Delivery to team member address
+- [ ] Notification to team member
+- [ ] Order attribution tracking
 
 ## API Dependencies
-- GET /api/v1/partners/me [available]
-- GET /api/v1/partners/me/commission [available]
 - GET /api/v1/partners/me/team [available]
-- GET /api/v1/partners/me/resources [available]
+- POST /api/v1/orders/on-behalf [available]
+- GET /api/v1/users/:id/addresses [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -88,7 +84,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-033</promise>
+<promise>COMPLETE:FE-034</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
