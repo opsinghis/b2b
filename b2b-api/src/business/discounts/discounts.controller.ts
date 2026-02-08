@@ -57,7 +57,7 @@ interface AuthenticatedUser {
 @ApiTags('Discount Tiers')
 @ApiBearerAuth()
 @ApiSecurity('x-tenant-id')
-@Controller('api/v1/users/me')
+@Controller('users/me')
 @UseGuards(JwtAuthGuard, RolesGuard, AuthorizationGuard)
 export class UserDiscountTierController {
   constructor(private readonly discountsService: DiscountsService) {}
@@ -98,7 +98,7 @@ export class UserDiscountTierController {
 @ApiTags('Admin - Discount Tiers')
 @ApiBearerAuth()
 @ApiSecurity('x-tenant-id')
-@Controller('api/v1/admin/discount-tiers')
+@Controller('admin/discount-tiers')
 @UseGuards(JwtAuthGuard, RolesGuard, AuthorizationGuard)
 export class AdminDiscountTierController {
   constructor(private readonly discountsService: DiscountsService) {}

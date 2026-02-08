@@ -1,4 +1,4 @@
-# Implement: FE-022 - Portal - Shopping Cart (Iteration 1)
+# Implement: FE-023 - Portal - Checkout Flow (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,53 +18,53 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-022
-**Title:** Portal - Shopping Cart
+**ID:** FE-023
+**Title:** Portal - Checkout Flow
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Add to cart from product pages
-- Cart icon with item count badge
-- Cart drawer/sidebar
-- Update quantity in cart
-- Remove items from cart
-- Cart persistence (localStorage + API sync)
-- Real-time subtotal calculation
-- Discount applied preview
-- Proceed to checkout button
+- Multi-step checkout wizard
+- Delivery address selection/entry
+- Delivery method selection
+- Order summary with line items
+- Discount breakdown display
+- Payment method selection
+- Order notes/special instructions
+- Terms acceptance checkbox
+- Place order confirmation
 
 ## API Dependencies
-- GET /api/v1/cart - available
-- POST /api/v1/cart/items - available
-- PATCH /api/v1/cart/items/:id - available
-- DELETE /api/v1/cart/items/:id - available
-- DELETE /api/v1/cart - available
+- GET /api/v1/users/me/addresses - User's saved addresses
+- POST /api/v1/users/me/addresses - Add new address
+- GET /api/v1/delivery-methods - Available delivery options
+- POST /api/v1/orders - Create order from cart
+- GET /api/v1/orders/:id - Get order details
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-022 - Portal - Shopping Cart
+# Plan: FE-023 - Portal - Checkout Flow
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Add to cart from product pages
-- [ ] Cart icon with item count badge
-- [ ] Cart drawer/sidebar
-- [ ] Update quantity in cart
-- [ ] Remove items from cart
-- [ ] Cart persistence (localStorage + API sync)
-- [ ] Real-time subtotal calculation
-- [ ] Discount applied preview
-- [ ] Proceed to checkout button
+- [ ] Multi-step checkout wizard
+- [ ] Delivery address selection/entry
+- [ ] Delivery method selection
+- [ ] Order summary with line items
+- [ ] Discount breakdown display
+- [ ] Payment method selection
+- [ ] Order notes/special instructions
+- [ ] Terms acceptance checkbox
+- [ ] Place order confirmation
 
 ## API Dependencies
-- GET /api/v1/cart [available]
-- POST /api/v1/cart/items [available]
-- PATCH /api/v1/cart/items/:id [available]
-- DELETE /api/v1/cart/items/:id [available]
-- DELETE /api/v1/cart [available]
+- GET /api/v1/users/me/addresses [available]
+- POST /api/v1/users/me/addresses [available]
+- GET /api/v1/delivery-methods [available]
+- POST /api/v1/orders [available]
+- GET /api/v1/orders/:id [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -94,7 +94,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-022</promise>
+<promise>COMPLETE:FE-023</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

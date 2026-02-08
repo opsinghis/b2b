@@ -25,7 +25,7 @@ import { WebhookConfig } from './interfaces';
  * Handles webhook callbacks and connector operations
  */
 @ApiTags('Integrations - REST Connector')
-@Controller('api/v1/integrations/webhooks')
+@Controller('integrations/webhooks')
 export class RestConnectorController {
   private readonly logger = new Logger(RestConnectorController.name);
   private readonly webhookReceiverService: WebhookReceiverService;

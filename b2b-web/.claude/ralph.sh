@@ -63,7 +63,7 @@ EOF
 
     # Fetch Swagger spec at startup for API validation
     log_info "Initializing Swagger spec cache..."
-    fetch_swagger_spec || log_warning "Backend may not be running - will retry during API checks"
+    fetch_swagger_spec || log_warning "Backend may not be running - will retry during API checks" >&2
 }
 
 # ============================================================================
@@ -71,14 +71,14 @@ EOF
 # ============================================================================
 
 fetch_swagger_spec() {
-    log_info "Fetching Swagger spec from $SWAGGER_JSON_URL..."
+    log_info "Fetching Swagger spec from $SWAGGER_JSON_URL..." >&2
 
     if curl -sf "$SWAGGER_JSON_URL" > "$SWAGGER_CACHE" 2>/dev/null; then
         local path_count=$(jq -r '.paths | keys | length' "$SWAGGER_CACHE" 2>/dev/null || echo "0")
-        log_success "Cached Swagger spec with $path_count endpoints"
+        log_success "Cached Swagger spec with $path_count endpoints" >&2
         return 0
     else
-        log_warning "Could not fetch Swagger spec - backend may not be running"
+        log_warning "Could not fetch Swagger spec - backend may not be running" >&2
         return 1
     fi
 }
@@ -91,7 +91,7 @@ api_exists_in_swagger() {
 
     # Ensure we have a cached spec
     if [ ! -f "$SWAGGER_CACHE" ]; then
-        fetch_swagger_spec || return 1
+        fetch_swagger_spec >&2 || return 1
     fi
 
     # Normalize the path (add /api/v1 prefix if missing)
@@ -124,13 +124,13 @@ api_exists_in_swagger() {
 }
 
 # Check all API dependencies for a feature against Swagger
-# Returns list of truly missing APIs
+# Returns list of truly missing APIs (logs go to stderr)
 get_actually_missing_apis() {
     local fid="$1"
     local missing_apis=""
 
-    # Ensure we have fresh Swagger spec
-    fetch_swagger_spec
+    # Ensure we have fresh Swagger spec (redirect logs to stderr)
+    fetch_swagger_spec >&2
 
     # Get declared API dependencies from PRD
     local deps=$(jq -r ".phases[].items[] | select(.id == \"$fid\") | .api_dependencies[]? | \"\(.endpoint)\"" "$PRD_FILE" 2>/dev/null)
@@ -142,13 +142,14 @@ get_actually_missing_apis() {
         if [ -n "$method" ] && [ -n "$path" ]; then
             if ! api_exists_in_swagger "$method" "$path"; then
                 missing_apis="${missing_apis}${dep}\n"
-                log_warning "API NOT in Swagger: $method $path"
+                log_warning "API NOT in Swagger: $method $path" >&2
             else
-                log_success "API exists in Swagger: $method $path"
+                log_success "API exists in Swagger: $method $path" >&2
             fi
         fi
     done
 
+    # Output only the missing APIs (no logs)
     echo -e "$missing_apis" | grep -v '^$'
 }
 
@@ -275,7 +276,7 @@ get_next_feature() {
             # All APIs resolved - remove from waiting, return as next
             jq --arg fid "$fid" '.waiting_for_api |= map(select(. != $fid))' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
             update_feature_status "$fid" "pending"
-            log_success "Feature $fid APIs now available - resuming"
+            log_success "Feature $fid APIs now available - resuming" >&2
             echo "$fid"
             return 0
         fi

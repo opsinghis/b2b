@@ -63,7 +63,7 @@ interface AuthenticatedUser {
 @ApiTags('Partners')
 @ApiBearerAuth()
 @ApiSecurity('x-tenant-id')
-@Controller('api/v1/partners')
+@Controller('partners')
 @UseGuards(JwtAuthGuard, RolesGuard, AuthorizationGuard)
 export class PartnersController {
   constructor(private readonly partnersService: PartnersService) {}
@@ -210,7 +210,7 @@ export class PartnersController {
 @ApiTags('Admin - Partners')
 @ApiBearerAuth()
 @ApiSecurity('x-tenant-id')
-@Controller('api/v1/admin/partners')
+@Controller('admin/partners')
 @UseGuards(JwtAuthGuard, RolesGuard, AuthorizationGuard)
 export class AdminPartnersController {
   constructor(private readonly partnersService: PartnersService) {}
