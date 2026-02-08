@@ -1,4 +1,4 @@
-# Implement: FE-023 - Portal - Checkout Flow (Iteration 1)
+# Implement: FE-024 - Portal - Payment Methods (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,53 +18,49 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-023
-**Title:** Portal - Checkout Flow
+**ID:** FE-024
+**Title:** Portal - Payment Methods
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Multi-step checkout wizard
-- Delivery address selection/entry
-- Delivery method selection
-- Order summary with line items
-- Discount breakdown display
-- Payment method selection
-- Order notes/special instructions
-- Terms acceptance checkbox
-- Place order confirmation
+- Payment method selection UI
+- Salary deduction option (employees only)
+- Salary deduction limit display
+- Salary deduction balance/remaining
+- Credit card payment option
+- Invoice/PO payment option (partners)
+- Payment confirmation screen
+- Payment history link
 
 ## API Dependencies
-- GET /api/v1/users/me/addresses - User's saved addresses
-- POST /api/v1/users/me/addresses - Add new address
-- GET /api/v1/delivery-methods - Available delivery options
-- POST /api/v1/orders - Create order from cart
-- GET /api/v1/orders/:id - Get order details
+- GET /api/v1/payment-methods - Available payment methods for user type
+- GET /api/v1/users/me/salary-deduction - Employee's salary deduction status/limit
+- POST /api/v1/orders/:id/pay - Process payment for order
+- GET /api/v1/users/me/payment-history - User's payment history
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-023 - Portal - Checkout Flow
+# Plan: FE-024 - Portal - Payment Methods
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Multi-step checkout wizard
-- [ ] Delivery address selection/entry
-- [ ] Delivery method selection
-- [ ] Order summary with line items
-- [ ] Discount breakdown display
-- [ ] Payment method selection
-- [ ] Order notes/special instructions
-- [ ] Terms acceptance checkbox
-- [ ] Place order confirmation
+- [ ] Payment method selection UI
+- [ ] Salary deduction option (employees only)
+- [ ] Salary deduction limit display
+- [ ] Salary deduction balance/remaining
+- [ ] Credit card payment option
+- [ ] Invoice/PO payment option (partners)
+- [ ] Payment confirmation screen
+- [ ] Payment history link
 
 ## API Dependencies
-- GET /api/v1/users/me/addresses [available]
-- POST /api/v1/users/me/addresses [available]
-- GET /api/v1/delivery-methods [available]
-- POST /api/v1/orders [available]
-- GET /api/v1/orders/:id [available]
+- GET /api/v1/payment-methods [available]
+- GET /api/v1/users/me/salary-deduction [available]
+- POST /api/v1/orders/:id/pay [available]
+- GET /api/v1/users/me/payment-history [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -94,7 +90,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-023</promise>
+<promise>COMPLETE:FE-024</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

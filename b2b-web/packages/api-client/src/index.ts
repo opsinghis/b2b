@@ -101,6 +101,9 @@ export type AddressResponseDto = Schemas["AddressResponseDto"];
 export type CreatePaymentMethodDto = Schemas["CreatePaymentMethodDto"];
 export type UpdatePaymentMethodDto = Schemas["UpdatePaymentMethodDto"];
 export type PaymentMethodResponseDto = Schemas["PaymentMethodResponseDto"];
+export type ProcessPaymentDto = Schemas["ProcessPaymentDto"];
+export type PaymentResponseDto = Schemas["PaymentResponseDto"];
+export type PaymentHistoryResponseDto = Schemas["PaymentHistoryResponseDto"];
 
 // Approvals
 export type CreateApprovalChainDto = Schemas["CreateApprovalChainDto"];

@@ -14,22 +14,43 @@ import {
 } from "@b2b/ui";
 import {
   AlertCircle,
+  Banknote,
   ChevronLeft,
   CreditCard,
-  FileText,
   Loader2,
   MapPin,
   Package,
   Receipt,
   ShoppingCart,
   Truck,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
-import { useCheckout, type PaymentMethod } from "../context";
-import { useCreateOrder, formatAddress, getFullName, getDeliveryEstimate } from "../hooks";
+import { useCheckout } from "../context";
+import {
+  useCreateOrder,
+  useProcessPayment,
+  formatAddress,
+  getFullName,
+  getDeliveryEstimate,
+  type PaymentMethodType as ApiPaymentMethodType,
+} from "../hooks";
 
 import { useCart, formatCartPrice, type Cart } from "@/app/cart/hooks";
+
+// =============================================================================
+// Icon Mapping
+// =============================================================================
+
+const PAYMENT_METHOD_ICONS: Record<ApiPaymentMethodType, typeof CreditCard> = {
+  CREDIT_CARD: CreditCard,
+  DEBIT_CARD: CreditCard,
+  BANK_TRANSFER: Banknote,
+  SALARY_DEDUCTION: Wallet,
+  INVOICE: Receipt,
+  WALLET: Wallet,
+};
 
 // =============================================================================
 // Order Item Row Component
@@ -75,19 +96,29 @@ function OrderItemRow({ item }: OrderItemRowProps) {
 // Payment Method Label
 // =============================================================================
 
-function PaymentMethodLabel({ method }: { method: PaymentMethod }) {
-  const labels: Record<PaymentMethod, { label: string; icon: typeof CreditCard }> = {
-    invoice: { label: "Invoice (Net 30)", icon: Receipt },
-    purchase_order: { label: "Purchase Order", icon: FileText },
-    credit_card: { label: "Credit Card", icon: CreditCard },
-  };
-
-  const { label, icon: Icon } = labels[method];
+function PaymentMethodLabel({
+  method,
+  methodName,
+  poNumber,
+}: {
+  method?: ApiPaymentMethodType;
+  methodName?: string;
+  poNumber?: string;
+}) {
+  const Icon = method ? PAYMENT_METHOD_ICONS[method] : Receipt;
+  const displayName = methodName || (method ? method.replace(/_/g, " ") : "Unknown");
 
   return (
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4" />
-      <span>{label}</span>
+    <div className="text-sm">
+      <div className="font-medium flex items-center gap-2">
+        <Icon className="w-4 h-4" />
+        <span>{displayName}</span>
+      </div>
+      {poNumber && (
+        <p className="text-muted-foreground mt-1">
+          PO#: {poNumber}
+        </p>
+      )}
     </div>
   );
 }
@@ -181,6 +212,7 @@ export function ReviewStep() {
 
   const { data: cart, isLoading: isLoadingCart } = useCart();
   const createOrder = useCreateOrder();
+  const processPayment = useProcessPayment();
 
   const shippingCost = state.deliveryMethod
     ? parseFloat(state.deliveryMethod.price)
@@ -195,15 +227,31 @@ export function ReviewStep() {
     setError(null);
 
     try {
+      // Step 1: Create the order
       const order = await createOrder.mutateAsync({
         shippingAddressId: state.shippingAddress.id,
         billingAddressId: state.useSameAsBilling
           ? state.shippingAddress.id
           : state.billingAddress?.id,
         deliveryMethodId: state.deliveryMethod.id,
+        paymentMethodId: state.selectedPaymentMethod?.id,
         notes: state.orderNotes || undefined,
         termsAccepted: state.termsAccepted,
       });
+
+      // Step 2: Process payment if a payment method is selected
+      if (state.selectedPaymentMethod) {
+        try {
+          await processPayment.mutateAsync({
+            orderId: order.id,
+            paymentMethodId: state.selectedPaymentMethod.id,
+          });
+        } catch (paymentError) {
+          // Payment failed but order was created
+          // Still proceed to confirmation - payment can be retried
+          console.error("Payment processing error:", paymentError);
+        }
+      }
 
       setOrderId(order.id);
       goToStep("confirmation");
@@ -350,17 +398,24 @@ export function ReviewStep() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-sm">
-                <div className="font-medium">
-                  <PaymentMethodLabel method={state.paymentMethod} />
+              {state.selectedPaymentMethod ? (
+                <PaymentMethodLabel
+                  method={state.selectedPaymentMethod.type}
+                  methodName={state.selectedPaymentMethod.name}
+                  poNumber={state.paymentMethodType === "purchase_order" ? state.purchaseOrderNumber : undefined}
+                />
+              ) : (
+                <p className="text-sm text-muted-foreground">No payment method selected</p>
+              )}
+
+              {/* Salary deduction notice */}
+              {state.selectedPaymentMethod?.type === "SALARY_DEDUCTION" && (
+                <div className="mt-2 p-2 rounded-md bg-primary/5 border border-primary/20">
+                  <p className="text-xs text-muted-foreground">
+                    This amount will be deducted from your next salary.
+                  </p>
                 </div>
-                {state.paymentMethod === "purchase_order" &&
-                  state.purchaseOrderNumber && (
-                    <p className="text-muted-foreground mt-1">
-                      PO#: {state.purchaseOrderNumber}
-                    </p>
-                  )}
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -452,7 +507,7 @@ export function ReviewStep() {
                 size="lg"
                 className="w-full"
                 onClick={handlePlaceOrder}
-                disabled={!state.termsAccepted || state.isProcessing}
+                disabled={!state.termsAccepted || state.isProcessing || !state.selectedPaymentMethod}
               >
                 {state.isProcessing ? (
                   <>

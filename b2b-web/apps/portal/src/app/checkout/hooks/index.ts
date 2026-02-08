@@ -7,6 +7,10 @@ export {
   useDeliveryMethods,
   useCreateOrder,
   useOrder,
+  usePaymentMethods,
+  useSalaryDeduction,
+  useProcessPayment,
+  usePaymentHistory,
   // Types
   type UserAddress,
   type DeliveryMethod,
@@ -14,6 +18,12 @@ export {
   type CreateOrderParams,
   type Order,
   type OrderItem,
+  type PaymentMethod,
+  type PaymentMethodType,
+  type SalaryDeduction,
+  type Payment,
+  type PaymentHistory,
+  type ProcessPaymentParams,
   // Helpers
   formatPrice,
   formatAddress,

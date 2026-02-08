@@ -9,44 +9,69 @@ import {
   CardTitle,
 } from "@b2b/ui";
 import {
+  Banknote,
   CheckCircle2,
   CreditCard,
-  FileText,
   Loader2,
   MapPin,
   Package,
   Printer,
   Receipt,
   Truck,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
-import { useCheckout, type PaymentMethod } from "../context";
+import { useCheckout } from "../context";
 import {
   useOrder,
   formatPrice,
   formatAddress,
   getFullName,
   getDeliveryEstimate,
+  type PaymentMethodType as ApiPaymentMethodType,
 } from "../hooks";
+
+// =============================================================================
+// Icon Mapping
+// =============================================================================
+
+const PAYMENT_METHOD_ICONS: Record<ApiPaymentMethodType, typeof CreditCard> = {
+  CREDIT_CARD: CreditCard,
+  DEBIT_CARD: CreditCard,
+  BANK_TRANSFER: Banknote,
+  SALARY_DEDUCTION: Wallet,
+  INVOICE: Receipt,
+  WALLET: Wallet,
+};
 
 // =============================================================================
 // Payment Method Label
 // =============================================================================
 
-function PaymentMethodLabel({ method }: { method: PaymentMethod }) {
-  const labels: Record<PaymentMethod, { label: string; icon: typeof CreditCard }> = {
-    invoice: { label: "Invoice (Net 30)", icon: Receipt },
-    purchase_order: { label: "Purchase Order", icon: FileText },
-    credit_card: { label: "Credit Card", icon: CreditCard },
-  };
-
-  const { label, icon: Icon } = labels[method];
+function PaymentMethodLabel({
+  method,
+  methodName,
+  poNumber,
+}: {
+  method?: ApiPaymentMethodType;
+  methodName?: string;
+  poNumber?: string;
+}) {
+  const Icon = method ? PAYMENT_METHOD_ICONS[method] : Receipt;
+  const displayName = methodName || (method ? method.replace(/_/g, " ") : "Unknown");
 
   return (
-    <div className="flex items-center gap-2">
-      <Icon className="w-4 h-4" />
-      <span>{label}</span>
+    <div className="text-sm">
+      <div className="font-medium flex items-center gap-2">
+        <Icon className="w-4 h-4" />
+        <span>{displayName}</span>
+      </div>
+      {poNumber && (
+        <p className="text-muted-foreground mt-1">
+          PO#: {poNumber}
+        </p>
+      )}
     </div>
   );
 }
@@ -180,15 +205,27 @@ export function ConfirmationStep() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-medium">
-              <PaymentMethodLabel method={state.paymentMethod} />
-            </div>
-            {state.paymentMethod === "purchase_order" &&
-              state.purchaseOrderNumber && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  PO#: {state.purchaseOrderNumber}
-                </p>
-              )}
+            {state.selectedPaymentMethod ? (
+              <>
+                <PaymentMethodLabel
+                  method={state.selectedPaymentMethod.type}
+                  methodName={state.selectedPaymentMethod.name}
+                  poNumber={state.paymentMethodType === "purchase_order" ? state.purchaseOrderNumber : undefined}
+                />
+                {/* Salary deduction notice */}
+                {state.selectedPaymentMethod.type === "SALARY_DEDUCTION" && (
+                  <div className="mt-2 p-2 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <p className="text-xs text-green-700 dark:text-green-300">
+                      This amount will be deducted from your next salary.
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Payment method details
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -310,6 +347,9 @@ export function ConfirmationStep() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
         <Button asChild variant="outline" size="lg">
           <Link href={`/orders/${order.id}`}>View Order Details</Link>
+        </Button>
+        <Button asChild variant="outline" size="lg">
+          <Link href="/payment-history">View Payment History</Link>
         </Button>
         <Button asChild size="lg" onClick={reset}>
           <Link href="/catalog">Continue Shopping</Link>

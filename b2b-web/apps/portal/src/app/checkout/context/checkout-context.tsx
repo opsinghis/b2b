@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useReducer, type ReactNode } from "react";
 
-import type { UserAddress, DeliveryMethod } from "../hooks";
+import type { UserAddress, DeliveryMethod, PaymentMethod as PaymentMethodData } from "../hooks";
 
 // =============================================================================
 // Types
@@ -15,7 +15,7 @@ export type CheckoutStep =
   | "review"
   | "confirmation";
 
-export type PaymentMethod = "invoice" | "credit_card" | "purchase_order";
+export type PaymentMethodType = "invoice" | "credit_card" | "purchase_order" | "salary_deduction";
 
 export interface CheckoutState {
   currentStep: CheckoutStep;
@@ -23,7 +23,8 @@ export interface CheckoutState {
   billingAddress: UserAddress | null;
   useSameAsBilling: boolean;
   deliveryMethod: DeliveryMethod | null;
-  paymentMethod: PaymentMethod;
+  paymentMethodType: PaymentMethodType;
+  selectedPaymentMethod: PaymentMethodData | null;
   purchaseOrderNumber: string;
   orderNotes: string;
   termsAccepted: boolean;
@@ -38,7 +39,8 @@ type CheckoutAction =
   | { type: "SET_BILLING_ADDRESS"; address: UserAddress | null }
   | { type: "SET_USE_SAME_AS_BILLING"; value: boolean }
   | { type: "SET_DELIVERY_METHOD"; method: DeliveryMethod | null }
-  | { type: "SET_PAYMENT_METHOD"; method: PaymentMethod }
+  | { type: "SET_PAYMENT_METHOD_TYPE"; methodType: PaymentMethodType }
+  | { type: "SET_SELECTED_PAYMENT_METHOD"; method: PaymentMethodData | null }
   | { type: "SET_PURCHASE_ORDER_NUMBER"; value: string }
   | { type: "SET_ORDER_NOTES"; notes: string }
   | { type: "SET_TERMS_ACCEPTED"; accepted: boolean }
@@ -58,7 +60,8 @@ interface CheckoutContextValue {
   setBillingAddress: (address: UserAddress | null) => void;
   setUseSameAsBilling: (value: boolean) => void;
   setDeliveryMethod: (method: DeliveryMethod | null) => void;
-  setPaymentMethod: (method: PaymentMethod) => void;
+  setPaymentMethodType: (methodType: PaymentMethodType) => void;
+  setSelectedPaymentMethod: (method: PaymentMethodData | null) => void;
   setPurchaseOrderNumber: (value: string) => void;
   setOrderNotes: (notes: string) => void;
   setTermsAccepted: (accepted: boolean) => void;
@@ -79,7 +82,8 @@ const initialState: CheckoutState = {
   billingAddress: null,
   useSameAsBilling: true,
   deliveryMethod: null,
-  paymentMethod: "invoice",
+  paymentMethodType: "invoice",
+  selectedPaymentMethod: null,
   purchaseOrderNumber: "",
   orderNotes: "",
   termsAccepted: false,
@@ -103,8 +107,10 @@ function checkoutReducer(
       return { ...state, useSameAsBilling: action.value };
     case "SET_DELIVERY_METHOD":
       return { ...state, deliveryMethod: action.method };
-    case "SET_PAYMENT_METHOD":
-      return { ...state, paymentMethod: action.method };
+    case "SET_PAYMENT_METHOD_TYPE":
+      return { ...state, paymentMethodType: action.methodType };
+    case "SET_SELECTED_PAYMENT_METHOD":
+      return { ...state, selectedPaymentMethod: action.method };
     case "SET_PURCHASE_ORDER_NUMBER":
       return { ...state, purchaseOrderNumber: action.value };
     case "SET_ORDER_NOTES":
@@ -175,8 +181,12 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_DELIVERY_METHOD", method });
   };
 
-  const setPaymentMethod = (method: PaymentMethod) => {
-    dispatch({ type: "SET_PAYMENT_METHOD", method });
+  const setPaymentMethodType = (methodType: PaymentMethodType) => {
+    dispatch({ type: "SET_PAYMENT_METHOD_TYPE", methodType });
+  };
+
+  const setSelectedPaymentMethod = (method: PaymentMethodData | null) => {
+    dispatch({ type: "SET_SELECTED_PAYMENT_METHOD", method });
   };
 
   const setPurchaseOrderNumber = (value: string) => {
@@ -214,7 +224,12 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
       case "delivery":
         return !!state.deliveryMethod;
       case "payment":
-        if (state.paymentMethod === "purchase_order") {
+        // Must have a payment method selected
+        if (!state.selectedPaymentMethod) {
+          return false;
+        }
+        // PO requires PO number
+        if (state.paymentMethodType === "purchase_order") {
           return !!state.purchaseOrderNumber.trim();
         }
         return true;
@@ -237,7 +252,8 @@ export function CheckoutProvider({ children }: { children: ReactNode }) {
         setBillingAddress,
         setUseSameAsBilling,
         setDeliveryMethod,
-        setPaymentMethod,
+        setPaymentMethodType,
+        setSelectedPaymentMethod,
         setPurchaseOrderNumber,
         setOrderNotes,
         setTermsAccepted,

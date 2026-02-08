@@ -2,6 +2,6 @@ export {
   CheckoutProvider,
   useCheckout,
   type CheckoutStep,
-  type PaymentMethod,
+  type PaymentMethodType,
   type CheckoutState,
 } from "./checkout-context";

@@ -7,6 +7,10 @@ import type {
   CreateUserAddressDto,
   DeliveryMethodResponseDto,
   OrderResponseDto,
+  PaymentMethodResponseDto,
+  SalaryDeductionResponseDto,
+  PaymentHistoryResponseDto,
+  PaymentResponseDto,
 } from "@b2b/api-client";
 import { useAuth } from "@b2b/auth/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -67,6 +71,72 @@ export interface CreateOrderParams {
   paymentMethodId?: string;
   notes?: string;
   termsAccepted: boolean;
+}
+
+// =============================================================================
+// Payment Method Types
+// =============================================================================
+
+export type PaymentMethodType =
+  | "CREDIT_CARD"
+  | "DEBIT_CARD"
+  | "BANK_TRANSFER"
+  | "SALARY_DEDUCTION"
+  | "INVOICE"
+  | "WALLET";
+
+export interface PaymentMethod {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  type: PaymentMethodType;
+  isActive: boolean;
+  sortOrder: number;
+  minAmount?: string | null;
+  maxAmount?: string | null;
+}
+
+export interface SalaryDeduction {
+  id: string;
+  monthlyLimit: string;
+  usedAmount: string;
+  remainingAmount: string;
+  isEnabled: boolean;
+  periodStart: string;
+  periodEnd: string;
+}
+
+export interface Payment {
+  id: string;
+  paymentNumber: string;
+  amount: string;
+  currency: string;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "REFUNDED" | "CANCELLED";
+  externalRef?: string | null;
+  orderId: string;
+  paymentMethodId: string;
+  paymentMethod: {
+    id?: string;
+    code?: string;
+    name?: string;
+    type?: PaymentMethodType;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentHistory {
+  payments: Payment[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ProcessPaymentParams {
+  orderId: string;
+  paymentMethodId: string;
+  externalRef?: string;
 }
 
 export interface Order {
@@ -266,6 +336,106 @@ export function useOrder(orderId: string | null) {
 }
 
 // =============================================================================
+// Payment Methods Hooks
+// =============================================================================
+
+export function usePaymentMethods(orderAmount?: number) {
+  const client = useApiClient();
+  const { user, isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ["payment-methods", orderAmount],
+    queryFn: async (): Promise<PaymentMethod[]> => {
+      const { data, error } = await client.GET("/api/v1/payment-methods", {
+        params: { query: { orderAmount: orderAmount ?? 0 } },
+      });
+      if (error) {
+        return [];
+      }
+      return (data as unknown as PaymentMethodResponseDto[]).map(
+        mapPaymentMethodFromDto
+      );
+    },
+    enabled: isAuthenticated && !!user?.tenantId,
+  });
+}
+
+export function useSalaryDeduction() {
+  const client = useApiClient();
+  const { user, isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ["salary-deduction"],
+    queryFn: async (): Promise<SalaryDeduction | null> => {
+      const { data, error } = await client.GET(
+        "/api/v1/users/me/salary-deduction"
+      );
+      if (error) {
+        // User might not be eligible for salary deduction
+        return null;
+      }
+      return mapSalaryDeductionFromDto(
+        data as unknown as SalaryDeductionResponseDto
+      );
+    },
+    enabled: isAuthenticated && !!user?.tenantId,
+  });
+}
+
+export function useProcessPayment() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: ProcessPaymentParams): Promise<Payment> => {
+      const { data, error } = await client.POST("/api/v1/orders/{id}/pay", {
+        params: { path: { id: params.orderId } },
+        body: {
+          paymentMethodId: params.paymentMethodId,
+          externalRef: params.externalRef,
+        },
+      });
+      if (error) throw new Error("Failed to process payment");
+      return mapPaymentFromDto(data as unknown as PaymentResponseDto);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["salary-deduction"] });
+      queryClient.invalidateQueries({ queryKey: ["payment-history"] });
+    },
+  });
+}
+
+export function usePaymentHistory(page: number = 1, limit: number = 10) {
+  const client = useApiClient();
+  const { user, isAuthenticated } = useAuth();
+
+  return useQuery({
+    queryKey: ["payment-history", page, limit],
+    queryFn: async (): Promise<PaymentHistory> => {
+      const { data, error } = await client.GET(
+        "/api/v1/users/me/payment-history",
+        {
+          params: { query: { page, limit } },
+        }
+      );
+      if (error) {
+        return { payments: [], total: 0, page, limit };
+      }
+      const historyData = data as unknown as PaymentHistoryResponseDto;
+      return {
+        payments: historyData.payments.map(mapPaymentFromDto),
+        total: historyData.total,
+        page: historyData.page,
+        limit: historyData.limit,
+      };
+    },
+    enabled: isAuthenticated && !!user?.tenantId,
+  });
+}
+
+// =============================================================================
 // Mappers
 // =============================================================================
 
@@ -365,6 +535,55 @@ function mapOrderFromDto(dto: OrderResponseDto): Order {
     })),
     createdAt: dto.createdAt,
     estimatedDelivery: dto.estimatedDelivery,
+  };
+}
+
+function mapPaymentMethodFromDto(dto: PaymentMethodResponseDto): PaymentMethod {
+  return {
+    id: dto.id,
+    code: dto.code,
+    name: dto.name,
+    description: dto.description,
+    type: dto.type,
+    isActive: dto.isActive,
+    sortOrder: dto.sortOrder,
+    minAmount: dto.minAmount,
+    maxAmount: dto.maxAmount,
+  };
+}
+
+function mapSalaryDeductionFromDto(
+  dto: SalaryDeductionResponseDto
+): SalaryDeduction {
+  return {
+    id: dto.id,
+    monthlyLimit: dto.monthlyLimit,
+    usedAmount: dto.usedAmount,
+    remainingAmount: dto.remainingAmount,
+    isEnabled: dto.isEnabled,
+    periodStart: dto.periodStart,
+    periodEnd: dto.periodEnd,
+  };
+}
+
+function mapPaymentFromDto(dto: PaymentResponseDto): Payment {
+  return {
+    id: dto.id,
+    paymentNumber: dto.paymentNumber,
+    amount: dto.amount,
+    currency: dto.currency,
+    status: dto.status,
+    externalRef: dto.externalRef,
+    orderId: dto.orderId,
+    paymentMethodId: dto.paymentMethodId,
+    paymentMethod: {
+      id: dto.paymentMethod?.id,
+      code: dto.paymentMethod?.code,
+      name: dto.paymentMethod?.name,
+      type: dto.paymentMethod?.type as PaymentMethodType | undefined,
+    },
+    createdAt: dto.createdAt,
+    updatedAt: dto.updatedAt,
   };
 }
 
