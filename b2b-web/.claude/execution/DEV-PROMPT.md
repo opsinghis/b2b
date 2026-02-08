@@ -1,4 +1,4 @@
-# Implement: FE-031 - Admin - Salary Deduction Management (Iteration 1)
+# Implement: FE-032 - Portal - My Discounts & Savings (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,49 +18,47 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-031
-**Title:** Admin - Salary Deduction Management
-**Module:** apps/admin
+**ID:** FE-032
+**Title:** Portal - My Discounts & Savings
+**Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Employee deduction limits list
-- Set/update deduction limits
-- Pending deductions approval
-- Monthly deduction report
-- Payroll export (CSV/Excel)
-- Deduction limit requests inbox
-- Bulk limit updates
+- Current discount tier display
+- Tier benefits breakdown
+- Progress to next tier
+- Total savings this month/year
+- Available promotions list
+- Apply coupon code input
+- Savings history
 
 ## API Dependencies
-- GET /api/v1/admin/salary-deductions - List all employee deductions
-- PATCH /api/v1/admin/salary-deductions/:userId - Update employee limit
-- GET /api/v1/admin/salary-deductions/report - Monthly report
-- GET /api/v1/admin/salary-deductions/limit-requests - Pending limit requests
-- POST /api/v1/admin/salary-deductions/limit-requests/:id/approve - Approve limit request
+- GET /api/v1/users/me/discount-tier - User's discount tier
+- GET /api/v1/users/me/savings - Savings statistics
+- GET /api/v1/promotions/available - Available promotions for user
+- POST /api/v1/cart/apply-coupon - Apply coupon to cart
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-031 - Admin - Salary Deduction Management
+# Plan: FE-032 - Portal - My Discounts & Savings
 
-## Module: apps/admin
+## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Employee deduction limits list
-- [ ] Set/update deduction limits
-- [ ] Pending deductions approval
-- [ ] Monthly deduction report
-- [ ] Payroll export (CSV/Excel)
-- [ ] Deduction limit requests inbox
-- [ ] Bulk limit updates
+- [ ] Current discount tier display
+- [ ] Tier benefits breakdown
+- [ ] Progress to next tier
+- [ ] Total savings this month/year
+- [ ] Available promotions list
+- [ ] Apply coupon code input
+- [ ] Savings history
 
 ## API Dependencies
-- GET /api/v1/admin/salary-deductions [available]
-- PATCH /api/v1/admin/salary-deductions/:userId [available]
-- GET /api/v1/admin/salary-deductions/report [available]
-- GET /api/v1/admin/salary-deductions/limit-requests [available]
-- POST /api/v1/admin/salary-deductions/limit-requests/:id/approve [available]
+- GET /api/v1/users/me/discount-tier [available]
+- GET /api/v1/users/me/savings [available]
+- GET /api/v1/promotions/available [available]
+- POST /api/v1/cart/apply-coupon [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -90,7 +88,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-031</promise>
+<promise>COMPLETE:FE-032</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
