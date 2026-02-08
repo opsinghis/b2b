@@ -1,4 +1,4 @@
-# Implement: FE-017 - Portal - Quotes List & Detail (Iteration 2)
+# Implement: FE-018 - Portal - Approvals Inbox (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,120 +18,62 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-017
-**Title:** Portal - Quotes List & Detail
+**ID:** FE-018
+**Title:** Portal - Approvals Inbox
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Quotes list with filters (status, date)
-- Quote detail page with line items
-- Quote status timeline
-- Convert to contract action
-- Clone quote action
+- Pending approvals list
+- Approval detail view
+- Approve/reject with comments
+- Delegation to another user
+- Approval history
 
 ## API Dependencies
-- GET /api/v1/quotes - available
-- GET /api/v1/quotes/:id - available
-- POST /api/v1/quotes/:id/convert - available
+- GET /api/v1/approvals/pending - available
+- GET /api/v1/approvals/:id - available
+- POST /api/v1/approvals/:id/steps/:stepId/approve - available
+- POST /api/v1/approvals/:id/steps/:stepId/reject - available
+- POST /api/v1/approvals/:id/steps/:stepId/delegate - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-017 - Portal - Quotes List & Detail
+# Plan: FE-018 - Portal - Approvals Inbox
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [x] Quotes list with filters (status, date)
-- [x] Quote detail page with line items
-- [x] Quote status timeline
-- [x] Convert to contract action
-- [x] Clone quote action
+- [ ] Pending approvals list
+- [ ] Approval detail view
+- [ ] Approve/reject with comments
+- [ ] Delegation to another user
+- [ ] Approval history
 
 ## API Dependencies
-- GET /api/v1/quotes [available] - used
-- GET /api/v1/quotes/:id [available] - used
-- POST /api/v1/quotes/:id/convert-to-contract [available] - used
-- POST /api/v1/quotes [available] - used for clone
+- GET /api/v1/approvals/pending [available]
+- GET /api/v1/approvals/:id [available]
+- POST /api/v1/approvals/:id/steps/:stepId/approve [available]
+- POST /api/v1/approvals/:id/steps/:stepId/reject [available]
+- POST /api/v1/approvals/:id/steps/:stepId/delegate [available]
 
-## Implementation Summary
+## Implementation Plan
+<!-- Claude: Fill this section during Lisa phase -->
 
-### Components Created
-- `QuotesFilters` - Status dropdown and date range filters
-- `QuoteTimeline` - Visual timeline showing quote workflow progression
+### Components to Create
+- 
 
-### Hooks Added
-- `useConvertQuoteToContract` - Converts accepted quote to contract
-- `useCloneQuote` - Creates new quote by copying existing quote data
+### State Management
+- 
 
-### Files Modified
-1. `apps/portal/src/app/quotes/page.tsx` - Enhanced with date filters and improved filter UI
-2. `apps/portal/src/app/quotes/[id]/page.tsx` - Added timeline, convert action, clone action
-3. `apps/portal/src/app/quotes/hooks/use-quotes.ts` - Added conversion and clone hooks
-4. `apps/portal/src/app/quotes/components/index.ts` - Export new components
+### Testing Strategy
+- 
 
-### Files Created
-1. `apps/portal/src/app/quotes/components/quotes-filters.tsx` - Filter controls
-2. `apps/portal/src/app/quotes/components/quote-timeline.tsx` - Status timeline
-
-## Ready for Ralph: [x] Completed
+## Ready for Ralph: [ ]
 
 ## Previous Iteration Output
-# FE-017 Iteration 1 - Portal - Quotes List & Detail
 
-## Status: COMPLETE
-
-## Changes Made
-
-### 1. Quotes List Page (`apps/portal/src/app/quotes/page.tsx`)
-- Added date filters (start date, end date) using DatePicker
-- Replaced button-based status filter with dropdown Select
-- Added debounced search (300ms)
-- Added refresh button
-- Reset pagination on filter changes
-- Date formatting for API (yyyy-MM-dd)
-
-### 2. Quote Detail Page (`apps/portal/src/app/quotes/[id]/page.tsx`)
-- Restructured to two-column layout (content + sidebar)
-- Added QuoteTimeline component in sidebar
-- Added Key Dates card showing important dates
-- Added Quote Summary card with total amount
-- Added "Clone Quote" action with modal dialog
-- Added "Convert to Contract" action with confirmation modal
-- Refresh button added
-
-### 3. New Component: QuotesFilters (`apps/portal/src/app/quotes/components/quotes-filters.tsx`)
-- Status dropdown filter
-- Start date picker
-- End date picker
-- Clear all filters button
-
-### 4. New Component: QuoteTimeline (`apps/portal/src/app/quotes/components/quote-timeline.tsx`)
-- Visual timeline showing quote workflow stages
-- Stages: Draft -> Submitted -> Approved -> Sent -> Accepted -> Converted
-- Special handling for Rejected and Expired states
-- Color-coded icons (green for completed, blue for current, gray for pending)
-- Dates displayed for completed stages
-
-### 5. Hooks (`apps/portal/src/app/quotes/hooks/use-quotes.ts`)
-- Added `useConvertQuoteToContract` mutation hook
-- Added `useCloneQuote` mutation hook (creates new quote via POST /api/v1/quotes)
-- Added `canConvertToContract` helper function
-- Added `canCloneQuote` helper function
-
-## Completion Criteria Met
-
-| Criteria | Status |
-|----------|--------|
-| Quotes list with filters (status, date) |  |
-| Quote detail page with line items |  |
-| Quote status timeline |  |
-| Convert to contract action |  |
-| Clone quote action |  |
-
-## Build Status
-- `pnpm --filter portal build` - PASSED
 
 ## Instructions
 1. Implement ALL completion criteria for this feature
@@ -144,7 +86,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-017</promise>
+<promise>COMPLETE:FE-018</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
