@@ -45,7 +45,8 @@ export class RestConnectorController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Receive webhook callback',
-    description: 'Receives and processes incoming webhook payloads. Authentication is done via signature validation.',
+    description:
+      'Receives and processes incoming webhook payloads. Authentication is done via signature validation.',
   })
   @ApiParam({ name: 'configId', description: 'Connector configuration ID' })
   @ApiHeader({ name: 'x-signature', description: 'Webhook signature', required: false })

@@ -164,10 +164,7 @@ describe('CartService', () => {
         'master-product-id-123',
         tenantId,
       );
-      expect(tenantCatalogService.findOne).toHaveBeenCalledWith(
-        'master-product-id-123',
-        tenantId,
-      );
+      expect(tenantCatalogService.findOne).toHaveBeenCalledWith('master-product-id-123', tenantId);
       expect(prismaService.cartItem.create).toHaveBeenCalled();
     });
 
@@ -264,7 +261,10 @@ describe('CartService', () => {
         .mockResolvedValueOnce(cartWithExistingItem) // getOrCreateCart
         .mockResolvedValueOnce(updatedCart); // recalculateCart
       (prismaService.cartItem.findUnique as jest.Mock).mockResolvedValue(existingCartItem);
-      (prismaService.cartItem.update as jest.Mock).mockResolvedValue({ ...existingCartItem, quantity: 5 });
+      (prismaService.cartItem.update as jest.Mock).mockResolvedValue({
+        ...existingCartItem,
+        quantity: 5,
+      });
       (prismaService.cart.update as jest.Mock).mockResolvedValue(updatedCart);
       (tenantCatalogService.hasAccess as jest.Mock).mockResolvedValue(true);
       (tenantCatalogService.findOne as jest.Mock).mockResolvedValue(mockProduct);
@@ -279,7 +279,10 @@ describe('CartService', () => {
       );
 
       // When item already exists with same masterProductId, it should update quantity instead of creating
-      expect(tenantCatalogService.hasAccess).toHaveBeenCalledWith('master-product-id-123', tenantId);
+      expect(tenantCatalogService.hasAccess).toHaveBeenCalledWith(
+        'master-product-id-123',
+        tenantId,
+      );
       expect(tenantCatalogService.findOne).toHaveBeenCalledWith('master-product-id-123', tenantId);
       expect(prismaService.cartItem.update).toHaveBeenCalled();
       expect(prismaService.cartItem.create).not.toHaveBeenCalled();
@@ -312,12 +315,7 @@ describe('CartService', () => {
     });
 
     it('should update cart item with discount', async () => {
-      await service.updateItem(
-        'cart-item-id-123',
-        { quantity: 5, discount: 20 },
-        tenantId,
-        userId,
-      );
+      await service.updateItem('cart-item-id-123', { quantity: 5, discount: 20 }, tenantId, userId);
 
       expect(prismaService.cartItem.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -369,9 +367,9 @@ describe('CartService', () => {
       };
       (prismaService.cart.findUnique as jest.Mock).mockResolvedValueOnce(cartWithoutItem);
 
-      await expect(
-        service.removeItem('non-existent-id', tenantId, userId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.removeItem('non-existent-id', tenantId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -418,11 +416,7 @@ describe('CartService', () => {
     });
 
     it('should apply valid percentage coupon', async () => {
-      const result = await service.applyCoupon(
-        { couponCode: 'SAVE10' },
-        tenantId,
-        userId,
-      );
+      const result = await service.applyCoupon({ couponCode: 'SAVE10' }, tenantId, userId);
 
       expect(prismaService.cart.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -444,9 +438,9 @@ describe('CartService', () => {
       (prismaService.cart.findUnique as jest.Mock).mockReset();
       (prismaService.cart.findUnique as jest.Mock).mockResolvedValue(mockEmptyCart);
 
-      await expect(
-        service.applyCoupon({ couponCode: 'SAVE10' }, tenantId, userId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.applyCoupon({ couponCode: 'SAVE10' }, tenantId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for invalid coupon', async () => {

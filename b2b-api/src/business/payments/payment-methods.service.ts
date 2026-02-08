@@ -1,16 +1,7 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { PaymentMethod, UserRole, Prisma } from '@prisma/client';
-import {
-  CreatePaymentMethodDto,
-  UpdatePaymentMethodDto,
-  ListPaymentMethodsQueryDto,
-} from './dto';
+import { CreatePaymentMethodDto, UpdatePaymentMethodDto, ListPaymentMethodsQueryDto } from './dto';
 
 export type PaymentMethodWithAccess = PaymentMethod & {
   userTypeAccess: { userRole: UserRole }[];
@@ -104,10 +95,7 @@ export class PaymentMethodsService {
   /**
    * Create payment method (admin)
    */
-  async create(
-    dto: CreatePaymentMethodDto,
-    tenantId: string,
-  ): Promise<PaymentMethodWithAccess> {
+  async create(dto: CreatePaymentMethodDto, tenantId: string): Promise<PaymentMethodWithAccess> {
     // Check for duplicate code
     const existing = await this.prisma.paymentMethod.findFirst({
       where: { tenantId, code: dto.code },

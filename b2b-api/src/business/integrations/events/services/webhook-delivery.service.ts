@@ -129,7 +129,10 @@ export class WebhookDeliveryService {
           data: payload,
           timeout: destination.timeout || this.defaultConfig.timeout,
           validateStatus: () => true, // Accept any status to handle it ourselves
-          httpsAgent: destination.verifySsl === false ? new (require('https').Agent)({ rejectUnauthorized: false }) : undefined,
+          httpsAgent:
+            destination.verifySsl === false
+              ? new (require('https').Agent)({ rejectUnauthorized: false })
+              : undefined,
         }),
       );
 
@@ -168,7 +171,9 @@ export class WebhookDeliveryService {
 
     switch (destination.auth.type) {
       case 'basic':
-        const basicAuth = Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64');
+        const basicAuth = Buffer.from(`${credentials.username}:${credentials.password}`).toString(
+          'base64',
+        );
         headers['Authorization'] = `Basic ${basicAuth}`;
         break;
 

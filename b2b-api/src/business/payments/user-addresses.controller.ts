@@ -20,11 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { UserAddressesService } from './user-addresses.service';
-import {
-  CreateUserAddressDto,
-  UpdateUserAddressDto,
-  UserAddressResponseDto,
-} from './dto';
+import { CreateUserAddressDto, UpdateUserAddressDto, UserAddressResponseDto } from './dto';
 import { JwtAuthGuard, Roles, RolesGuard, CurrentUser } from '@core/auth';
 import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';

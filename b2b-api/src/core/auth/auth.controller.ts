@@ -1,18 +1,5 @@
-import {
-  Controller,
-  Post,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiHeader,
-} from '@nestjs/swagger';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, RefreshTokenDto, AuthResponseDto } from './dto';
@@ -70,10 +57,7 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Logout and revoke tokens' })
   @ApiResponse({ status: 204, description: 'Logged out successfully' })
-  async logout(
-    @CurrentUser() user: User,
-    @Body() dto?: RefreshTokenDto,
-  ): Promise<void> {
+  async logout(@CurrentUser() user: User, @Body() dto?: RefreshTokenDto): Promise<void> {
     await this.authService.logout(user.id, dto?.refreshToken);
   }
 }

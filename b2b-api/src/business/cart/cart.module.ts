@@ -6,11 +6,7 @@ import { AuthorizationModule } from '@core/authorization';
 import { TenantCatalogModule } from '@business/tenant-catalog';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    AuthorizationModule,
-    TenantCatalogModule,
-  ],
+  imports: [DatabaseModule, AuthorizationModule, TenantCatalogModule],
   controllers: [CartController],
   providers: [CartService],
   exports: [CartService],

@@ -149,18 +149,13 @@ describe('TenantCatalogService', () => {
     });
 
     it('should filter by categoryId (hierarchical)', async () => {
-      mockCategoriesService.getCategoryIdsWithDescendants.mockResolvedValue([
-        'cat-1',
-        'cat-2',
-      ]);
+      mockCategoriesService.getCategoryIdsWithDescendants.mockResolvedValue(['cat-1', 'cat-2']);
       mockPrismaService.masterProduct.findMany.mockResolvedValue([]);
       mockPrismaService.masterProduct.count.mockResolvedValue(0);
 
       await service.findAll(tenantId, { categoryId: 'cat-1', page: 1, limit: 20 });
 
-      expect(mockCategoriesService.getCategoryIdsWithDescendants).toHaveBeenCalledWith(
-        'cat-1',
-      );
+      expect(mockCategoriesService.getCategoryIdsWithDescendants).toHaveBeenCalledWith('cat-1');
       expect(mockPrismaService.masterProduct.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ categoryId: { in: ['cat-1', 'cat-2'] } }),
@@ -177,9 +172,7 @@ describe('TenantCatalogService', () => {
       expect(mockPrismaService.masterProduct.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            OR: expect.arrayContaining([
-              { name: { contains: 'test', mode: 'insensitive' } },
-            ]),
+            OR: expect.arrayContaining([{ name: { contains: 'test', mode: 'insensitive' } }]),
           }),
         }),
       );
@@ -246,9 +239,7 @@ describe('TenantCatalogService', () => {
     it('should throw NotFoundException if product not found', async () => {
       mockPrismaService.masterProduct.findUnique.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent', tenantId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne('nonexistent', tenantId)).rejects.toThrow(NotFoundException);
     });
 
     it('should show hasAccess as false when no access', async () => {
@@ -272,9 +263,7 @@ describe('TenantCatalogService', () => {
     it('should throw NotFoundException if SKU not found', async () => {
       mockPrismaService.masterProduct.findUnique.mockResolvedValue(null);
 
-      await expect(service.findBySku('INVALID', tenantId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findBySku('INVALID', tenantId)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -305,9 +294,9 @@ describe('TenantCatalogService', () => {
     it('should throw NotFoundException if product not found', async () => {
       mockPrismaService.masterProduct.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.getRelatedProducts('nonexistent', tenantId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getRelatedProducts('nonexistent', tenantId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

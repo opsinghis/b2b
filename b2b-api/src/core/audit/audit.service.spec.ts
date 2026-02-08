@@ -77,10 +77,7 @@ describe('AuditService', () => {
       (prismaService.auditLog.findMany as jest.Mock).mockResolvedValue(mockLogs);
       (prismaService.auditLog.count as jest.Mock).mockResolvedValue(1);
 
-      const result = await service.findAll(
-        { tenantId: 'tenant-123' },
-        { page: 1, limit: 20 },
-      );
+      const result = await service.findAll({ tenantId: 'tenant-123' }, { page: 1, limit: 20 });
 
       expect(result).toEqual({
         data: mockLogs,

@@ -85,17 +85,8 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderListResponseDto> {
-    const { orders, total } = await this.ordersService.findAll(
-      query,
-      tenantId,
-      user.userId,
-    );
-    return OrderListResponseDto.fromEntities(
-      orders,
-      total,
-      query.page || 1,
-      query.limit || 20,
-    );
+    const { orders, total } = await this.ordersService.findAll(query, tenantId, user.userId);
+    return OrderListResponseDto.fromEntities(orders, total, query.page || 1, query.limit || 20);
   }
 
   @Get(':id')
@@ -262,12 +253,7 @@ export class AdminOrdersController {
     @TenantContext() tenantId: string,
   ): Promise<OrderListResponseDto> {
     const { orders, total } = await this.ordersService.findAllAdmin(query, tenantId);
-    return OrderListResponseDto.fromEntities(
-      orders,
-      total,
-      query.page || 1,
-      query.limit || 20,
-    );
+    return OrderListResponseDto.fromEntities(orders, total, query.page || 1, query.limit || 20);
   }
 
   @Get(':id')

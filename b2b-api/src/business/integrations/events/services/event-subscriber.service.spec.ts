@@ -20,11 +20,7 @@ describe('EventSubscriberService', () => {
   describe('subscribe', () => {
     it('should create a subscription', () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler);
 
       expect(subscriptionId).toBeDefined();
       expect(typeof subscriptionId).toBe('string');
@@ -44,11 +40,7 @@ describe('EventSubscriberService', () => {
 
     it('should create enabled subscription by default', () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler);
 
       const subscription = service.getSubscription(subscriptionId);
       expect(subscription?.enabled).toBe(true);
@@ -56,12 +48,9 @@ describe('EventSubscriberService', () => {
 
     it('should create disabled subscription when specified', () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-        { enabled: false },
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler, {
+        enabled: false,
+      });
 
       const subscription = service.getSubscription(subscriptionId);
       expect(subscription?.enabled).toBe(false);
@@ -81,11 +70,7 @@ describe('EventSubscriberService', () => {
   describe('unsubscribe', () => {
     it('should remove a subscription', () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler);
 
       const result = service.unsubscribe(subscriptionId);
       expect(result).toBe(true);
@@ -103,11 +88,7 @@ describe('EventSubscriberService', () => {
   describe('setEnabled', () => {
     it('should enable/disable subscription', () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler);
 
       service.setEnabled(subscriptionId, false);
       expect(service.getSubscription(subscriptionId)?.enabled).toBe(false);
@@ -164,11 +145,7 @@ describe('EventSubscriberService', () => {
 
     it('should not dispatch to disabled subscriptions', async () => {
       const handler = jest.fn();
-      const subscriptionId = service.subscribe(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        handler,
-      );
+      const subscriptionId = service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler);
       service.setEnabled(subscriptionId, false);
 
       const event: BaseEvent = {
@@ -361,7 +338,9 @@ describe('EventSubscriberService', () => {
       const handler = jest.fn();
       service.subscribe('tenant-1', ORDER_EVENTS.ORDER_CREATED, handler, {
         filter: {
-          conditions: [{ path: '$.payload.status', operator: 'in', value: ['pending', 'approved'] }],
+          conditions: [
+            { path: '$.payload.status', operator: 'in', value: ['pending', 'approved'] },
+          ],
         },
       });
 

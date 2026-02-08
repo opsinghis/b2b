@@ -26,10 +26,7 @@ export class ConnectorHealthService {
   /**
    * Get health check for a connector
    */
-  getConnectorHealth(
-    tenantId: string,
-    connectorId: string,
-  ): ConnectorHealthCheck | null {
+  getConnectorHealth(tenantId: string, connectorId: string): ConnectorHealthCheck | null {
     const key = this.buildKey(tenantId, connectorId);
     return this.healthChecks.get(key) || null;
   }
@@ -68,18 +65,10 @@ export class ConnectorHealthService {
 
     return {
       total: connectors.length,
-      healthy: connectors.filter(
-        (c) => c.status === ConnectorHealthStatus.HEALTHY,
-      ).length,
-      degraded: connectors.filter(
-        (c) => c.status === ConnectorHealthStatus.DEGRADED,
-      ).length,
-      unhealthy: connectors.filter(
-        (c) => c.status === ConnectorHealthStatus.UNHEALTHY,
-      ).length,
-      unknown: connectors.filter(
-        (c) => c.status === ConnectorHealthStatus.UNKNOWN,
-      ).length,
+      healthy: connectors.filter((c) => c.status === ConnectorHealthStatus.HEALTHY).length,
+      degraded: connectors.filter((c) => c.status === ConnectorHealthStatus.DEGRADED).length,
+      unhealthy: connectors.filter((c) => c.status === ConnectorHealthStatus.UNHEALTHY).length,
+      unknown: connectors.filter((c) => c.status === ConnectorHealthStatus.UNKNOWN).length,
     };
   }
 
@@ -110,16 +99,10 @@ export class ConnectorHealthService {
 
     // Update consecutive counters
     if (result.success) {
-      this.consecutiveSuccesses.set(
-        key,
-        (this.consecutiveSuccesses.get(key) || 0) + 1,
-      );
+      this.consecutiveSuccesses.set(key, (this.consecutiveSuccesses.get(key) || 0) + 1);
       this.consecutiveFailures.set(key, 0);
     } else {
-      this.consecutiveFailures.set(
-        key,
-        (this.consecutiveFailures.get(key) || 0) + 1,
-      );
+      this.consecutiveFailures.set(key, (this.consecutiveFailures.get(key) || 0) + 1);
       this.consecutiveSuccesses.set(key, 0);
     }
 
@@ -190,9 +173,7 @@ export class ConnectorHealthService {
     // Record in uptime history
     this.recordUptimeHistory(tenantId, connectorId, status);
 
-    this.logger.debug(
-      `Recorded health check for connector ${connectorId}: ${status}`,
-    );
+    this.logger.debug(`Recorded health check for connector ${connectorId}: ${status}`);
 
     return healthCheck;
   }
@@ -214,10 +195,8 @@ export class ConnectorHealthService {
       enabled: config.enabled ?? existing?.enabled ?? true,
       intervalSeconds: config.intervalSeconds ?? existing?.intervalSeconds ?? 60,
       timeoutSeconds: config.timeoutSeconds ?? existing?.timeoutSeconds ?? 10,
-      unhealthyThreshold:
-        config.unhealthyThreshold ?? existing?.unhealthyThreshold ?? 3,
-      healthyThreshold:
-        config.healthyThreshold ?? existing?.healthyThreshold ?? 2,
+      unhealthyThreshold: config.unhealthyThreshold ?? existing?.unhealthyThreshold ?? 3,
+      healthyThreshold: config.healthyThreshold ?? existing?.healthyThreshold ?? 2,
       customChecks: config.customChecks ?? existing?.customChecks,
     };
 
@@ -230,10 +209,7 @@ export class ConnectorHealthService {
   /**
    * Get health check configuration
    */
-  getHealthCheckConfig(
-    tenantId: string,
-    connectorId: string,
-  ): HealthCheckConfig | null {
+  getHealthCheckConfig(tenantId: string, connectorId: string): HealthCheckConfig | null {
     const key = this.buildKey(tenantId, connectorId);
     return this.healthConfigs.get(key) || null;
   }
@@ -241,11 +217,7 @@ export class ConnectorHealthService {
   /**
    * Mark connector as unhealthy manually
    */
-  markUnhealthy(
-    tenantId: string,
-    connectorId: string,
-    reason: string,
-  ): ConnectorHealthCheck {
+  markUnhealthy(tenantId: string, connectorId: string, reason: string): ConnectorHealthCheck {
     return this.recordHealthCheck(tenantId, connectorId, {
       success: false,
       error: reason,
@@ -302,12 +274,10 @@ export class ConnectorHealthService {
 
     const unhealthyCount = recentHistory.filter(
       (h) =>
-        h.status === ConnectorHealthStatus.UNHEALTHY ||
-        h.status === ConnectorHealthStatus.DEGRADED,
+        h.status === ConnectorHealthStatus.UNHEALTHY || h.status === ConnectorHealthStatus.DEGRADED,
     ).length;
 
-    const percentage =
-      ((recentHistory.length - unhealthyCount) / recentHistory.length) * 100;
+    const percentage = ((recentHistory.length - unhealthyCount) / recentHistory.length) * 100;
 
     // Estimate downtime (assuming checks every minute)
     const downtimeMinutes = unhealthyCount;

@@ -261,9 +261,9 @@ describe('NotificationsService', () => {
     it('should throw NotFoundException if notification not found', async () => {
       (prismaService.notification.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.findOne('non-existent', mockTenantId, mockUserId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent', mockTenantId, mockUserId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -277,11 +277,7 @@ describe('NotificationsService', () => {
       (prismaService.notification.findFirst as jest.Mock).mockResolvedValue(mockNotification);
       (prismaService.notification.update as jest.Mock).mockResolvedValue(readNotification);
 
-      const result = await service.markAsRead(
-        mockNotification.id,
-        mockTenantId,
-        mockUserId,
-      );
+      const result = await service.markAsRead(mockNotification.id, mockTenantId, mockUserId);
 
       expect(result.isRead).toBe(true);
       expect(result.readAt).not.toBeNull();
@@ -297,9 +293,9 @@ describe('NotificationsService', () => {
     it('should throw NotFoundException if notification not found', async () => {
       (prismaService.notification.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.markAsRead('non-existent', mockTenantId, mockUserId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.markAsRead('non-existent', mockTenantId, mockUserId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -362,9 +358,9 @@ describe('NotificationsService', () => {
     it('should throw NotFoundException if notification not found', async () => {
       (prismaService.notification.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.remove('non-existent', mockTenantId, mockUserId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('non-existent', mockTenantId, mockUserId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

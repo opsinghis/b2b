@@ -56,12 +56,7 @@ describe('WebhookDeliveryService', () => {
         method: 'POST',
       };
 
-      const jobId = await service.queueWebhook(
-        'event-1',
-        'sub-1',
-        destination,
-        { data: 'test' },
-      );
+      const jobId = await service.queueWebhook('event-1', 'sub-1', destination, { data: 'test' });
 
       expect(jobId).toBe('event-1-sub-1');
       expect(mockQueue.add).toHaveBeenCalledWith(
@@ -84,9 +79,15 @@ describe('WebhookDeliveryService', () => {
         method: 'POST',
       };
 
-      await service.queueWebhook('event-1', 'sub-1', destination, {}, {
-        priority: EventPriority.HIGH,
-      });
+      await service.queueWebhook(
+        'event-1',
+        'sub-1',
+        destination,
+        {},
+        {
+          priority: EventPriority.HIGH,
+        },
+      );
 
       expect(mockQueue.add).toHaveBeenCalledWith(
         'deliver',
@@ -103,9 +104,15 @@ describe('WebhookDeliveryService', () => {
         method: 'POST',
       };
 
-      await service.queueWebhook('event-1', 'sub-1', destination, {}, {
-        delay: 5000,
-      });
+      await service.queueWebhook(
+        'event-1',
+        'sub-1',
+        destination,
+        {},
+        {
+          delay: 5000,
+        },
+      );
 
       expect(mockQueue.add).toHaveBeenCalledWith(
         'deliver',
@@ -130,12 +137,9 @@ describe('WebhookDeliveryService', () => {
         }),
       );
 
-      const result = await service.deliverWebhook(
-        'event-1',
-        'sub-1',
-        destination,
-        { data: 'test' },
-      );
+      const result = await service.deliverWebhook('event-1', 'sub-1', destination, {
+        data: 'test',
+      });
 
       expect(result.success).toBe(true);
       expect(result.statusCode).toBe(200);
@@ -152,12 +156,9 @@ describe('WebhookDeliveryService', () => {
         }),
       );
 
-      const result = await service.deliverWebhook(
-        'event-1',
-        'sub-1',
-        destination,
-        { data: 'test' },
-      );
+      const result = await service.deliverWebhook('event-1', 'sub-1', destination, {
+        data: 'test',
+      });
 
       expect(result.success).toBe(false);
       expect(result.statusCode).toBe(500);
@@ -165,16 +166,11 @@ describe('WebhookDeliveryService', () => {
     });
 
     it('should handle network errors', async () => {
-      mockHttpService.request.mockReturnValue(
-        throwError(() => new Error('Network error')),
-      );
+      mockHttpService.request.mockReturnValue(throwError(() => new Error('Network error')));
 
-      const result = await service.deliverWebhook(
-        'event-1',
-        'sub-1',
-        destination,
-        { data: 'test' },
-      );
+      const result = await service.deliverWebhook('event-1', 'sub-1', destination, {
+        data: 'test',
+      });
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Network error');
@@ -326,11 +322,7 @@ describe('WebhookDeliveryService', () => {
 
   describe('computeHmacSignature', () => {
     it('should compute SHA256 HMAC', () => {
-      const signature = service.computeHmacSignature(
-        '{"data":"test"}',
-        'secret',
-        'sha256',
-      );
+      const signature = service.computeHmacSignature('{"data":"test"}', 'secret', 'sha256');
 
       expect(signature).toBeDefined();
       expect(typeof signature).toBe('string');
@@ -338,21 +330,13 @@ describe('WebhookDeliveryService', () => {
     });
 
     it('should compute SHA1 HMAC', () => {
-      const signature = service.computeHmacSignature(
-        '{"data":"test"}',
-        'secret',
-        'sha1',
-      );
+      const signature = service.computeHmacSignature('{"data":"test"}', 'secret', 'sha1');
 
       expect(signature.length).toBe(40); // SHA1 hex is 40 chars
     });
 
     it('should compute SHA512 HMAC', () => {
-      const signature = service.computeHmacSignature(
-        '{"data":"test"}',
-        'secret',
-        'sha512',
-      );
+      const signature = service.computeHmacSignature('{"data":"test"}', 'secret', 'sha512');
 
       expect(signature.length).toBe(128); // SHA512 hex is 128 chars
     });
@@ -407,9 +391,7 @@ describe('WebhookDeliveryService', () => {
       mockQueue.getCompletedCount.mockResolvedValue(0);
       mockQueue.getFailedCount.mockResolvedValue(0);
 
-      mockHttpService.request.mockReturnValue(
-        of({ status: 200, statusText: 'OK', data: {} }),
-      );
+      mockHttpService.request.mockReturnValue(of({ status: 200, statusText: 'OK', data: {} }));
 
       const destination: WebhookDestination = {
         url: 'https://example.com/webhook',
@@ -446,9 +428,7 @@ describe('WebhookDeliveryService', () => {
 
   describe('clearResults', () => {
     it('should clear results for specific event', async () => {
-      mockHttpService.request.mockReturnValue(
-        of({ status: 200, statusText: 'OK', data: {} }),
-      );
+      mockHttpService.request.mockReturnValue(of({ status: 200, statusText: 'OK', data: {} }));
 
       const destination: WebhookDestination = {
         url: 'https://example.com/webhook',
@@ -465,9 +445,7 @@ describe('WebhookDeliveryService', () => {
     });
 
     it('should clear all results', async () => {
-      mockHttpService.request.mockReturnValue(
-        of({ status: 200, statusText: 'OK', data: {} }),
-      );
+      mockHttpService.request.mockReturnValue(of({ status: 200, statusText: 'OK', data: {} }));
 
       const destination: WebhookDestination = {
         url: 'https://example.com/webhook',

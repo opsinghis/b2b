@@ -20,12 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { CartService } from './cart.service';
-import {
-  AddCartItemDto,
-  UpdateCartItemDto,
-  ApplyCouponDto,
-  CartResponseDto,
-} from './dto';
+import { AddCartItemDto, UpdateCartItemDto, ApplyCouponDto, CartResponseDto } from './dto';
 import { JwtAuthGuard, Roles, RolesGuard, CurrentUser } from '@core/auth';
 import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';

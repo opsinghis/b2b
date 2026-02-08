@@ -195,9 +195,9 @@ describe('CategoriesService', () => {
         .mockResolvedValueOnce(null) // slug check
         .mockResolvedValueOnce(null); // parent check
 
-      await expect(
-        service.create({ ...createDto, parentId: 'invalid-parent' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.create({ ...createDto, parentId: 'invalid-parent' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

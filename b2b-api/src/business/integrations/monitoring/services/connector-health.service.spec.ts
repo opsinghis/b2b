@@ -138,9 +138,7 @@ describe('ConnectorHealthService', () => {
         error: errorMessage,
       });
 
-      const errorEntry = result.recentErrors.find(
-        (e) => e.error === errorMessage,
-      );
+      const errorEntry = result.recentErrors.find((e) => e.error === errorMessage);
       expect(errorEntry?.count).toBe(3);
     });
 
@@ -206,10 +204,7 @@ describe('ConnectorHealthService', () => {
         });
       }
 
-      const healthyOnly = service.getAllConnectorHealth(
-        tenantId,
-        ConnectorHealthStatus.HEALTHY,
-      );
+      const healthyOnly = service.getAllConnectorHealth(tenantId, ConnectorHealthStatus.HEALTHY);
       const unhealthyOnly = service.getAllConnectorHealth(
         tenantId,
         ConnectorHealthStatus.UNHEALTHY,
@@ -304,16 +299,10 @@ describe('ConnectorHealthService', () => {
 
   describe('markUnhealthy', () => {
     it('should mark connector as degraded/unhealthy', () => {
-      const result = service.markUnhealthy(
-        tenantId,
-        connectorId,
-        'Manual override',
-      );
+      const result = service.markUnhealthy(tenantId, connectorId, 'Manual override');
 
       expect(result.connectivity.reachable).toBe(false);
-      expect(result.recentErrors.some((e) => e.error === 'Manual override')).toBe(
-        true,
-      );
+      expect(result.recentErrors.some((e) => e.error === 'Manual override')).toBe(true);
     });
   });
 

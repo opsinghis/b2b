@@ -26,17 +26,7 @@ import { PaymentsController } from './payments.controller';
     UserAddressesController,
     PaymentsController,
   ],
-  providers: [
-    PaymentMethodsService,
-    DeliveryMethodsService,
-    UserAddressesService,
-    PaymentsService,
-  ],
-  exports: [
-    PaymentMethodsService,
-    DeliveryMethodsService,
-    UserAddressesService,
-    PaymentsService,
-  ],
+  providers: [PaymentMethodsService, DeliveryMethodsService, UserAddressesService, PaymentsService],
+  exports: [PaymentMethodsService, DeliveryMethodsService, UserAddressesService, PaymentsService],
 })
 export class PaymentsModule {}

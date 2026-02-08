@@ -225,9 +225,9 @@ describe('TenantsService', () => {
     it('should throw NotFoundException if tenant not found', async () => {
       (prismaService.tenant.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.update('non-existent-id', { name: 'Updated' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update('non-existent-id', { name: 'Updated' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ConflictException if updating to existing slug', async () => {
@@ -236,9 +236,9 @@ describe('TenantsService', () => {
         .mockResolvedValueOnce(mockTenant) // First call for findOne
         .mockResolvedValueOnce(existingTenant); // Second call for slug check
 
-      await expect(
-        service.update('tenant-id-123', { slug: 'existing-slug' }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.update('tenant-id-123', { slug: 'existing-slug' })).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should allow updating to same slug (no conflict)', async () => {

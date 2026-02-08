@@ -189,8 +189,18 @@ describe('ApprovalsService', () => {
             name: 'Invalid Chain',
             entityType: ApprovalEntity.CONTRACT,
             levels: [
-              { level: 1, name: 'Level 1', approverType: ApproverType.ROLE, approverRoleId: 'MANAGER' },
-              { level: 3, name: 'Level 3', approverType: ApproverType.ROLE, approverRoleId: 'ADMIN' }, // Missing level 2
+              {
+                level: 1,
+                name: 'Level 1',
+                approverType: ApproverType.ROLE,
+                approverRoleId: 'MANAGER',
+              },
+              {
+                level: 3,
+                name: 'Level 3',
+                approverType: ApproverType.ROLE,
+                approverRoleId: 'ADMIN',
+              }, // Missing level 2
             ],
           },
           tenantId,
@@ -208,7 +218,12 @@ describe('ApprovalsService', () => {
           entityType: ApprovalEntity.CONTRACT,
           isDefault: true,
           levels: [
-            { level: 1, name: 'Level 1', approverType: ApproverType.ROLE, approverRoleId: 'MANAGER' },
+            {
+              level: 1,
+              name: 'Level 1',
+              approverType: ApproverType.ROLE,
+              approverRoleId: 'MANAGER',
+            },
           ],
         },
         tenantId,
@@ -278,15 +293,13 @@ describe('ApprovalsService', () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           approvalChainLevel: { deleteMany: jest.fn() },
-          approvalChain: { update: jest.fn().mockResolvedValue({ ...mockApprovalChain, name: 'Updated Chain' }) },
+          approvalChain: {
+            update: jest.fn().mockResolvedValue({ ...mockApprovalChain, name: 'Updated Chain' }),
+          },
         });
       });
 
-      const result = await service.updateChain(
-        'chain-id-123',
-        { name: 'Updated Chain' },
-        tenantId,
-      );
+      const result = await service.updateChain('chain-id-123', { name: 'Updated Chain' }, tenantId);
 
       expect(result.name).toBe('Updated Chain');
     });
@@ -325,9 +338,7 @@ describe('ApprovalsService', () => {
     it('should throw NotFoundException if chain not found', async () => {
       mockPrismaService.approvalChain.findFirst.mockResolvedValue(null);
 
-      await expect(service.deleteChain('nonexistent', tenantId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.deleteChain('nonexistent', tenantId)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -550,7 +561,13 @@ describe('ApprovalsService', () => {
         ...mockApprovalRequest,
         steps: [
           { ...step, status: ApprovalStatus.CANCELLED },
-          { id: 'new-step', level: 1, status: ApprovalStatus.PENDING, approverId: 'delegate-user-id', delegatedFrom: 'approver-id-123' },
+          {
+            id: 'new-step',
+            level: 1,
+            status: ApprovalStatus.PENDING,
+            approverId: 'delegate-user-id',
+            delegatedFrom: 'approver-id-123',
+          },
         ],
       });
 
@@ -570,9 +587,7 @@ describe('ApprovalsService', () => {
     it('should throw ForbiddenException if delegation not allowed', async () => {
       const chainNoDelegation = {
         ...mockApprovalChain,
-        levels: [
-          { ...mockApprovalChain.levels[0], allowDelegation: false },
-        ],
+        levels: [{ ...mockApprovalChain.levels[0], allowDelegation: false }],
       };
 
       const step = {
@@ -586,7 +601,13 @@ describe('ApprovalsService', () => {
       mockPrismaService.approvalChain.findUnique.mockResolvedValue(chainNoDelegation);
 
       await expect(
-        service.delegate('request-id-123', 'step-id-123', tenantId, 'approver-id-123', 'delegate-user-id'),
+        service.delegate(
+          'request-id-123',
+          'step-id-123',
+          tenantId,
+          'approver-id-123',
+          'delegate-user-id',
+        ),
       ).rejects.toThrow(ForbiddenException);
     });
 
@@ -603,7 +624,13 @@ describe('ApprovalsService', () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.delegate('request-id-123', 'step-id-123', tenantId, 'approver-id-123', 'nonexistent'),
+        service.delegate(
+          'request-id-123',
+          'step-id-123',
+          tenantId,
+          'approver-id-123',
+          'nonexistent',
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -700,9 +727,9 @@ describe('ApprovalsService', () => {
     it('should throw NotFoundException if request not found', async () => {
       mockPrismaService.approvalRequest.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.cancelRequest('nonexistent', tenantId, userId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.cancelRequest('nonexistent', tenantId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw ForbiddenException if not the requester', async () => {
@@ -711,9 +738,9 @@ describe('ApprovalsService', () => {
         requesterId: 'different-user',
       });
 
-      await expect(
-        service.cancelRequest('request-id-123', tenantId, userId),
-      ).rejects.toThrow(ForbiddenException);
+      await expect(service.cancelRequest('request-id-123', tenantId, userId)).rejects.toThrow(
+        ForbiddenException,
+      );
     });
 
     it('should throw BadRequestException if request is not pending', async () => {
@@ -722,9 +749,9 @@ describe('ApprovalsService', () => {
         status: ApprovalRequestStatus.APPROVED,
       });
 
-      await expect(
-        service.cancelRequest('request-id-123', tenantId, userId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.cancelRequest('request-id-123', tenantId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

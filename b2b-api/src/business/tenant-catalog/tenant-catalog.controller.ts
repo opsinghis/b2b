@@ -237,8 +237,7 @@ export class TenantCatalogController {
   @CanManage('MasterProduct')
   @ApiOperation({
     summary: 'Update pricing for a product (Admin only)',
-    description:
-      'Set tenant-specific pricing. Must have access to the product first.',
+    description: 'Set tenant-specific pricing. Must have access to the product first.',
   })
   @ApiParam({ name: 'id', description: 'Product ID' })
   @ApiResponse({

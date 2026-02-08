@@ -86,10 +86,7 @@ export class UsersService {
     return user;
   }
 
-  async findAll(
-    tenantId: string,
-    query: UserListQueryDto,
-  ): Promise<PaginatedResult<User>> {
+  async findAll(tenantId: string, query: UserListQueryDto): Promise<PaginatedResult<User>> {
     const { search, isActive, role, organizationId, includeDeleted, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 

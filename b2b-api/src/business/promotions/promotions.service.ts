@@ -40,10 +40,7 @@ export class PromotionsService {
         isActive: true,
         startDate: { lte: now },
         endDate: { gte: now },
-        OR: [
-          { targetUserRoles: { isEmpty: true } },
-          { targetUserRoles: { has: userRole } },
-        ],
+        OR: [{ targetUserRoles: { isEmpty: true } }, { targetUserRoles: { has: userRole } }],
       },
       orderBy: { startDate: 'desc' },
     });
@@ -151,10 +148,7 @@ export class PromotionsService {
       return { valid: false, message: 'Promotion has ended' };
     }
 
-    if (
-      promotion.targetUserRoles.length > 0 &&
-      !promotion.targetUserRoles.includes(userRole)
-    ) {
+    if (promotion.targetUserRoles.length > 0 && !promotion.targetUserRoles.includes(userRole)) {
       return { valid: false, message: 'Promotion is not available for your account' };
     }
 
@@ -240,10 +234,7 @@ export class PromotionsService {
   // Admin Operations
   // ============================================
 
-  async findAll(
-    tenantId: string,
-    query: QueryPromotionsDto,
-  ): Promise<PromotionsListResponseDto> {
+  async findAll(tenantId: string, query: QueryPromotionsDto): Promise<PromotionsListResponseDto> {
     const { isActive, type, page = 1, limit = 20 } = query;
 
     const where: { tenantId: string; isActive?: boolean; type?: any } = { tenantId };
@@ -456,25 +447,24 @@ export class PromotionsService {
       throw new NotFoundException('Promotion not found');
     }
 
-    const [totalUsages, totalDiscountGiven, uniqueUsers, couponsStats] =
-      await Promise.all([
-        this.prisma.promotionUsage.count({
-          where: { promotionId },
-        }),
-        this.prisma.promotionUsage.aggregate({
-          where: { promotionId },
-          _sum: { discountApplied: true },
-        }),
-        this.prisma.promotionUsage.groupBy({
-          by: ['userId'],
-          where: { promotionId },
-        }),
-        this.prisma.coupon.aggregate({
-          where: { promotionId },
-          _count: { _all: true },
-          _sum: { usageCount: true },
-        }),
-      ]);
+    const [totalUsages, totalDiscountGiven, uniqueUsers, couponsStats] = await Promise.all([
+      this.prisma.promotionUsage.count({
+        where: { promotionId },
+      }),
+      this.prisma.promotionUsage.aggregate({
+        where: { promotionId },
+        _sum: { discountApplied: true },
+      }),
+      this.prisma.promotionUsage.groupBy({
+        by: ['userId'],
+        where: { promotionId },
+      }),
+      this.prisma.coupon.aggregate({
+        where: { promotionId },
+        _count: { _all: true },
+        _sum: { usageCount: true },
+      }),
+    ]);
 
     const activeCoupons = await this.prisma.coupon.count({
       where: { promotionId, isActive: true },

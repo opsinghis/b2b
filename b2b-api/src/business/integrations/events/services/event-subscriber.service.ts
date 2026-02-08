@@ -91,7 +91,9 @@ export class EventSubscriberService implements OnModuleDestroy {
     }
     this.tenantIndex.get(tenantId)!.add(subscriptionId);
 
-    this.logger.debug(`Created subscription ${subscriptionId} for tenant ${tenantId} on events: ${types.join(', ')}`);
+    this.logger.debug(
+      `Created subscription ${subscriptionId} for tenant ${tenantId} on events: ${types.join(', ')}`,
+    );
 
     return subscriptionId;
   }
@@ -197,7 +199,9 @@ export class EventSubscriberService implements OnModuleDestroy {
   /**
    * Dispatch event to subscribers
    */
-  async dispatch(event: BaseEvent): Promise<{ successCount: number; failureCount: number; errors: Error[] }> {
+  async dispatch(
+    event: BaseEvent,
+  ): Promise<{ successCount: number; failureCount: number; errors: Error[] }> {
     const subscriptions = this.getSubscriptionsForEvent(event);
     const errors: Error[] = [];
     let successCount = 0;
@@ -211,7 +215,10 @@ export class EventSubscriberService implements OnModuleDestroy {
       } catch (error) {
         failureCount++;
         errors.push(error as Error);
-        this.logger.error(`Failed to dispatch event ${event.id} to subscription ${subscription.id}:`, error);
+        this.logger.error(
+          `Failed to dispatch event ${event.id} to subscription ${subscription.id}:`,
+          error,
+        );
       }
     }
 

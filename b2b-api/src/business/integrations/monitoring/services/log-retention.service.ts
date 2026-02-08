@@ -118,9 +118,7 @@ export class LogRetentionService {
     };
 
     // Clean up metrics
-    results.metricsDeleted = this.metricsService.cleanupOldData(
-      policy.metrics.rawDataDays,
-    );
+    results.metricsDeleted = this.metricsService.cleanupOldData(policy.metrics.rawDataDays);
 
     // Clean up connector health history
     results.healthHistoryDeleted = this.healthService.cleanupOldHistory(
@@ -128,9 +126,7 @@ export class LogRetentionService {
     );
 
     // Clean up resolved/silenced alerts
-    results.alertsDeleted = this.alertService.cleanupOldAlerts(
-      policy.alerts.resolvedDays,
-    );
+    results.alertsDeleted = this.alertService.cleanupOldAlerts(policy.alerts.resolvedDays);
 
     // Clean up audit logs
     results.auditLogsDeleted = this.auditService.cleanupOldLogs(
@@ -198,9 +194,7 @@ export class LogRetentionService {
     const auditStats = this.auditService.getStatistics(tenantId);
 
     // Estimate what would be deleted
-    const cutoffDate = new Date(
-      Date.now() - policy.auditLogs.defaultDays * 24 * 60 * 60 * 1000,
-    );
+    const cutoffDate = new Date(Date.now() - policy.auditLogs.defaultDays * 24 * 60 * 60 * 1000);
     const oldAuditLogs = this.auditService.query(tenantId, {
       endTime: cutoffDate,
     });
@@ -263,15 +257,13 @@ export class LogRetentionService {
       }
       if (
         policy.metrics.aggregatedDataDays !== undefined &&
-        (policy.metrics.aggregatedDataDays < 1 ||
-          policy.metrics.aggregatedDataDays > 730)
+        (policy.metrics.aggregatedDataDays < 1 || policy.metrics.aggregatedDataDays > 730)
       ) {
         errors.push('metrics.aggregatedDataDays must be between 1 and 730');
       }
       if (
         policy.metrics.summaryDataDays !== undefined &&
-        (policy.metrics.summaryDataDays < 1 ||
-          policy.metrics.summaryDataDays > 1825)
+        (policy.metrics.summaryDataDays < 1 || policy.metrics.summaryDataDays > 1825)
       ) {
         errors.push('metrics.summaryDataDays must be between 1 and 1825');
       }

@@ -7,7 +7,9 @@ export class ProcessPaymentDto {
   @IsString()
   paymentMethodId!: string;
 
-  @ApiPropertyOptional({ description: 'External payment reference (e.g., transaction ID from gateway)' })
+  @ApiPropertyOptional({
+    description: 'External payment reference (e.g., transaction ID from gateway)',
+  })
   @IsOptional()
   @IsString()
   externalRef?: string;

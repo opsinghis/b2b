@@ -10,12 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ApprovalsService } from './approvals.service';
 import { TenantContext } from '@core/tenants';
 import { CurrentUser } from '@core/auth';
@@ -93,10 +88,7 @@ export class ApprovalsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete approval chain' })
   @ApiResponse({ status: 204 })
-  async deleteChain(
-    @Param('id') id: string,
-    @TenantContext() tenantId: string,
-  ): Promise<void> {
+  async deleteChain(@Param('id') id: string, @TenantContext() tenantId: string): Promise<void> {
     return this.approvalsService.deleteChain(id, tenantId);
   }
 
@@ -160,13 +152,7 @@ export class ApprovalsController {
     @TenantContext() tenantId: string,
     @CurrentUser('id') userId: string,
   ): Promise<ApprovalRequestResponseDto> {
-    return this.approvalsService.approve(
-      requestId,
-      stepId,
-      tenantId,
-      userId,
-      dto.comments,
-    );
+    return this.approvalsService.approve(requestId, stepId, tenantId, userId, dto.comments);
   }
 
   @Post('approvals/:requestId/steps/:stepId/reject')
@@ -180,13 +166,7 @@ export class ApprovalsController {
     @TenantContext() tenantId: string,
     @CurrentUser('id') userId: string,
   ): Promise<ApprovalRequestResponseDto> {
-    return this.approvalsService.reject(
-      requestId,
-      stepId,
-      tenantId,
-      userId,
-      dto.comments,
-    );
+    return this.approvalsService.reject(requestId, stepId, tenantId, userId, dto.comments);
   }
 
   @Post('approvals/:requestId/steps/:stepId/delegate')

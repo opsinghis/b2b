@@ -140,11 +140,7 @@ describe('ContractsService', () => {
       });
       (prismaService.contractVersion.create as jest.Mock).mockResolvedValue(mockContractVersion);
 
-      await service.create(
-        { title: 'New Contract' },
-        tenantId,
-        userId,
-      );
+      await service.create({ title: 'New Contract' }, tenantId, userId);
 
       expect(prismaService.contract.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -303,9 +299,7 @@ describe('ContractsService', () => {
     it('should throw NotFoundException if contract not found', async () => {
       (prismaService.contract.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findOne('non-existent-id', tenantId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne('non-existent-id', tenantId)).rejects.toThrow(NotFoundException);
     });
 
     it('should not return contracts from other tenants', async () => {
@@ -382,19 +376,19 @@ describe('ContractsService', () => {
       (prismaService.contract.update as jest.Mock).mockResolvedValue(mockContract);
 
       // Update with same values
-      await service.update(
-        mockContract.id,
-        { title: mockContract.title },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { title: mockContract.title }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).not.toHaveBeenCalled();
     });
 
     it('should detect changes in terms', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, terms: { paymentTerms: 'Net 60' }, versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        terms: { paymentTerms: 'Net 60' },
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -429,7 +423,12 @@ describe('ContractsService', () => {
 
     it('should detect changes in totalValue', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, totalValue: new Prisma.Decimal(200000), versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        totalValue: new Prisma.Decimal(200000),
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -444,19 +443,19 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { totalValue: 200000 },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { totalValue: 200000 }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
 
     it('should detect changes in description', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, description: 'New description', versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        description: 'New description',
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -471,19 +470,19 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { description: 'New description' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { description: 'New description' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
 
     it('should detect changes in effectiveDate', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, effectiveDate: new Date('2024-02-01'), versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        effectiveDate: new Date('2024-02-01'),
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -498,19 +497,19 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { effectiveDate: '2024-02-01' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { effectiveDate: '2024-02-01' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
 
     it('should detect changes in expirationDate', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, expirationDate: new Date('2025-12-31'), versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        expirationDate: new Date('2025-12-31'),
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -525,12 +524,7 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { expirationDate: '2025-12-31' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { expirationDate: '2025-12-31' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
@@ -552,19 +546,19 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { currency: 'EUR' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { currency: 'EUR' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
 
     it('should detect changes in organizationId', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, organizationId: 'new-org-id', versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        organizationId: 'new-org-id',
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -579,19 +573,19 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { organizationId: 'new-org-id' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { organizationId: 'new-org-id' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
 
     it('should detect changes in metadata', async () => {
       const contractWithVersions = { ...mockContract, versions: [] };
-      const updatedContract = { ...mockContract, version: 2, metadata: { priority: 'low' }, versions: [] };
+      const updatedContract = {
+        ...mockContract,
+        version: 2,
+        metadata: { priority: 'low' },
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithVersions)
@@ -606,12 +600,7 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { metadata: { priority: 'low' } },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { metadata: { priority: 'low' } }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
@@ -623,7 +612,12 @@ describe('ContractsService', () => {
         expirationDate: null,
         versions: [],
       };
-      const updatedContract = { ...contractWithNullDates, version: 2, effectiveDate: new Date('2024-03-01'), versions: [] };
+      const updatedContract = {
+        ...contractWithNullDates,
+        version: 2,
+        effectiveDate: new Date('2024-03-01'),
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithNullDates)
@@ -638,12 +632,7 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { effectiveDate: '2024-03-01' },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { effectiveDate: '2024-03-01' }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
@@ -654,7 +643,12 @@ describe('ContractsService', () => {
         totalValue: null,
         versions: [],
       };
-      const updatedContract = { ...contractWithNullValue, version: 2, totalValue: new Prisma.Decimal(50000), versions: [] };
+      const updatedContract = {
+        ...contractWithNullValue,
+        version: 2,
+        totalValue: new Prisma.Decimal(50000),
+        versions: [],
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(contractWithNullValue)
@@ -669,12 +663,7 @@ describe('ContractsService', () => {
         version: 2,
       });
 
-      await service.update(
-        mockContract.id,
-        { totalValue: 50000 },
-        tenantId,
-        userId,
-      );
+      await service.update(mockContract.id, { totalValue: 50000 }, tenantId, userId);
 
       expect(prismaService.contractVersion.create).toHaveBeenCalled();
     });
@@ -787,10 +776,7 @@ describe('ContractsService', () => {
 
   describe('getVersionHistory', () => {
     it('should return version history for a contract', async () => {
-      const versions = [
-        { ...mockContractVersion, version: 2 },
-        mockContractVersion,
-      ];
+      const versions = [{ ...mockContractVersion, version: 2 }, mockContractVersion];
       const contractWithVersions = { ...mockContract, versions: [] };
 
       (prismaService.contract.findFirst as jest.Mock).mockResolvedValue(contractWithVersions);
@@ -819,7 +805,9 @@ describe('ContractsService', () => {
       const contractWithVersions = { ...mockContract, versions: [] };
 
       (prismaService.contract.findFirst as jest.Mock).mockResolvedValue(contractWithVersions);
-      (prismaService.contractVersion.findUnique as jest.Mock).mockResolvedValue(mockContractVersion);
+      (prismaService.contractVersion.findUnique as jest.Mock).mockResolvedValue(
+        mockContractVersion,
+      );
 
       const result = await service.getVersion(mockContract.id, 1, tenantId);
 
@@ -899,8 +887,16 @@ describe('ContractsService', () => {
 
   describe('approve', () => {
     it('should approve a PENDING_APPROVAL contract', async () => {
-      const pendingContract = { ...mockContract, status: ContractStatus.PENDING_APPROVAL, versions: [] };
-      const approvedContract = { ...pendingContract, status: ContractStatus.APPROVED, approvedById: userId };
+      const pendingContract = {
+        ...mockContract,
+        status: ContractStatus.PENDING_APPROVAL,
+        versions: [],
+      };
+      const approvedContract = {
+        ...pendingContract,
+        status: ContractStatus.APPROVED,
+        approvedById: userId,
+      };
 
       (prismaService.contract.findFirst as jest.Mock)
         .mockResolvedValueOnce(pendingContract) // First findOne
@@ -933,7 +929,11 @@ describe('ContractsService', () => {
 
   describe('reject', () => {
     it('should reject a PENDING_APPROVAL contract back to DRAFT', async () => {
-      const pendingContract = { ...mockContract, status: ContractStatus.PENDING_APPROVAL, versions: [] };
+      const pendingContract = {
+        ...mockContract,
+        status: ContractStatus.PENDING_APPROVAL,
+        versions: [],
+      };
       const rejectedContract = { ...pendingContract, status: ContractStatus.DRAFT };
 
       (prismaService.contract.findFirst as jest.Mock)
@@ -985,7 +985,7 @@ describe('ContractsService', () => {
         ...mockContract,
         status: ContractStatus.APPROVED,
         effectiveDate: new Date('2024-01-01'),
-        versions: []
+        versions: [],
       };
       const activeContract = { ...approvedContract, status: ContractStatus.ACTIVE };
 
@@ -1013,7 +1013,7 @@ describe('ContractsService', () => {
         ...mockContract,
         status: ContractStatus.APPROVED,
         effectiveDate: null,
-        versions: []
+        versions: [],
       };
       (prismaService.contract.findFirst as jest.Mock).mockResolvedValue(approvedContract);
 
@@ -1043,7 +1043,12 @@ describe('ContractsService', () => {
       (prismaService.contract.update as jest.Mock).mockResolvedValue(terminatedContract);
       (auditService.log as jest.Mock).mockResolvedValue({});
 
-      const result = await service.terminate(mockContract.id, tenantId, userId, 'Early termination');
+      const result = await service.terminate(
+        mockContract.id,
+        tenantId,
+        userId,
+        'Early termination',
+      );
 
       expect(result.status).toBe(ContractStatus.TERMINATED);
       expect(auditService.log).toHaveBeenCalledWith(
@@ -1089,7 +1094,11 @@ describe('ContractsService', () => {
     });
 
     it('should cancel a PENDING_APPROVAL contract', async () => {
-      const pendingContract = { ...mockContract, status: ContractStatus.PENDING_APPROVAL, versions: [] };
+      const pendingContract = {
+        ...mockContract,
+        status: ContractStatus.PENDING_APPROVAL,
+        versions: [],
+      };
       const cancelledContract = { ...pendingContract, status: ContractStatus.CANCELLED };
 
       (prismaService.contract.findFirst as jest.Mock)
@@ -1124,11 +1133,15 @@ describe('ContractsService', () => {
 
   describe('isValidTransition', () => {
     it('should return true for valid DRAFT -> PENDING_APPROVAL transition', () => {
-      expect(service.isValidTransition(ContractStatus.DRAFT, ContractStatus.PENDING_APPROVAL)).toBe(true);
+      expect(service.isValidTransition(ContractStatus.DRAFT, ContractStatus.PENDING_APPROVAL)).toBe(
+        true,
+      );
     });
 
     it('should return true for valid PENDING_APPROVAL -> APPROVED transition', () => {
-      expect(service.isValidTransition(ContractStatus.PENDING_APPROVAL, ContractStatus.APPROVED)).toBe(true);
+      expect(
+        service.isValidTransition(ContractStatus.PENDING_APPROVAL, ContractStatus.APPROVED),
+      ).toBe(true);
     });
 
     it('should return true for valid APPROVED -> ACTIVE transition', () => {
@@ -1144,8 +1157,12 @@ describe('ContractsService', () => {
     });
 
     it('should return false for any transition from TERMINATED', () => {
-      expect(service.isValidTransition(ContractStatus.TERMINATED, ContractStatus.DRAFT)).toBe(false);
-      expect(service.isValidTransition(ContractStatus.TERMINATED, ContractStatus.ACTIVE)).toBe(false);
+      expect(service.isValidTransition(ContractStatus.TERMINATED, ContractStatus.DRAFT)).toBe(
+        false,
+      );
+      expect(service.isValidTransition(ContractStatus.TERMINATED, ContractStatus.ACTIVE)).toBe(
+        false,
+      );
     });
 
     it('should return false for any transition from CANCELLED', () => {

@@ -6,11 +6,7 @@ import { AuthorizationModule } from '@core/authorization';
 import { CartModule } from '@business/cart';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    AuthorizationModule,
-    CartModule,
-  ],
+  imports: [DatabaseModule, AuthorizationModule, CartModule],
   controllers: [OrdersController, AdminOrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

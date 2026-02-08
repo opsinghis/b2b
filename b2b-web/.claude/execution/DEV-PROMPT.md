@@ -1,4 +1,4 @@
-# Implement: FE-020 - Portal - Notifications & Preferences (Iteration 1)
+# Implement: FE-021 - Portal - Product Catalog Browser (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,41 +18,49 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-020
-**Title:** Portal - Notifications & Preferences
+**ID:** FE-021
+**Title:** Portal - Product Catalog Browser
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Notifications dropdown with badge
-- Mark as read/unread
-- Mark all as read
-- Notification preferences page
-- Email notification toggles
+- Product grid/list view with toggle
+- Category navigation sidebar
+- Search with autocomplete
+- Filters (price range, category, availability)
+- Product quick view modal
+- Product detail page with images
+- Stock availability indicator
+- User's discount price displayed
 
 ## API Dependencies
-- GET /api/v1/notifications - available
-- PATCH /api/v1/notifications/:id/read - available
-- POST /api/v1/notifications/mark-all-read - available
+- GET /api/v1/catalog/products - available
+- GET /api/v1/catalog/categories - available
+- GET /api/v1/catalog/products/:id - available
+- GET /api/v1/users/me/discount-tier - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-020 - Portal - Notifications & Preferences
+# Plan: FE-021 - Portal - Product Catalog Browser
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Notifications dropdown with badge
-- [ ] Mark as read/unread
-- [ ] Mark all as read
-- [ ] Notification preferences page
-- [ ] Email notification toggles
+- [ ] Product grid/list view with toggle
+- [ ] Category navigation sidebar
+- [ ] Search with autocomplete
+- [ ] Filters (price range, category, availability)
+- [ ] Product quick view modal
+- [ ] Product detail page with images
+- [ ] Stock availability indicator
+- [ ] User's discount price displayed
 
 ## API Dependencies
-- GET /api/v1/notifications [available]
-- PATCH /api/v1/notifications/:id/read [available]
-- POST /api/v1/notifications/mark-all-read [available]
+- GET /api/v1/catalog/products [available]
+- GET /api/v1/catalog/categories [available]
+- GET /api/v1/catalog/products/:id [available]
+- GET /api/v1/users/me/discount-tier [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -82,7 +90,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-020</promise>
+<promise>COMPLETE:FE-021</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

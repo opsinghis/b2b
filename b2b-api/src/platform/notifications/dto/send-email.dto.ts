@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsEmail,
-  IsOptional,
-  IsObject,
-  IsNotEmpty,
-  IsArray,
-} from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsObject, IsNotEmpty, IsArray } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SendEmailDto {

@@ -1,13 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsOptional,
-  IsBoolean,
-  IsInt,
-  IsNumber,
-  Min,
-  IsObject,
-} from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsNumber, Min, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DeliveryMethod } from '@prisma/client';
 

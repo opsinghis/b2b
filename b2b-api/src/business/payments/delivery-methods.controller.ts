@@ -48,9 +48,7 @@ export class DeliveryMethodsController {
     description: 'List of available delivery methods',
     type: [DeliveryMethodResponseDto],
   })
-  async findAvailable(
-    @TenantContext() tenantId: string,
-  ): Promise<DeliveryMethodResponseDto[]> {
+  async findAvailable(@TenantContext() tenantId: string): Promise<DeliveryMethodResponseDto[]> {
     const methods = await this.deliveryMethodsService.findAvailable(tenantId);
     return methods.map(DeliveryMethodResponseDto.fromEntity);
   }
@@ -146,10 +144,7 @@ export class AdminDeliveryMethodsController {
   @ApiParam({ name: 'id', description: 'Delivery method ID' })
   @ApiResponse({ status: 204, description: 'Delivery method deleted' })
   @ApiResponse({ status: 404, description: 'Delivery method not found' })
-  async delete(
-    @Param('id') id: string,
-    @TenantContext() tenantId: string,
-  ): Promise<void> {
+  async delete(@Param('id') id: string, @TenantContext() tenantId: string): Promise<void> {
     await this.deliveryMethodsService.delete(id, tenantId);
   }
 }

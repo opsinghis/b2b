@@ -437,7 +437,7 @@ export interface RetentionPolicy {
   // Audit log retention
   auditLogs: {
     defaultDays: number;
-    byAction?: Record<AuditAction, number>;
+    byAction?: Partial<Record<AuditAction, number>>;
   };
 
   // Alert retention
@@ -509,7 +509,12 @@ export interface NotificationChannel {
   type: 'email' | 'slack' | 'webhook' | 'pagerduty' | 'teams';
   enabled: boolean;
 
-  config: EmailChannelConfig | SlackChannelConfig | WebhookChannelConfig | PagerDutyChannelConfig | TeamsChannelConfig;
+  config:
+    | EmailChannelConfig
+    | SlackChannelConfig
+    | WebhookChannelConfig
+    | PagerDutyChannelConfig
+    | TeamsChannelConfig;
 
   // Filters
   minSeverity: AlertSeverity;

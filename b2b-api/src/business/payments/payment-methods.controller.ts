@@ -160,10 +160,7 @@ export class AdminPaymentMethodsController {
   @ApiResponse({ status: 204, description: 'Payment method deleted' })
   @ApiResponse({ status: 404, description: 'Payment method not found' })
   @ApiResponse({ status: 409, description: 'Payment method has been used' })
-  async delete(
-    @Param('id') id: string,
-    @TenantContext() tenantId: string,
-  ): Promise<void> {
+  async delete(@Param('id') id: string, @TenantContext() tenantId: string): Promise<void> {
     await this.paymentMethodsService.delete(id, tenantId);
   }
 }

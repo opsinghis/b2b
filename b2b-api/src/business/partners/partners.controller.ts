@@ -85,7 +85,11 @@ export class PartnersController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanRead('Partner')
   @ApiOperation({ summary: 'Get my commission summary' })
-  @ApiResponse({ status: 200, description: 'Commission summary', type: CommissionSummaryResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Commission summary',
+    type: CommissionSummaryResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Partner profile not found' })
   async getCommissionSummary(
     @TenantContext() tenantId: string,
@@ -312,7 +316,11 @@ export class AdminPartnersController {
   @Roles(UserRole.ADMIN)
   @CanCreate('Partner')
   @ApiOperation({ summary: 'Create a partner resource' })
-  @ApiQuery({ name: 'partnerId', required: false, description: 'Partner ID (optional for public resources)' })
+  @ApiQuery({
+    name: 'partnerId',
+    required: false,
+    description: 'Partner ID (optional for public resources)',
+  })
   @ApiResponse({ status: 201, description: 'Resource created', type: ResourceResponseDto })
   async createResource(
     @TenantContext() tenantId: string,
@@ -331,10 +339,7 @@ export class AdminPartnersController {
   @ApiParam({ name: 'id', description: 'Resource ID' })
   @ApiResponse({ status: 204, description: 'Resource deleted' })
   @ApiResponse({ status: 404, description: 'Resource not found' })
-  async deleteResource(
-    @TenantContext() tenantId: string,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async deleteResource(@TenantContext() tenantId: string, @Param('id') id: string): Promise<void> {
     return this.partnersService.deleteResource(tenantId, id);
   }
 }

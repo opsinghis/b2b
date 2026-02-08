@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
 import { PrismaService } from '@infrastructure/database';
 import { PromotionType, DiscountType, UserRole } from '@prisma/client';
@@ -107,11 +103,7 @@ describe('PromotionsService', () => {
       prismaService.promotion.findMany = jest.fn().mockResolvedValue([mockPromotion]);
       prismaService.promotionUsage.count = jest.fn().mockResolvedValue(0);
 
-      const result = await service.getAvailablePromotions(
-        mockTenantId,
-        mockUserId,
-        UserRole.USER,
-      );
+      const result = await service.getAvailablePromotions(mockTenantId, mockUserId, UserRole.USER);
 
       expect(result).toHaveLength(1);
       expect(result[0].code).toBe('SUMMER20');
@@ -122,11 +114,7 @@ describe('PromotionsService', () => {
         { ...mockPromotion, usageCount: 100 }, // At limit
       ]);
 
-      const result = await service.getAvailablePromotions(
-        mockTenantId,
-        mockUserId,
-        UserRole.USER,
-      );
+      const result = await service.getAvailablePromotions(mockTenantId, mockUserId, UserRole.USER);
 
       expect(result).toHaveLength(0);
     });
@@ -135,11 +123,7 @@ describe('PromotionsService', () => {
       prismaService.promotion.findMany = jest.fn().mockResolvedValue([mockPromotion]);
       prismaService.promotionUsage.count = jest.fn().mockResolvedValue(2); // At per-user limit
 
-      const result = await service.getAvailablePromotions(
-        mockTenantId,
-        mockUserId,
-        UserRole.USER,
-      );
+      const result = await service.getAvailablePromotions(mockTenantId, mockUserId, UserRole.USER);
 
       expect(result).toHaveLength(0);
     });
@@ -403,14 +387,7 @@ describe('PromotionsService', () => {
     it('should record promotion usage', async () => {
       prismaService.$transaction = jest.fn().mockResolvedValue(undefined);
 
-      await service.recordUsage(
-        mockTenantId,
-        mockUserId,
-        mockPromotionId,
-        null,
-        'order-123',
-        30,
-      );
+      await service.recordUsage(mockTenantId, mockUserId, mockPromotionId, null, 'order-123', 30);
 
       expect(prismaService.$transaction).toHaveBeenCalled();
     });
@@ -481,9 +458,7 @@ describe('PromotionsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.promotion.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(service.findOne(mockTenantId, 'not-found')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(mockTenantId, 'not-found')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if wrong tenant', async () => {
@@ -579,9 +554,9 @@ describe('PromotionsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.promotion.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(
-        service.update(mockTenantId, 'not-found', { name: 'Test' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update(mockTenantId, 'not-found', { name: 'Test' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw BadRequestException if dates are invalid', async () => {
@@ -629,9 +604,7 @@ describe('PromotionsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.promotion.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(service.delete(mockTenantId, 'not-found')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.delete(mockTenantId, 'not-found')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -689,11 +662,9 @@ describe('PromotionsService', () => {
       prismaService.promotionUsage.aggregate = jest.fn().mockResolvedValue({
         _sum: { discountApplied: 1500 },
       });
-      prismaService.promotionUsage.groupBy = jest.fn().mockResolvedValue([
-        { userId: 'user-1' },
-        { userId: 'user-2' },
-        { userId: 'user-3' },
-      ]);
+      prismaService.promotionUsage.groupBy = jest
+        .fn()
+        .mockResolvedValue([{ userId: 'user-1' }, { userId: 'user-2' }, { userId: 'user-3' }]);
       prismaService.coupon.aggregate = jest.fn().mockResolvedValue({
         _count: { _all: 100 },
         _sum: { usageCount: 30 },

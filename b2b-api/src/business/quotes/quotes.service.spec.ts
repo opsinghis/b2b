@@ -5,7 +5,14 @@ import { PrismaService } from '@infrastructure/database';
 import { AuditService } from '@core/audit';
 import { ContractsService } from '@business/contracts';
 import { TenantCatalogService } from '@business/tenant-catalog';
-import { Quote, QuoteLineItem, QuoteStatus, UserRole, Prisma, MasterProductStatus } from '@prisma/client';
+import {
+  Quote,
+  QuoteLineItem,
+  QuoteStatus,
+  UserRole,
+  Prisma,
+  MasterProductStatus,
+} from '@prisma/client';
 
 describe('QuotesService', () => {
   let service: QuotesService;
@@ -65,15 +72,17 @@ describe('QuotesService', () => {
   };
 
   beforeEach(async () => {
-    const mockPrismaTransaction = jest.fn().mockImplementation((callback) => callback({
-      quoteLineItem: {
-        deleteMany: jest.fn(),
-        createMany: jest.fn(),
-      },
-      quote: {
-        update: jest.fn().mockResolvedValue(mockQuote),
-      },
-    }));
+    const mockPrismaTransaction = jest.fn().mockImplementation((callback) =>
+      callback({
+        quoteLineItem: {
+          deleteMany: jest.fn(),
+          createMany: jest.fn(),
+        },
+        quote: {
+          update: jest.fn().mockResolvedValue(mockQuote),
+        },
+      }),
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -234,9 +243,7 @@ describe('QuotesService', () => {
       expect(prismaService.quote.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            OR: expect.arrayContaining([
-              { title: { contains: 'test', mode: 'insensitive' } },
-            ]),
+            OR: expect.arrayContaining([{ title: { contains: 'test', mode: 'insensitive' } }]),
           }),
         }),
       );
@@ -255,9 +262,7 @@ describe('QuotesService', () => {
     it('should throw NotFoundException if quote not found', async () => {
       (prismaService.quote.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findOne('non-existent-id', tenantId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne('non-existent-id', tenantId)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -375,12 +380,7 @@ describe('QuotesService', () => {
       (prismaService.quote.update as jest.Mock).mockResolvedValue(approvedQuote);
       (auditService.log as jest.Mock).mockResolvedValue({});
 
-      const result = await service.approve(
-        mockQuote.id,
-        tenantId,
-        userId,
-        UserRole.MANAGER,
-      );
+      const result = await service.approve(mockQuote.id, tenantId, userId, UserRole.MANAGER);
 
       expect(result.status).toBe(QuoteStatus.APPROVED);
     });
@@ -414,12 +414,7 @@ describe('QuotesService', () => {
       (prismaService.quote.update as jest.Mock).mockResolvedValue(approvedQuote);
       (auditService.log as jest.Mock).mockResolvedValue({});
 
-      const result = await service.approve(
-        mockQuote.id,
-        tenantId,
-        userId,
-        UserRole.ADMIN,
-      );
+      const result = await service.approve(mockQuote.id, tenantId, userId, UserRole.ADMIN);
 
       expect(result.status).toBe(QuoteStatus.APPROVED);
     });
@@ -536,9 +531,9 @@ describe('QuotesService', () => {
       const draftQuote = { ...mockQuote, status: QuoteStatus.DRAFT };
       (prismaService.quote.findFirst as jest.Mock).mockResolvedValue(draftQuote);
 
-      await expect(
-        service.convertToContract(mockQuote.id, tenantId, userId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.convertToContract(mockQuote.id, tenantId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -604,13 +599,15 @@ describe('QuotesService', () => {
       (prismaService.quote.findFirst as jest.Mock).mockResolvedValue(null);
       (prismaService.quote.create as jest.Mock).mockResolvedValue({
         ...mockQuote,
-        lineItems: [{
-          ...mockLineItem,
-          masterProductId: 'master-product-1',
-          productName: 'Catalog Product',
-          productSku: 'CAT-SKU-001',
-          unitPrice: new Prisma.Decimal(800),
-        }],
+        lineItems: [
+          {
+            ...mockLineItem,
+            masterProductId: 'master-product-1',
+            productName: 'Catalog Product',
+            productSku: 'CAT-SKU-001',
+            unitPrice: new Prisma.Decimal(800),
+          },
+        ],
       });
 
       const result = await service.create(
@@ -674,13 +671,15 @@ describe('QuotesService', () => {
       (prismaService.quote.findFirst as jest.Mock).mockResolvedValue(null);
       (prismaService.quote.create as jest.Mock).mockResolvedValue({
         ...mockQuote,
-        lineItems: [{
-          ...mockLineItem,
-          masterProductId: 'master-product-1',
-          productName: 'Catalog Product',
-          productSku: 'CAT-SKU-001',
-          unitPrice: new Prisma.Decimal(750), // Custom price override
-        }],
+        lineItems: [
+          {
+            ...mockLineItem,
+            masterProductId: 'master-product-1',
+            productName: 'Catalog Product',
+            productSku: 'CAT-SKU-001',
+            unitPrice: new Prisma.Decimal(750), // Custom price override
+          },
+        ],
       });
 
       await service.create(
@@ -719,13 +718,15 @@ describe('QuotesService', () => {
       (prismaService.quote.findFirst as jest.Mock).mockResolvedValue(null);
       (prismaService.quote.create as jest.Mock).mockResolvedValue({
         ...mockQuote,
-        lineItems: [{
-          ...mockLineItem,
-          masterProductId: 'master-product-1',
-          productName: 'Custom Product Name',
-          productSku: 'CAT-SKU-001',
-          unitPrice: new Prisma.Decimal(800),
-        }],
+        lineItems: [
+          {
+            ...mockLineItem,
+            masterProductId: 'master-product-1',
+            productName: 'Custom Product Name',
+            productSku: 'CAT-SKU-001',
+            unitPrice: new Prisma.Decimal(800),
+          },
+        ],
       });
 
       await service.create(
@@ -828,13 +829,15 @@ describe('QuotesService', () => {
     it('should update quote with product from catalog', async () => {
       const updatedQuote = {
         ...mockQuote,
-        lineItems: [{
-          ...mockLineItem,
-          masterProductId: 'master-product-2',
-          productName: 'Updated Catalog Product',
-          productSku: 'CAT-SKU-002',
-          unitPrice: new Prisma.Decimal(4500),
-        }],
+        lineItems: [
+          {
+            ...mockLineItem,
+            masterProductId: 'master-product-2',
+            productName: 'Updated Catalog Product',
+            productSku: 'CAT-SKU-002',
+            unitPrice: new Prisma.Decimal(4500),
+          },
+        ],
       };
 
       (prismaService.quote.findFirst as jest.Mock)

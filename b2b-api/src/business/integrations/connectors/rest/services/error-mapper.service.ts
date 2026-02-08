@@ -121,7 +121,9 @@ export class ErrorMapperService {
     if (rule.errorCodePath && rule.errorCodeMatch && responseData) {
       const errorCode = this.jsonPathMapper.extractValue(responseData, rule.errorCodePath);
       if (errorCode) {
-        const codes = Array.isArray(rule.errorCodeMatch) ? rule.errorCodeMatch : [rule.errorCodeMatch];
+        const codes = Array.isArray(rule.errorCodeMatch)
+          ? rule.errorCodeMatch
+          : [rule.errorCodeMatch];
         if (!codes.includes(String(errorCode))) {
           return false;
         }

@@ -111,11 +111,14 @@ describe('JsonPathMapperService', () => {
     });
 
     it('should transform to boolean', () => {
-      const result = service.applyMapping({ flag: 'true' }, {
-        source: '$.flag',
-        target: 'flag',
-        transform: 'boolean',
-      });
+      const result = service.applyMapping(
+        { flag: 'true' },
+        {
+          source: '$.flag',
+          target: 'flag',
+          transform: 'boolean',
+        },
+      );
 
       expect(result.value).toBe(true);
     });
@@ -169,9 +172,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform body fields', () => {
       const result = service.transformRequest(input, {
-        bodyMappings: [
-          { source: '$.name', target: 'displayName' },
-        ],
+        bodyMappings: [{ source: '$.name', target: 'displayName' }],
       });
 
       expect(result.body).toEqual({ displayName: 'Test' });
@@ -179,9 +180,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform query parameters', () => {
       const result = service.transformRequest(input, {
-        queryMappings: [
-          { source: '$.page', target: 'pageNumber' },
-        ],
+        queryMappings: [{ source: '$.page', target: 'pageNumber' }],
       });
 
       expect(result.query).toEqual({ pageNumber: '1' });
@@ -189,9 +188,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform headers', () => {
       const result = service.transformRequest(input, {
-        headerMappings: [
-          { source: '$.authToken', target: 'X-Auth-Token' },
-        ],
+        headerMappings: [{ source: '$.authToken', target: 'X-Auth-Token' }],
       });
 
       expect(result.headers).toEqual({ 'X-Auth-Token': 'token123' });
@@ -199,9 +196,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform path parameters', () => {
       const result = service.transformRequest(input, {
-        pathMappings: [
-          { source: '$.userId', target: 'id' },
-        ],
+        pathMappings: [{ source: '$.userId', target: 'id' }],
       });
 
       expect(result.pathParams).toEqual({ id: '123' });
@@ -222,9 +217,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform data fields', () => {
       const result = service.transformResponse(response, {
-        dataMappings: [
-          { source: '$.data.user.name', target: 'userName' },
-        ],
+        dataMappings: [{ source: '$.data.user.name', target: 'userName' }],
       });
 
       expect(result.data).toEqual({ userName: 'John' });
@@ -232,9 +225,7 @@ describe('JsonPathMapperService', () => {
 
     it('should transform meta fields', () => {
       const result = service.transformResponse(response, {
-        metaMappings: [
-          { source: '$.meta.total', target: 'totalCount' },
-        ],
+        metaMappings: [{ source: '$.meta.total', target: 'totalCount' }],
       });
 
       expect(result.meta).toEqual({ totalCount: 100 });
@@ -314,7 +305,7 @@ describe('JsonPathMapperService', () => {
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('Invalid transform type'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('Invalid transform type'))).toBe(true);
     });
   });
 });

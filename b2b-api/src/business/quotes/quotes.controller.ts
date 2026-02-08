@@ -75,10 +75,7 @@ export class QuotesController {
     status: 200,
     description: 'List of quotes',
   })
-  async findAll(
-    @Query() query: QuoteListQueryDto,
-    @TenantContext() tenantId: string,
-  ) {
+  async findAll(@Query() query: QuoteListQueryDto, @TenantContext() tenantId: string) {
     const result = await this.quotesService.findAll(query, tenantId);
     return {
       ...result,
@@ -180,7 +177,10 @@ export class QuotesController {
     description: 'Quote approved',
     type: QuoteResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Quote not in PENDING_APPROVAL status or exceeds threshold' })
+  @ApiResponse({
+    status: 400,
+    description: 'Quote not in PENDING_APPROVAL status or exceeds threshold',
+  })
   @ApiResponse({ status: 404, description: 'Quote not found' })
   async approve(
     @Param('id') id: string,
@@ -282,7 +282,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.rejectByCustomer(id, tenantId, user.userId, dto.comments);
+    const quote = await this.quotesService.rejectByCustomer(
+      id,
+      tenantId,
+      user.userId,
+      dto.comments,
+    );
     return QuoteResponseDto.fromEntity(quote);
   }
 

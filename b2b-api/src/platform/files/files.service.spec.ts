@@ -136,9 +136,9 @@ describe('FilesService', () => {
     });
 
     it('should throw BadRequestException for missing file', async () => {
-      await expect(
-        service.uploadFile(mockTenantId, mockUserId, null as any, {}),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.uploadFile(mockTenantId, mockUserId, null as any, {})).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for oversized file', async () => {
@@ -147,9 +147,9 @@ describe('FilesService', () => {
         size: 60 * 1024 * 1024, // 60 MB
       };
 
-      await expect(
-        service.uploadFile(mockTenantId, mockUserId, oversizedFile, {}),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.uploadFile(mockTenantId, mockUserId, oversizedFile, {})).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for disallowed mime type', async () => {
@@ -158,9 +158,9 @@ describe('FilesService', () => {
         mimetype: 'application/x-executable',
       };
 
-      await expect(
-        service.uploadFile(mockTenantId, mockUserId, invalidFile, {}),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.uploadFile(mockTenantId, mockUserId, invalidFile, {})).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -187,9 +187,7 @@ describe('FilesService', () => {
     it('should throw NotFoundException when file not found', async () => {
       (prismaService.file.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.getFile(mockTenantId, 'nonexistent')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.getFile(mockTenantId, 'nonexistent')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -211,9 +209,9 @@ describe('FilesService', () => {
     it('should throw NotFoundException when file not found', async () => {
       (prismaService.file.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.getSignedDownloadUrl(mockTenantId, 'nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getSignedDownloadUrl(mockTenantId, 'nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -408,12 +406,7 @@ describe('MinioService', () => {
       const key = 'test/file.pdf';
       (minioService.uploadFile as jest.Mock).mockResolvedValue(key);
 
-      const result = await minioService.uploadFile(
-        key,
-        Buffer.from('test'),
-        4,
-        'application/pdf',
-      );
+      const result = await minioService.uploadFile(key, Buffer.from('test'), 4, 'application/pdf');
 
       expect(result).toBe(key);
     });

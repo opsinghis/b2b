@@ -14,8 +14,7 @@ export class TenantMiddleware implements NestMiddleware {
 
   async use(req: TenantRequest, res: Response, next: NextFunction) {
     // Extract tenant ID from header or subdomain
-    const tenantId =
-      (req.headers['x-tenant-id'] as string) || this.extractTenantFromSubdomain(req);
+    const tenantId = (req.headers['x-tenant-id'] as string) || this.extractTenantFromSubdomain(req);
 
     if (!tenantId) {
       // Some routes don't require tenant context (e.g., health check)

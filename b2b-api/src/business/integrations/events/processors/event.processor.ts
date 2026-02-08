@@ -23,7 +23,9 @@ export class EventProcessor extends WorkerHost {
   /**
    * Process event job
    */
-  async process(job: Job<EventJobData>): Promise<{ success: boolean; dispatched: number; failed: number }> {
+  async process(
+    job: Job<EventJobData>,
+  ): Promise<{ success: boolean; dispatched: number; failed: number }> {
     const { event } = job.data;
 
     this.logger.debug(`Processing event ${event.id} of type ${event.type}`);

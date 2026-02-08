@@ -41,11 +41,10 @@ describe('EventPublisherService', () => {
     it('should publish an event to the queue', async () => {
       mockQueue.add.mockResolvedValue({ id: 'job-1' });
 
-      const result = await service.publish(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        { orderId: '123', total: 100 },
-      );
+      const result = await service.publish('tenant-1', ORDER_EVENTS.ORDER_CREATED, {
+        orderId: '123',
+        total: 100,
+      });
 
       expect(result.tenantId).toBe('tenant-1');
       expect(result.type).toBe(ORDER_EVENTS.ORDER_CREATED);
@@ -171,11 +170,9 @@ describe('EventPublisherService', () => {
     it('should return published event by ID', async () => {
       mockQueue.add.mockResolvedValue({ id: 'job-1' });
 
-      const published = await service.publish(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        { orderId: '123' },
-      );
+      const published = await service.publish('tenant-1', ORDER_EVENTS.ORDER_CREATED, {
+        orderId: '123',
+      });
 
       const retrieved = service.getEvent(published.id);
       expect(retrieved).toEqual(published);
@@ -227,11 +224,9 @@ describe('EventPublisherService', () => {
     it('should update event status', async () => {
       mockQueue.add.mockResolvedValue({ id: 'job-1' });
 
-      const published = await service.publish(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        { orderId: '123' },
-      );
+      const published = await service.publish('tenant-1', ORDER_EVENTS.ORDER_CREATED, {
+        orderId: '123',
+      });
 
       service.updateEventStatus(published.id, EventStatus.DELIVERED, {
         deliveredAt: new Date(),
@@ -245,11 +240,9 @@ describe('EventPublisherService', () => {
     it('should handle error message', async () => {
       mockQueue.add.mockResolvedValue({ id: 'job-1' });
 
-      const published = await service.publish(
-        'tenant-1',
-        ORDER_EVENTS.ORDER_CREATED,
-        { orderId: '123' },
-      );
+      const published = await service.publish('tenant-1', ORDER_EVENTS.ORDER_CREATED, {
+        orderId: '123',
+      });
 
       service.updateEventStatus(published.id, EventStatus.FAILED, {
         error: 'Delivery failed',

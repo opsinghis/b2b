@@ -58,8 +58,13 @@ export class AuthProviderService {
   /**
    * Apply Basic Authentication
    */
-  private applyBasicAuth(config: AxiosRequestConfig, authConfig: BasicAuthConfig): AxiosRequestConfig {
-    const credentials = Buffer.from(`${authConfig.username}:${authConfig.password}`).toString('base64');
+  private applyBasicAuth(
+    config: AxiosRequestConfig,
+    authConfig: BasicAuthConfig,
+  ): AxiosRequestConfig {
+    const credentials = Buffer.from(`${authConfig.username}:${authConfig.password}`).toString(
+      'base64',
+    );
 
     return {
       ...config,
@@ -73,7 +78,10 @@ export class AuthProviderService {
   /**
    * Apply Bearer Token Authentication
    */
-  private applyBearerAuth(config: AxiosRequestConfig, authConfig: BearerAuthConfig): AxiosRequestConfig {
+  private applyBearerAuth(
+    config: AxiosRequestConfig,
+    authConfig: BearerAuthConfig,
+  ): AxiosRequestConfig {
     const prefix = authConfig.prefix ?? 'Bearer';
 
     return {
@@ -88,7 +96,10 @@ export class AuthProviderService {
   /**
    * Apply API Key Authentication
    */
-  private applyApiKeyAuth(config: AxiosRequestConfig, authConfig: ApiKeyAuthConfig): AxiosRequestConfig {
+  private applyApiKeyAuth(
+    config: AxiosRequestConfig,
+    authConfig: ApiKeyAuthConfig,
+  ): AxiosRequestConfig {
     switch (authConfig.placement) {
       case 'header':
         return {
@@ -212,15 +223,15 @@ export class AuthProviderService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post<{ access_token: string; refresh_token?: string; expires_in?: number }>(
-          authConfig.tokenUrl,
-          params.toString(),
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
+        this.httpService.post<{
+          access_token: string;
+          refresh_token?: string;
+          expires_in?: number;
+        }>(authConfig.tokenUrl, params.toString(), {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-        ),
+        }),
       );
 
       const data = response.data;
@@ -254,15 +265,15 @@ export class AuthProviderService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.post<{ access_token: string; refresh_token?: string; expires_in?: number }>(
-          url,
-          params.toString(),
-          {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
+        this.httpService.post<{
+          access_token: string;
+          refresh_token?: string;
+          expires_in?: number;
+        }>(url, params.toString(), {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-        ),
+        }),
       );
 
       const data = response.data;

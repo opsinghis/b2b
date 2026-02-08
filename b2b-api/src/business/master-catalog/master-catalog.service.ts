@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { MasterProduct, Prisma, MasterProductStatus } from '@prisma/client';
 import {
@@ -324,9 +319,7 @@ export class MasterCatalogService {
   /**
    * Validate a product for import
    */
-  private validateImportProduct(
-    product: ImportProductDto,
-  ): { valid: boolean; error?: string } {
+  private validateImportProduct(product: ImportProductDto): { valid: boolean; error?: string } {
     if (!product.sku || typeof product.sku !== 'string') {
       return { valid: false, error: 'SKU is required and must be a string' };
     }
@@ -370,7 +363,9 @@ export class MasterCatalogService {
         throw new Error('Invalid JSON format: expected array or { products: [...] }');
       }
     } catch (error) {
-      throw new Error(`Failed to parse JSON file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to parse JSON file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
 
     return this.importProducts(products);

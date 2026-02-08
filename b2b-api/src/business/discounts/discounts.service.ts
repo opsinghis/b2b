@@ -24,10 +24,7 @@ export class DiscountsService {
   // User Operations
   // ============================================
 
-  async getUserTier(
-    tenantId: string,
-    userId: string,
-  ): Promise<UserDiscountTierResponseDto | null> {
+  async getUserTier(tenantId: string, userId: string): Promise<UserDiscountTierResponseDto | null> {
     const userTier = await this.prisma.userDiscountTier.findUnique({
       where: { userId },
       include: { discountTier: true },
@@ -108,11 +105,7 @@ export class DiscountsService {
       include: { discountTier: true },
     });
 
-    if (
-      !userTier ||
-      userTier.tenantId !== tenantId ||
-      !userTier.discountTier.isActive
-    ) {
+    if (!userTier || userTier.tenantId !== tenantId || !userTier.discountTier.isActive) {
       return 0;
     }
 
@@ -191,10 +184,7 @@ export class DiscountsService {
     return DiscountTierResponseDto.fromEntity(tier);
   }
 
-  async create(
-    tenantId: string,
-    dto: CreateDiscountTierDto,
-  ): Promise<DiscountTierResponseDto> {
+  async create(tenantId: string, dto: CreateDiscountTierDto): Promise<DiscountTierResponseDto> {
     // Check for duplicate code
     const existing = await this.prisma.discountTier.findUnique({
       where: { tenantId_code: { tenantId, code: dto.code } },

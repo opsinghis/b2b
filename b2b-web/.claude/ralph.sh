@@ -25,6 +25,8 @@ STATE_FILE="$SCRIPT_DIR/execution/dev-state.json"
 CONTEXT_FILE="$SCRIPT_DIR/CONTEXT.md"
 
 BACKEND_API="${BACKEND_API:-http://localhost:3000}"
+SWAGGER_JSON_URL="${BACKEND_API}/docs-json"
+SWAGGER_CACHE="$SCRIPT_DIR/execution/.swagger-cache.json"
 
 # Colors
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'

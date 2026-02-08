@@ -1,11 +1,23 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  AlertThreshold,
-  Alert,
-  AlertSeverity,
-  AlertStatus,
-} from '../interfaces';
+import { AlertThreshold, Alert, AlertSeverity, AlertStatus } from '../interfaces';
+
+/**
+ * Input type for creating alert threshold (allows optional fields with defaults)
+ */
+export interface CreateAlertThresholdInput {
+  name: string;
+  description?: string;
+  metric: string;
+  operator: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'ne';
+  value: number;
+  duration?: number;
+  connectorId?: string;
+  eventType?: string;
+  severity: AlertSeverity;
+  cooldownMinutes?: number;
+  notificationChannels?: string[];
+}
 
 /**
  * Service for managing alert configurations and triggering alerts
@@ -25,10 +37,7 @@ export class AlertConfigService {
   createThreshold(
     tenantId: string,
     createdBy: string,
-    data: Omit<
-      AlertThreshold,
-      'id' | 'tenantId' | 'enabled' | 'createdAt' | 'updatedAt' | 'createdBy'
-    >,
+    data: CreateAlertThresholdInput,
   ): AlertThreshold {
     const threshold: AlertThreshold = {
       id: uuidv4(),
@@ -63,10 +72,7 @@ export class AlertConfigService {
     tenantId: string,
     thresholdId: string,
     data: Partial<
-      Omit<
-        AlertThreshold,
-        'id' | 'tenantId' | 'createdAt' | 'updatedAt' | 'createdBy'
-      >
+      Omit<AlertThreshold, 'id' | 'tenantId' | 'createdAt' | 'updatedAt' | 'createdBy'>
     >,
   ): AlertThreshold {
     const threshold = this.thresholds.get(thresholdId);
@@ -127,10 +133,8 @@ export class AlertConfigService {
 
     for (const threshold of this.thresholds.values()) {
       if (threshold.tenantId !== tenantId) continue;
-      if (options?.connectorId && threshold.connectorId !== options.connectorId)
-        continue;
-      if (options?.enabled !== undefined && threshold.enabled !== options.enabled)
-        continue;
+      if (options?.connectorId && threshold.connectorId !== options.connectorId) continue;
+      if (options?.enabled !== undefined && threshold.enabled !== options.enabled) continue;
       if (options?.severity && threshold.severity !== options.severity) continue;
 
       results.push(threshold);
@@ -142,11 +146,7 @@ export class AlertConfigService {
   /**
    * Enable or disable a threshold
    */
-  setThresholdEnabled(
-    tenantId: string,
-    thresholdId: string,
-    enabled: boolean,
-  ): AlertThreshold {
+  setThresholdEnabled(tenantId: string, thresholdId: string, enabled: boolean): AlertThreshold {
     return this.updateThreshold(tenantId, thresholdId, { enabled });
   }
 
@@ -163,21 +163,15 @@ export class AlertConfigService {
 
     for (const threshold of thresholds) {
       // Check if threshold applies to this context
-      if (threshold.connectorId && threshold.connectorId !== context?.connectorId)
-        continue;
-      if (threshold.eventType && threshold.eventType !== context?.eventType)
-        continue;
+      if (threshold.connectorId && threshold.connectorId !== context?.connectorId) continue;
+      if (threshold.eventType && threshold.eventType !== context?.eventType) continue;
 
       // Get metric value
       const value = metrics[threshold.metric];
       if (value === undefined) continue;
 
       // Check if condition is met
-      const conditionMet = this.evaluateCondition(
-        value,
-        threshold.operator,
-        threshold.value,
-      );
+      const conditionMet = this.evaluateCondition(value, threshold.operator, threshold.value);
 
       if (conditionMet) {
         // Check cooldown
@@ -268,10 +262,8 @@ export class AlertConfigService {
       if (alert.tenantId !== tenantId) continue;
       if (options?.status && alert.status !== options.status) continue;
       if (options?.severity && alert.severity !== options.severity) continue;
-      if (options?.connectorId && alert.connectorId !== options.connectorId)
-        continue;
-      if (options?.thresholdId && alert.thresholdId !== options.thresholdId)
-        continue;
+      if (options?.connectorId && alert.connectorId !== options.connectorId) continue;
+      if (options?.thresholdId && alert.thresholdId !== options.thresholdId) continue;
       if (options?.startTime && alert.triggeredAt < options.startTime) continue;
       if (options?.endTime && alert.triggeredAt > options.endTime) continue;
 
@@ -310,8 +302,7 @@ export class AlertConfigService {
 
     return {
       total: alerts.length,
-      critical: alerts.filter((a) => a.severity === AlertSeverity.CRITICAL)
-        .length,
+      critical: alerts.filter((a) => a.severity === AlertSeverity.CRITICAL).length,
       error: alerts.filter((a) => a.severity === AlertSeverity.ERROR).length,
       warning: alerts.filter((a) => a.severity === AlertSeverity.WARNING).length,
       info: alerts.filter((a) => a.severity === AlertSeverity.INFO).length,
@@ -321,11 +312,7 @@ export class AlertConfigService {
   /**
    * Acknowledge an alert
    */
-  acknowledgeAlert(
-    tenantId: string,
-    alertId: string,
-    acknowledgedBy: string,
-  ): Alert {
+  acknowledgeAlert(tenantId: string, alertId: string, acknowledgedBy: string): Alert {
     const alert = this.alerts.get(alertId);
 
     if (!alert || alert.tenantId !== tenantId) {
@@ -344,11 +331,7 @@ export class AlertConfigService {
   /**
    * Resolve an alert
    */
-  resolveAlert(
-    tenantId: string,
-    alertId: string,
-    resolvedBy: string,
-  ): Alert {
+  resolveAlert(tenantId: string, alertId: string, resolvedBy: string): Alert {
     const alert = this.alerts.get(alertId);
 
     if (!alert || alert.tenantId !== tenantId) {
@@ -367,11 +350,7 @@ export class AlertConfigService {
   /**
    * Silence an alert temporarily
    */
-  silenceAlert(
-    tenantId: string,
-    alertId: string,
-    durationMinutes: number,
-  ): Alert {
+  silenceAlert(tenantId: string, alertId: string, durationMinutes: number): Alert {
     const alert = this.alerts.get(alertId);
 
     if (!alert || alert.tenantId !== tenantId) {
@@ -433,10 +412,7 @@ export class AlertConfigService {
   /**
    * Build alert message
    */
-  private buildAlertMessage(
-    threshold: AlertThreshold,
-    actualValue: number,
-  ): string {
+  private buildAlertMessage(threshold: AlertThreshold, actualValue: number): string {
     const operatorText: Record<string, string> = {
       gt: 'exceeded',
       gte: 'reached or exceeded',
@@ -458,8 +434,7 @@ export class AlertConfigService {
 
     for (const [id, alert] of this.alerts.entries()) {
       if (
-        (alert.status === AlertStatus.RESOLVED ||
-          alert.status === AlertStatus.SILENCED) &&
+        (alert.status === AlertStatus.RESOLVED || alert.status === AlertStatus.SILENCED) &&
         alert.triggeredAt < cutoff
       ) {
         this.alerts.delete(id);

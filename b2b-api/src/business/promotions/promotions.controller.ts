@@ -23,7 +23,14 @@ import {
 import { UserRole } from '@prisma/client';
 import { TenantContext } from '@core/tenants';
 import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '@core/auth';
-import { AuthorizationGuard, CanRead, CanCreate, CanUpdate, CanDelete, CanManage } from '@core/authorization';
+import {
+  AuthorizationGuard,
+  CanRead,
+  CanCreate,
+  CanUpdate,
+  CanDelete,
+  CanManage,
+} from '@core/authorization';
 import { PromotionsService } from './promotions.service';
 import {
   CreatePromotionDto,
@@ -165,10 +172,7 @@ export class AdminPromotionsController {
   @ApiParam({ name: 'id', description: 'Promotion ID' })
   @ApiResponse({ status: 204, description: 'Promotion deleted' })
   @ApiResponse({ status: 404, description: 'Promotion not found' })
-  async delete(
-    @TenantContext() tenantId: string,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async delete(@TenantContext() tenantId: string, @Param('id') id: string): Promise<void> {
     return this.promotionsService.delete(tenantId, id);
   }
 
@@ -177,7 +181,11 @@ export class AdminPromotionsController {
   @CanRead('Promotion')
   @ApiOperation({ summary: 'Get promotion analytics' })
   @ApiParam({ name: 'id', description: 'Promotion ID' })
-  @ApiResponse({ status: 200, description: 'Promotion analytics', type: PromotionAnalyticsResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Promotion analytics',
+    type: PromotionAnalyticsResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Promotion not found' })
   async getAnalytics(
     @TenantContext() tenantId: string,

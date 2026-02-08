@@ -21,12 +21,9 @@
     "FE-014",
     "FE-015",
     "FE-019",
-    "FE-020"
+    "FE-020",
+    "FE-021"
   ],
-  "waiting_for_api": [
-    "FE-028",
-    "FE-030",
-    "FE-031"
-  ],
-  "gap_counter": 15
+  "waiting_for_api": [],
+  "gap_counter": 535
 }

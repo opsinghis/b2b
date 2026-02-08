@@ -308,9 +308,9 @@ describe('MasterCatalogService', () => {
         .mockResolvedValueOnce(mockMasterProduct) // First call - findOne
         .mockResolvedValueOnce(existingProduct); // Second call - SKU check
 
-      await expect(
-        service.update('product-1', { sku: 'EXISTING-SKU' }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.update('product-1', { sku: 'EXISTING-SKU' })).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should allow updating SKU if not conflicting', async () => {
@@ -483,9 +483,7 @@ describe('MasterCatalogService', () => {
     });
 
     it('should skip duplicate SKUs', async () => {
-      mockPrismaService.masterProduct.findMany.mockResolvedValue([
-        { sku: 'IMP-001' },
-      ]);
+      mockPrismaService.masterProduct.findMany.mockResolvedValue([{ sku: 'IMP-001' }]);
       mockPrismaService.masterProduct.createMany.mockResolvedValue({ count: 2 });
 
       const result = await service.importProducts(validProducts);
@@ -565,9 +563,7 @@ describe('MasterCatalogService', () => {
 
   describe('importFromJson', () => {
     it('should parse and import JSON array', async () => {
-      const jsonData = JSON.stringify([
-        { sku: 'JSON-001', name: 'JSON Product', listPrice: 100 },
-      ]);
+      const jsonData = JSON.stringify([{ sku: 'JSON-001', name: 'JSON Product', listPrice: 100 }]);
       const buffer = Buffer.from(jsonData, 'utf-8');
 
       mockPrismaService.masterProduct.findMany.mockResolvedValue([]);
@@ -581,9 +577,7 @@ describe('MasterCatalogService', () => {
 
     it('should parse and import { products: [...] } format', async () => {
       const jsonData = JSON.stringify({
-        products: [
-          { sku: 'JSON-001', name: 'JSON Product', listPrice: 100 },
-        ],
+        products: [{ sku: 'JSON-001', name: 'JSON Product', listPrice: 100 }],
       });
       const buffer = Buffer.from(jsonData, 'utf-8');
 
@@ -599,7 +593,9 @@ describe('MasterCatalogService', () => {
     it('should throw error for invalid JSON', async () => {
       const invalidJson = Buffer.from('{ invalid json }', 'utf-8');
 
-      await expect(service.importFromJson(invalidJson)).rejects.toThrow('Failed to parse JSON file');
+      await expect(service.importFromJson(invalidJson)).rejects.toThrow(
+        'Failed to parse JSON file',
+      );
     });
 
     it('should throw error for invalid JSON structure', async () => {

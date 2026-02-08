@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { SalaryDeductionService } from './salary-deduction.service';
 import { PrismaService } from '@infrastructure/database';
 import {
@@ -243,10 +239,12 @@ describe('SalaryDeductionService', () => {
   describe('processRefund', () => {
     it('should process refund successfully', async () => {
       prismaService.salaryDeduction.findUnique = jest.fn().mockResolvedValue(mockDeduction);
-      prismaService.$transaction = jest.fn().mockResolvedValue([
-        { ...mockTransaction, type: SalaryDeductionTxnType.REFUND },
-        mockDeduction,
-      ]);
+      prismaService.$transaction = jest
+        .fn()
+        .mockResolvedValue([
+          { ...mockTransaction, type: SalaryDeductionTxnType.REFUND },
+          mockDeduction,
+        ]);
 
       const result = await service.processRefund(mockTenantId, mockUserId, 'order-123', 100);
 
@@ -352,10 +350,12 @@ describe('SalaryDeductionService', () => {
       prismaService.salaryDeductionLimitRequest.findFirst = jest
         .fn()
         .mockResolvedValue(mockLimitRequest);
-      prismaService.$transaction = jest.fn().mockResolvedValue([
-        { ...mockLimitRequest, status: SalaryDeductionRequestStatus.APPROVED },
-        mockDeduction,
-      ]);
+      prismaService.$transaction = jest
+        .fn()
+        .mockResolvedValue([
+          { ...mockLimitRequest, status: SalaryDeductionRequestStatus.APPROVED },
+          mockDeduction,
+        ]);
 
       const result = await service.approveLimitRequest('lr-123', mockTenantId, mockAdminId);
 

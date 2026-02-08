@@ -187,7 +187,18 @@ export interface EventFilter {
  */
 export interface FilterCondition {
   path: string; // JSONPath expression
-  operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'contains' | 'startsWith' | 'endsWith' | 'regex' | 'in';
+  operator:
+    | 'eq'
+    | 'ne'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'contains'
+    | 'startsWith'
+    | 'endsWith'
+    | 'regex'
+    | 'in';
   value: unknown;
 }
 

@@ -303,12 +303,12 @@ describe('WebhookReceiverService', () => {
 
     it('should filter by tenantId', () => {
       const events = service.getEvents({ tenantId: 'tenant-1' });
-      events.forEach(e => expect(e.tenantId).toBe('tenant-1'));
+      events.forEach((e) => expect(e.tenantId).toBe('tenant-1'));
     });
 
     it('should filter by eventType', () => {
       const events = service.getEvents({ eventType: 'test.event' });
-      events.forEach(e => expect(e.eventType).toBe('test.event'));
+      events.forEach((e) => expect(e.eventType).toBe('test.event'));
     });
 
     it('should apply limit', () => {
@@ -379,7 +379,9 @@ describe('WebhookReceiverService', () => {
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('timestampHeader is required when timestampTolerance is provided');
+      expect(result.errors).toContain(
+        'timestampHeader is required when timestampTolerance is provided',
+      );
     });
   });
 });

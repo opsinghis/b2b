@@ -19,9 +19,7 @@ import { TenantsModule } from '../tenants';
 
         if (!secret) {
           const logger = new Logger('AuthModule');
-          logger.error(
-            'JWT_SECRET is not configured. Please set it in .env file or environment.',
-          );
+          logger.error('JWT_SECRET is not configured. Please set it in .env file or environment.');
         }
 
         return {

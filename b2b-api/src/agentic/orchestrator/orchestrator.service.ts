@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { ToolsRegistryService, RegisteredTool } from '../tools';
 import { RateLimiterService } from './rate-limiter.service';
 import { ExecuteToolDto, ExecutionResultDto, MultipleExecutionResultDto } from './dto';
@@ -97,9 +92,7 @@ export class OrchestratorService {
     const results: ExecutionResultDto[] = [];
 
     if (parallel) {
-      const promises = tools.map((dto) =>
-        this.executeTool(tenantId, userId, dto, userPermissions),
-      );
+      const promises = tools.map((dto) => this.executeTool(tenantId, userId, dto, userPermissions));
       const settled = await Promise.allSettled(promises);
 
       for (const [index, settledResult] of settled.entries()) {

@@ -28,7 +28,12 @@ import {
   RequestLoggerService,
   WebhookReceiverService,
 } from './services';
-import { CredentialType, CapabilityCategory, IntegrationConnectorType, IntegrationDirection } from '@prisma/client';
+import {
+  CredentialType,
+  CapabilityCategory,
+  IntegrationConnectorType,
+  IntegrationDirection,
+} from '@prisma/client';
 
 /**
  * Generic REST Connector
@@ -73,7 +78,8 @@ export class GenericRestConnector implements IConnector {
     return {
       code: 'generic-rest',
       name: 'Generic REST Connector',
-      description: 'Configurable REST API connector supporting various authentication methods and data mappings',
+      description:
+        'Configurable REST API connector supporting various authentication methods and data mappings',
       version: '1.0.0',
       author: 'B2B Platform',
       type: IntegrationConnectorType.API,
@@ -621,17 +627,14 @@ export class GenericRestConnector implements IConnector {
     config: Record<string, unknown>,
     credentials: Record<string, unknown>,
   ): RestConnectorConfig {
-    const authConfig = this.buildAuthConfig(
-      config.authType as string,
-      credentials,
-    );
+    const authConfig = this.buildAuthConfig(config.authType as string, credentials);
 
     return {
       baseUrl: config.baseUrl as string,
       auth: authConfig,
       defaultHeaders: config.defaultHeaders as Record<string, string> | undefined,
       defaultQueryParams: config.defaultQueryParams as Record<string, string> | undefined,
-      endpoints: config.endpoints as Record<string, any> || {},
+      endpoints: (config.endpoints as Record<string, any>) || {},
       pagination: config.pagination as any,
       errorMappings: config.errorMappings as any[],
       retry: config.retryEnabled
@@ -686,9 +689,7 @@ export class GenericRestConnector implements IConnector {
           clientSecret: credentials.clientSecret as string,
           tokenUrl: credentials.tokenUrl as string,
           grantType: (credentials.grantType as any) || 'client_credentials',
-          scopes: credentials.scopes
-            ? (credentials.scopes as string).split(' ')
-            : undefined,
+          scopes: credentials.scopes ? (credentials.scopes as string).split(' ') : undefined,
         };
 
       default:

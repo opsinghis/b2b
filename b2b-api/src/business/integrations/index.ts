@@ -1,5 +1,10 @@
 export * from './hub';
-export { ConnectorRegistryModule, ConnectorRegistryController, ConnectorRegistryService, CredentialVaultService } from './connectors';
+export {
+  ConnectorRegistryModule,
+  ConnectorRegistryController,
+  ConnectorRegistryService,
+  CredentialVaultService,
+} from './connectors';
 export * from './connectors/interfaces';
 export {
   RegisterConnectorDto,
@@ -61,3 +66,52 @@ export {
   QueueStatsResponseDto,
   ReplayStatusResponseDto,
 } from './events/dto';
+
+// Monitoring exports
+export {
+  IntegrationMonitoringModule,
+  IntegrationMonitoringController,
+  AdminIntegrationMonitoringController,
+  IntegrationMetricsService,
+  ConnectorHealthService,
+  AlertConfigService,
+  AuditLogService,
+  LogRetentionService,
+} from './monitoring';
+export * from './monitoring/interfaces';
+export {
+  DashboardKPIsQueryDto,
+  DashboardKPIsResponseDto,
+  MetricsQueryDto,
+  ThroughputMetricsResponseDto,
+  LatencyMetricsResponseDto,
+  ErrorMetricsResponseDto,
+  ConnectorHealthQueryDto,
+  ConnectorHealthResponseDto,
+  CreateAlertThresholdDto,
+  UpdateAlertThresholdDto,
+  AlertsQueryDto,
+  AlertResponseDto,
+  AcknowledgeAlertDto,
+  ResolveAlertDto,
+  SilenceAlertDto,
+  AuditLogQueryDto,
+  AuditLogResponseDto,
+  RecordAuditLogDto,
+  UpdateRetentionPolicyDto,
+  RetentionPolicyResponseDto,
+  TimeSeriesQueryDto,
+  TimeSeriesResponseDto,
+} from './monitoring/dto';
+
+// Pricing Flow exports
+export {
+  PricingModule,
+  PricingController,
+  PricingService,
+  CurrencyService,
+  PricingSyncService,
+  PriceOverrideService,
+} from './flows/pricing';
+export * from './flows/pricing/interfaces';
+export * from './flows/pricing/dto';

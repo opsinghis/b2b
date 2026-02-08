@@ -76,10 +76,7 @@ export class ContractsController {
     status: 200,
     description: 'List of contracts',
   })
-  async findAll(
-    @Query() query: ContractListQueryDto,
-    @TenantContext() tenantId: string,
-  ) {
+  async findAll(@Query() query: ContractListQueryDto, @TenantContext() tenantId: string) {
     const result = await this.contractsService.findAll(query, tenantId);
     return {
       ...result,
@@ -143,11 +140,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
   ): Promise<ContractVersionResponseDto> {
     const versionNumber = parseInt(version, 10);
-    const contractVersion = await this.contractsService.getVersion(
-      id,
-      versionNumber,
-      tenantId,
-    );
+    const contractVersion = await this.contractsService.getVersion(id, versionNumber, tenantId);
     return ContractVersionResponseDto.fromEntity(contractVersion);
   }
 
@@ -291,7 +284,10 @@ export class ContractsController {
     description: 'Contract activated',
     type: ContractResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Contract not in APPROVED status or missing effective date' })
+  @ApiResponse({
+    status: 400,
+    description: 'Contract not in APPROVED status or missing effective date',
+  })
   @ApiResponse({ status: 404, description: 'Contract not found' })
   async activate(
     @Param('id') id: string,

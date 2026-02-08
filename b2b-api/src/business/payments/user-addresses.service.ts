@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { UserAddress } from '@prisma/client';
 import { CreateUserAddressDto, UpdateUserAddressDto } from './dto';
@@ -23,10 +19,7 @@ export class UserAddressesService {
         userId,
         deletedAt: null,
       },
-      orderBy: [
-        { isDefault: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
     });
   }
 

@@ -15,9 +15,7 @@ export class ContractVersionResponseDto {
   @ApiProperty()
   createdAt!: Date;
 
-  static fromEntity(
-    version: ContractVersion,
-  ): ContractVersionResponseDto {
+  static fromEntity(version: ContractVersion): ContractVersionResponseDto {
     const dto = new ContractVersionResponseDto();
     dto.id = version.id;
     dto.version = version.version;
@@ -88,9 +86,7 @@ export class ContractResponseDto {
   @ApiPropertyOptional({ type: [ContractVersionResponseDto] })
   versions?: ContractVersionResponseDto[];
 
-  static fromEntity(
-    contract: Contract & { versions?: ContractVersion[] },
-  ): ContractResponseDto {
+  static fromEntity(contract: Contract & { versions?: ContractVersion[] }): ContractResponseDto {
     const dto = new ContractResponseDto();
     dto.id = contract.id;
     dto.contractNumber = contract.contractNumber;

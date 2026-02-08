@@ -75,11 +75,7 @@ export class CartService {
   /**
    * Add item to cart
    */
-  async addItem(
-    dto: AddCartItemDto,
-    tenantId: string,
-    userId: string,
-  ): Promise<CartWithItems> {
+  async addItem(dto: AddCartItemDto, tenantId: string, userId: string): Promise<CartWithItems> {
     const cart = await this.getOrCreateCart(tenantId, userId);
 
     // Resolve product details
@@ -126,9 +122,7 @@ export class CartService {
       },
     });
 
-    this.logger.log(
-      `Added item ${resolvedItem.productName} to cart for user ${userId}`,
-    );
+    this.logger.log(`Added item ${resolvedItem.productName} to cart for user ${userId}`);
 
     // Recalculate cart totals and return updated cart
     return this.recalculateCart(cart.id);
@@ -163,11 +157,7 @@ export class CartService {
   /**
    * Remove item from cart
    */
-  async removeItem(
-    itemId: string,
-    tenantId: string,
-    userId: string,
-  ): Promise<CartWithItems> {
+  async removeItem(itemId: string, tenantId: string, userId: string): Promise<CartWithItems> {
     const cart = await this.getOrCreateCart(tenantId, userId);
     const item = cart.items.find((i) => i.id === itemId);
 
@@ -215,11 +205,7 @@ export class CartService {
   /**
    * Apply coupon to cart
    */
-  async applyCoupon(
-    dto: ApplyCouponDto,
-    tenantId: string,
-    userId: string,
-  ): Promise<CartWithItems> {
+  async applyCoupon(dto: ApplyCouponDto, tenantId: string, userId: string): Promise<CartWithItems> {
     const cart = await this.getOrCreateCart(tenantId, userId);
 
     if (cart.items.length === 0) {
@@ -291,10 +277,7 @@ export class CartService {
   }> {
     // If masterProductId is provided, resolve from catalog
     if (dto.masterProductId) {
-      const hasAccess = await this.tenantCatalogService.hasAccess(
-        dto.masterProductId,
-        tenantId,
-      );
+      const hasAccess = await this.tenantCatalogService.hasAccess(dto.masterProductId, tenantId);
 
       if (!hasAccess) {
         throw new ForbiddenException(
@@ -302,10 +285,7 @@ export class CartService {
         );
       }
 
-      const product = await this.tenantCatalogService.findOne(
-        dto.masterProductId,
-        tenantId,
-      );
+      const product = await this.tenantCatalogService.findOne(dto.masterProductId, tenantId);
 
       return {
         masterProductId: dto.masterProductId,
@@ -317,15 +297,11 @@ export class CartService {
 
     // Manual entry - validate required fields
     if (!dto.productName) {
-      throw new BadRequestException(
-        'productName is required when masterProductId is not provided',
-      );
+      throw new BadRequestException('productName is required when masterProductId is not provided');
     }
 
     if (dto.unitPrice === undefined || dto.unitPrice === null) {
-      throw new BadRequestException(
-        'unitPrice is required when masterProductId is not provided',
-      );
+      throw new BadRequestException('unitPrice is required when masterProductId is not provided');
     }
 
     return {
@@ -335,11 +311,7 @@ export class CartService {
     };
   }
 
-  private calculateLineTotal(
-    unitPrice: number,
-    quantity: number,
-    discount: number,
-  ): number {
+  private calculateLineTotal(unitPrice: number, quantity: number, discount: number): number {
     return unitPrice * quantity - discount;
   }
 
@@ -360,11 +332,7 @@ export class CartService {
     }
 
     const newDiscount = discount !== undefined ? discount : item.discount.toNumber();
-    const lineTotal = this.calculateLineTotal(
-      item.unitPrice.toNumber(),
-      quantity,
-      newDiscount,
-    );
+    const lineTotal = this.calculateLineTotal(item.unitPrice.toNumber(), quantity, newDiscount);
 
     await this.prisma.cartItem.update({
       where: { id: itemId },

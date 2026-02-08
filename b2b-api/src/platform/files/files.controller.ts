@@ -88,12 +88,7 @@ export class FilesController {
     file: Express.Multer.File,
     @Body() dto: UploadFileDto,
   ): Promise<FileUploadResponseDto> {
-    const uploadedFile = await this.filesService.uploadFile(
-      tenantId,
-      user.id,
-      file,
-      dto,
-    );
+    const uploadedFile = await this.filesService.uploadFile(tenantId, user.id, file, dto);
 
     return {
       file: uploadedFile,
@@ -165,10 +160,7 @@ export class FilesController {
   @ApiResponse({ status: 404, description: 'File not found' })
   @CanDelete('File')
   @AuditLog({ action: 'FILE_DELETE', entityType: 'File' })
-  async deleteFile(
-    @TenantContext() tenantId: string,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async deleteFile(@TenantContext() tenantId: string, @Param('id') id: string): Promise<void> {
     await this.filesService.deleteFile(tenantId, id);
   }
 

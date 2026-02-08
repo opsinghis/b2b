@@ -24,6 +24,11 @@ export type Subjects =
   | 'DiscountTier'
   | 'Promotion'
   | 'Partner'
+  | 'Inventory'
+  | 'InventoryReservation'
+  | 'InventoryAlert'
+  | 'Warehouse'
+  | 'InventorySyncJob'
   | 'all';
 
 export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'approve' | 'submit';
@@ -63,6 +68,11 @@ export class AbilityFactory {
         can('manage', 'Partner');
         can('read', 'AuditLog');
         can('read', 'MasterProduct');
+        can('manage', 'Inventory');
+        can('manage', 'InventoryReservation');
+        can('manage', 'InventoryAlert');
+        can('manage', 'Warehouse');
+        can('manage', 'InventorySyncJob');
         break;
 
       case UserRole.MANAGER:
@@ -87,6 +97,11 @@ export class AbilityFactory {
         can('read', 'Promotion');
         can('read', 'Partner');
         can('read', 'MasterProduct');
+        can('manage', 'Inventory');
+        can('manage', 'InventoryReservation');
+        can('read', 'InventoryAlert');
+        can('read', 'Warehouse');
+        can('read', 'InventorySyncJob');
         break;
 
       case UserRole.USER:
@@ -114,6 +129,10 @@ export class AbilityFactory {
         can('read', 'Promotion');
         can('manage', 'Partner');
         can('read', 'MasterProduct');
+        can('read', 'Inventory');
+        can('create', 'InventoryReservation');
+        can('read', 'InventoryReservation');
+        can('read', 'Warehouse');
         break;
 
       case UserRole.VIEWER:
@@ -124,6 +143,8 @@ export class AbilityFactory {
         can('read', 'Quote');
         can('read', 'File');
         can('read', 'MasterProduct');
+        can('read', 'Inventory');
+        can('read', 'Warehouse');
         break;
 
       default:

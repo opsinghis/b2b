@@ -103,7 +103,10 @@ export class UpdateQuoteDto {
   @IsObject()
   metadata?: Record<string, unknown>;
 
-  @ApiPropertyOptional({ type: [CreateQuoteLineItemDto], description: 'Quote line items (replaces all)' })
+  @ApiPropertyOptional({
+    type: [CreateQuoteLineItemDto],
+    description: 'Quote line items (replaces all)',
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

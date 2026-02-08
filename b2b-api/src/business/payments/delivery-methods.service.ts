@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ConflictException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { DeliveryMethod, Prisma } from '@prisma/client';
 import {
@@ -34,10 +29,7 @@ export class DeliveryMethodsService {
   /**
    * Get all delivery methods (admin)
    */
-  async findAll(
-    tenantId: string,
-    query: ListDeliveryMethodsQueryDto,
-  ): Promise<DeliveryMethod[]> {
+  async findAll(tenantId: string, query: ListDeliveryMethodsQueryDto): Promise<DeliveryMethod[]> {
     const where: Prisma.DeliveryMethodWhereInput = { tenantId };
 
     if (query.isActive !== undefined) {

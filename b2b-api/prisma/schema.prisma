@@ -52,6 +52,17 @@ model Tenant {
   partnerResources PartnerResource[]
   connectorConfigs ConnectorConfig[]
   credentialVaults CredentialVault[]
+  warehouses      Warehouse[]
+  inventoryLevels InventoryLevel[]
+  inventoryReservations InventoryReservation[]
+  inventoryMovements InventoryMovement[]
+  inventoryAlerts InventoryAlert[]
+  inventorySyncJobs InventorySyncJob[]
+  priceLists      PriceList[]
+  customerPriceAssignments CustomerPriceAssignment[]
+  priceOverrides  PriceOverride[]
+  currencyExchangeRates CurrencyExchangeRate[]
+  priceListSyncJobs PriceListSyncJob[]
 
   @@index([slug])
   @@index([isActive])
@@ -102,6 +113,8 @@ model User {
   promotionUsages   PromotionUsage[]
   partner           Partner?
   partnerTeamMemberships PartnerTeamMember[]
+  inventoryReservations InventoryReservation[]
+  inventoryMovements InventoryMovement[]
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -344,6 +357,8 @@ model MasterProduct {
   quoteLineItems  QuoteLineItem[]
   cartItems       CartItem[]
   orderItems      OrderItem[]
+  inventoryLevels InventoryLevel[]
+  priceListItems  PriceListItem[]
 
   @@index([sku])
   @@index([category])
@@ -1855,4 +1870,741 @@ enum ConnectorEventType {
   CAPABILITY_ENABLED
   CAPABILITY_DISABLED
   ERROR
+}
+
+// ============================================
+// Inventory & ATP Models
+// ============================================
+
+model Warehouse {
+  id              String              @id @default(cuid())
+  code            String
+  name            String
+  description     String?
+  type            WarehouseType       @default(STANDARD)
+  isActive        Boolean             @default(true)
+  isDefault       Boolean             @default(false)
+
+  // Location
+  address         Json                @default("{}")
+  latitude        Decimal?            @db.Decimal(10, 7)
+  longitude       Decimal?            @db.Decimal(10, 7)
+  timezone        String              @default("UTC")
+
+  // Contact
+  contactName     String?
+  contactEmail    String?
+  contactPhone    String?
+
+  // Configuration
+  safetyStockDays Int                 @default(3)
+  leadTimeDays    Int                 @default(2)
+  cutoffTime      String?             // e.g. "14:00" - orders after this go next day
+  operatingDays   Int[]               @default([1, 2, 3, 4, 5]) // 1=Mon, 7=Sun
+
+  // External system mapping
+  externalId      String?
+  externalSystem  String?
+
+  metadata        Json                @default("{}")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  inventoryLevels InventoryLevel[]
+  reservations    InventoryReservation[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([isDefault])
+  @@index([externalId])
+  @@map("warehouses")
+}
+
+model InventoryLevel {
+  id              String              @id @default(cuid())
+  sku             String
+
+  // Quantities
+  quantityOnHand  Int                 @default(0)
+  quantityReserved Int                @default(0)
+  quantityOnOrder Int                 @default(0)         // Incoming purchase orders
+  quantityAllocated Int               @default(0)        // Allocated to specific orders
+
+  // Calculated fields (updated on inventory changes)
+  quantityAvailable Int               @default(0)        // On hand - reserved - allocated
+  atp             Int                 @default(0)        // Available to Promise
+
+  // Thresholds
+  reorderPoint    Int?
+  safetyStock     Int                 @default(0)
+  minOrderQty     Int                 @default(1)
+  maxOrderQty     Int?
+
+  // Status
+  availability    ProductAvailability @default(IN_STOCK)
+  lastSyncAt      DateTime?
+  lastSyncSource  String?
+
+  // Tracking
+  lastReceivedAt  DateTime?
+  lastSoldAt      DateTime?
+  averageDailySales Decimal?          @db.Decimal(15, 4)
+  daysOfStock     Int?
+
+  // External system mapping
+  externalId      String?
+  externalSystem  String?
+
+  metadata        Json                @default("{}")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  warehouseId     String
+  masterProductId String?
+
+  // Relations
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  warehouse       Warehouse           @relation(fields: [warehouseId], references: [id])
+  masterProduct   MasterProduct?      @relation(fields: [masterProductId], references: [id])
+  reservations    InventoryReservation[]
+  movements       InventoryMovement[]
+  alerts          InventoryAlert[]
+
+  @@unique([tenantId, warehouseId, sku])
+  @@index([tenantId])
+  @@index([warehouseId])
+  @@index([sku])
+  @@index([masterProductId])
+  @@index([availability])
+  @@index([atp])
+  @@index([lastSyncAt])
+  @@map("inventory_levels")
+}
+
+model InventoryReservation {
+  id              String                      @id @default(cuid())
+  reservationNumber String
+
+  // Reservation details
+  sku             String
+  quantity        Int
+  quantityFulfilled Int                       @default(0)
+  status          InventoryReservationStatus  @default(PENDING)
+  type            InventoryReservationType    @default(ORDER)
+
+  // Priority and expiration
+  priority        Int                         @default(0)
+  expiresAt       DateTime
+  releasedAt      DateTime?
+  fulfilledAt     DateTime?
+
+  // Reference to source
+  sourceType      String                      // 'order', 'cart', 'quote', 'transfer'
+  sourceId        String                      // orderId, cartId, etc.
+
+  // External reference
+  externalRef     String?
+
+  notes           String?
+  metadata        Json                        @default("{}")
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  warehouseId     String
+  inventoryLevelId String
+  userId          String?
+
+  // Relations
+  tenant          Tenant                      @relation(fields: [tenantId], references: [id])
+  warehouse       Warehouse                   @relation(fields: [warehouseId], references: [id])
+  inventoryLevel  InventoryLevel              @relation(fields: [inventoryLevelId], references: [id])
+  user            User?                       @relation(fields: [userId], references: [id])
+
+  @@unique([tenantId, reservationNumber])
+  @@index([tenantId])
+  @@index([warehouseId])
+  @@index([inventoryLevelId])
+  @@index([sku])
+  @@index([status])
+  @@index([sourceType, sourceId])
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@map("inventory_reservations")
+}
+
+model InventoryMovement {
+  id              String                      @id @default(cuid())
+  movementNumber  String
+  type            InventoryMovementType
+
+  // Quantities
+  quantity        Int
+  previousQty     Int
+  newQty          Int
+
+  // Reference
+  referenceType   String?                     // 'order', 'purchase_order', 'adjustment', 'transfer'
+  referenceId     String?
+
+  // Cost tracking
+  unitCost        Decimal?                    @db.Decimal(15, 4)
+  totalCost       Decimal?                    @db.Decimal(15, 2)
+
+  reason          String?
+  notes           String?
+  metadata        Json                        @default("{}")
+  createdAt       DateTime                    @default(now())
+
+  // Foreign Keys
+  tenantId        String
+  inventoryLevelId String
+  userId          String?
+
+  // Relations
+  tenant          Tenant                      @relation(fields: [tenantId], references: [id])
+  inventoryLevel  InventoryLevel              @relation(fields: [inventoryLevelId], references: [id])
+  user            User?                       @relation(fields: [userId], references: [id])
+
+  @@unique([tenantId, movementNumber])
+  @@index([tenantId])
+  @@index([inventoryLevelId])
+  @@index([type])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@map("inventory_movements")
+}
+
+model InventoryAlert {
+  id              String                      @id @default(cuid())
+  alertType       InventoryAlertType
+  severity        AlertSeverity               @default(WARNING)
+  status          AlertStatus                 @default(ACTIVE)
+
+  // Alert details
+  title           String
+  message         String
+  threshold       Int?
+  currentValue    Int?
+
+  // Resolution
+  acknowledgedAt  DateTime?
+  acknowledgedById String?
+  resolvedAt      DateTime?
+  resolvedById    String?
+
+  metadata        Json                        @default("{}")
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  inventoryLevelId String
+
+  // Relations
+  tenant          Tenant                      @relation(fields: [tenantId], references: [id])
+  inventoryLevel  InventoryLevel              @relation(fields: [inventoryLevelId], references: [id])
+
+  @@index([tenantId])
+  @@index([inventoryLevelId])
+  @@index([alertType])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("inventory_alerts")
+}
+
+model InventorySyncJob {
+  id              String                      @id @default(cuid())
+  jobType         InventorySyncJobType
+  status          SyncJobStatus               @default(PENDING)
+
+  // Scope
+  connectorId     String?
+  warehouseId     String?
+
+  // Progress
+  totalItems      Int                         @default(0)
+  processedItems  Int                         @default(0)
+  successCount    Int                         @default(0)
+  errorCount      Int                         @default(0)
+
+  // Timing
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  // Results
+  errors          Json?
+  summary         Json?
+
+  metadata        Json                        @default("{}")
+  createdAt       DateTime                    @default(now())
+  updatedAt       DateTime                    @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant                      @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([jobType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("inventory_sync_jobs")
+}
+
+enum WarehouseType {
+  STANDARD
+  DISTRIBUTION_CENTER
+  FULFILLMENT_CENTER
+  DROP_SHIP
+  VIRTUAL
+}
+
+enum InventoryReservationStatus {
+  PENDING
+  CONFIRMED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  RELEASED
+  EXPIRED
+  CANCELLED
+}
+
+enum InventoryReservationType {
+  ORDER
+  CART
+  QUOTE
+  TRANSFER
+  HOLD
+}
+
+enum InventoryMovementType {
+  RECEIPT
+  SALE
+  RETURN
+  ADJUSTMENT_INCREASE
+  ADJUSTMENT_DECREASE
+  TRANSFER_IN
+  TRANSFER_OUT
+  RESERVATION
+  RELEASE
+  WRITE_OFF
+  CYCLE_COUNT
+}
+
+enum InventoryAlertType {
+  LOW_STOCK
+  OUT_OF_STOCK
+  OVERSTOCK
+  REORDER_POINT
+  SAFETY_STOCK_BREACH
+  SYNC_FAILURE
+  RESERVATION_EXPIRING
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+enum InventorySyncJobType {
+  FULL_SYNC
+  DELTA_SYNC
+  WAREHOUSE_SYNC
+  PRODUCT_SYNC
+}
+
+enum SyncJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ============================================
+// Price List Models
+// ============================================
+
+model PriceList {
+  id              String            @id @default(cuid())
+  code            String
+  name            String
+  description     String?
+  type            PriceListType     @default(STANDARD)
+  status          PriceListStatus   @default(ACTIVE)
+  currency        String            @default("USD")
+  priority        Int               @default(0)
+
+  // Effective dates
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+
+  // Price basis
+  basePriceListId String?
+  priceModifier   Decimal?          @db.Decimal(10, 4) // Multiplier for derived price lists
+  roundingRule    RoundingRule      @default(NONE)
+  roundingPrecision Int             @default(2)
+
+  // Scope
+  isDefault       Boolean           @default(false)
+  isCustomerSpecific Boolean        @default(false)
+
+  // External system mapping
+  externalId      String?
+  externalSystem  String?
+  lastSyncAt      DateTime?
+  syncStatus      SyncJobStatus?
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  basePriceList   PriceList?        @relation("DerivedPriceLists", fields: [basePriceListId], references: [id])
+  derivedPriceLists PriceList[]     @relation("DerivedPriceLists")
+  items           PriceListItem[]
+  customerAssignments CustomerPriceAssignment[]
+  syncJobs        PriceListSyncJob[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@index([status])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([currency])
+  @@index([priority])
+  @@index([isDefault])
+  @@index([externalId])
+  @@map("price_lists")
+}
+
+model PriceListItem {
+  id              String            @id @default(cuid())
+  sku             String
+
+  // Pricing
+  basePrice       Decimal           @db.Decimal(15, 4)
+  listPrice       Decimal           @db.Decimal(15, 4)
+  minPrice        Decimal?          @db.Decimal(15, 4) // Floor price
+  maxPrice        Decimal?          @db.Decimal(15, 4) // Ceiling price
+  cost            Decimal?          @db.Decimal(15, 4) // Cost for margin calculations
+
+  // Currency (if different from price list default)
+  currency        String?
+
+  // Quantity breaks (volume pricing)
+  quantityBreaks  Json              @default("[]")
+
+  // Discount settings
+  maxDiscountPercent Decimal?       @db.Decimal(5, 2)
+  isDiscountable  Boolean           @default(true)
+
+  // Effective dates (overrides price list dates)
+  effectiveFrom   DateTime?
+  effectiveTo     DateTime?
+
+  // Status
+  isActive        Boolean           @default(true)
+
+  // Unit of measure
+  uom             String            @default("EA")
+
+  // External system mapping
+  externalId      String?
+  externalSystem  String?
+  lastSyncAt      DateTime?
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  priceListId     String
+  masterProductId String?
+
+  // Relations
+  priceList       PriceList         @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+  masterProduct   MasterProduct?    @relation(fields: [masterProductId], references: [id])
+  overrides       PriceOverride[]
+
+  @@unique([priceListId, sku])
+  @@index([priceListId])
+  @@index([sku])
+  @@index([masterProductId])
+  @@index([isActive])
+  @@index([effectiveFrom, effectiveTo])
+  @@map("price_list_items")
+}
+
+model CustomerPriceAssignment {
+  id              String            @id @default(cuid())
+
+  // Assignment type - can be customer, organization, or customer group
+  assignmentType  PriceAssignmentType @default(CUSTOMER)
+  assignmentId    String            // userId, organizationId, or customerGroupId
+
+  // Priority for conflict resolution (higher = more priority)
+  priority        Int               @default(0)
+
+  // Effective dates
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+
+  // Status
+  isActive        Boolean           @default(true)
+
+  // External reference
+  externalRef     String?
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  priceListId     String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  priceList       PriceList         @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, priceListId, assignmentType, assignmentId])
+  @@index([tenantId])
+  @@index([priceListId])
+  @@index([assignmentType, assignmentId])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([isActive])
+  @@map("customer_price_assignments")
+}
+
+model PriceOverride {
+  id              String            @id @default(cuid())
+
+  // Override type
+  overrideType    PriceOverrideType @default(FIXED_PRICE)
+
+  // Override value (interpretation depends on type)
+  overrideValue   Decimal           @db.Decimal(15, 4)
+
+  // Scope - who gets this override
+  scopeType       PriceOverrideScopeType @default(CUSTOMER)
+  scopeId         String            // userId, organizationId, contractId, etc.
+
+  // Effective dates
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+
+  // Quantity conditions
+  minQuantity     Int?
+  maxQuantity     Int?
+
+  // Approval tracking
+  status          PriceOverrideStatus @default(ACTIVE)
+  approvedById    String?
+  approvedAt      DateTime?
+  reason          String?
+
+  // External reference
+  externalRef     String?
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  priceListItemId String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  priceListItem   PriceListItem     @relation(fields: [priceListItemId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([priceListItemId])
+  @@index([scopeType, scopeId])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([status])
+  @@map("price_overrides")
+}
+
+model CurrencyExchangeRate {
+  id              String            @id @default(cuid())
+  sourceCurrency  String
+  targetCurrency  String
+  rate            Decimal           @db.Decimal(18, 8)
+
+  // Effective dates
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+
+  // Source of rate
+  rateSource      String?           // e.g., 'ECB', 'manual', 'API'
+
+  // Type of rate
+  rateType        ExchangeRateType  @default(SPOT)
+
+  isActive        Boolean           @default(true)
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, sourceCurrency, targetCurrency, effectiveFrom, rateType])
+  @@index([tenantId])
+  @@index([sourceCurrency, targetCurrency])
+  @@index([effectiveFrom, effectiveTo])
+  @@index([isActive])
+  @@map("currency_exchange_rates")
+}
+
+model PriceListSyncJob {
+  id              String            @id @default(cuid())
+  jobType         PriceListSyncJobType
+  status          SyncJobStatus     @default(PENDING)
+
+  // Scope
+  connectorId     String?
+
+  // Progress
+  totalItems      Int               @default(0)
+  processedItems  Int               @default(0)
+  successCount    Int               @default(0)
+  errorCount      Int               @default(0)
+  skippedCount    Int               @default(0)
+
+  // Delta sync tracking
+  lastSyncedAt    DateTime?
+  deltaToken      String?
+
+  // Timing
+  startedAt       DateTime?
+  completedAt     DateTime?
+
+  // Results
+  errors          Json?
+  summary         Json?
+
+  metadata        Json              @default("{}")
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  // Foreign Keys
+  tenantId        String
+  priceListId     String
+
+  // Relations
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  priceList       PriceList         @relation(fields: [priceListId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([priceListId])
+  @@index([jobType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("price_list_sync_jobs")
+}
+
+enum PriceListType {
+  STANDARD
+  CONTRACT
+  PROMOTIONAL
+  VOLUME
+  CUSTOMER_SPECIFIC
+  CHANNEL
+  REGIONAL
+}
+
+enum PriceListStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  ARCHIVED
+}
+
+enum RoundingRule {
+  NONE
+  UP
+  DOWN
+  NEAREST
+  NEAREST_05
+  NEAREST_09
+  NEAREST_99
+}
+
+enum PriceAssignmentType {
+  CUSTOMER
+  ORGANIZATION
+  CUSTOMER_GROUP
+  CHANNEL
+  REGION
+}
+
+enum PriceOverrideType {
+  FIXED_PRICE
+  PERCENTAGE_DISCOUNT
+  FIXED_DISCOUNT
+  MARKUP_PERCENTAGE
+  MARKUP_FIXED
+}
+
+enum PriceOverrideScopeType {
+  CUSTOMER
+  ORGANIZATION
+  CONTRACT
+  QUOTE
+  ORDER
+  PROMOTION
+}
+
+enum PriceOverrideStatus {
+  PENDING_APPROVAL
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+enum ExchangeRateType {
+  SPOT
+  FORWARD
+  AVERAGE
+  BUDGETED
+}
+
+enum PriceListSyncJobType {
+  FULL_SYNC
+  DELTA_SYNC
+  PRICE_LIST_IMPORT
+  PRICE_UPDATE
 }

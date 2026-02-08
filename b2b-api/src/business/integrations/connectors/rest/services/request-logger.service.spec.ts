@@ -89,12 +89,9 @@ describe('RequestLoggerService', () => {
     });
 
     it('should include correlation ID', () => {
-      const log = service.startRequest(
-        'GET',
-        'https://api.example.com/users',
-        undefined,
-        { correlationId: 'corr-123' },
-      );
+      const log = service.startRequest('GET', 'https://api.example.com/users', undefined, {
+        correlationId: 'corr-123',
+      });
 
       expect(log.correlationId).toBe('corr-123');
     });
@@ -169,7 +166,9 @@ describe('RequestLoggerService', () => {
       // Create some test logs
       for (let i = 0; i < 5; i++) {
         const log = service.startRequest('GET', `https://api.example.com/test${i}`);
-        service.logResponse(log, 200, 'OK', undefined, { tenantId: i % 2 === 0 ? 'tenant-1' : 'tenant-2' });
+        service.logResponse(log, 200, 'OK', undefined, {
+          tenantId: i % 2 === 0 ? 'tenant-1' : 'tenant-2',
+        });
       }
     });
 

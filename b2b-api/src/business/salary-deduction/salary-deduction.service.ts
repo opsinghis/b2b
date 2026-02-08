@@ -305,9 +305,7 @@ export class SalaryDeductionService {
     if (dto.monthlyLimit !== undefined) {
       const currentUsed = deduction.usedAmount.toNumber();
       if (dto.monthlyLimit < currentUsed) {
-        throw new BadRequestException(
-          `Cannot set limit below used amount (${currentUsed})`,
-        );
+        throw new BadRequestException(`Cannot set limit below used amount (${currentUsed})`);
       }
 
       updateData.monthlyLimit = dto.monthlyLimit;
@@ -365,14 +363,8 @@ export class SalaryDeductionService {
 
     const totalEnrolled = deductions.length;
     const totalActive = deductions.filter((d) => d.isEnabled).length;
-    const totalLimit = deductions.reduce(
-      (sum, d) => sum + d.monthlyLimit.toNumber(),
-      0,
-    );
-    const totalDeducted = deductions.reduce(
-      (sum, d) => sum + d.usedAmount.toNumber(),
-      0,
-    );
+    const totalLimit = deductions.reduce((sum, d) => sum + d.monthlyLimit.toNumber(), 0);
+    const totalDeducted = deductions.reduce((sum, d) => sum + d.usedAmount.toNumber(), 0);
     const utilizationRate = totalLimit > 0 ? (totalDeducted / totalLimit) * 100 : 0;
 
     return {

@@ -73,10 +73,7 @@ export class MinioService implements OnModuleInit {
     return this.client.presignedGetObject(this.bucket, key, expirySeconds);
   }
 
-  async getPresignedPutUrl(
-    key: string,
-    expirySeconds: number = 3600,
-  ): Promise<string> {
+  async getPresignedPutUrl(key: string, expirySeconds: number = 3600): Promise<string> {
     return this.client.presignedPutObject(this.bucket, key, expirySeconds);
   }
 
@@ -95,11 +92,6 @@ export class MinioService implements OnModuleInit {
 
   async copyFile(sourceKey: string, destKey: string): Promise<void> {
     const conds = new Minio.CopyConditions();
-    await this.client.copyObject(
-      this.bucket,
-      destKey,
-      `/${this.bucket}/${sourceKey}`,
-      conds,
-    );
+    await this.client.copyObject(this.bucket, destKey, `/${this.bucket}/${sourceKey}`, conds);
   }
 }

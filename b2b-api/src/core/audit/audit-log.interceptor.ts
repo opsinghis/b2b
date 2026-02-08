@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -32,7 +26,9 @@ export class AuditLogInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const request = context.switchToHttp().getRequest<Request & { user?: User; tenantId?: string }>();
+    const request = context
+      .switchToHttp()
+      .getRequest<Request & { user?: User; tenantId?: string }>();
     const user = request.user;
     const tenantId = request.tenantId;
 
@@ -51,9 +47,10 @@ export class AuditLogInterceptor implements NestInterceptor {
             .log(tenantId, user.id, {
               action: auditOptions.action,
               entityType: auditOptions.entityType,
-              entityId: typeof response === 'object' && response !== null && 'id' in response
-                ? (response as { id: string }).id
-                : entityId,
+              entityId:
+                typeof response === 'object' && response !== null && 'id' in response
+                  ? (response as { id: string }).id
+                  : entityId,
               changes: this.extractChanges(request, response),
               metadata: this.extractMetadata(request),
               ipAddress: request.ip,
@@ -75,7 +72,9 @@ export class AuditLogInterceptor implements NestInterceptor {
     if (['POST', 'PUT', 'PATCH'].includes(request.method)) {
       return {
         requestBody: this.sanitizeBody(request.body as Record<string, unknown>),
-        ...(response && typeof response === 'object' ? { responseId: (response as { id?: string }).id } : {}),
+        ...(response && typeof response === 'object'
+          ? { responseId: (response as { id?: string }).id }
+          : {}),
       };
     }
     return {};

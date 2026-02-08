@@ -53,11 +53,7 @@ export class IntegrationMetricsService {
   /**
    * Record a message processed
    */
-  recordMessageProcessed(
-    tenantId: string,
-    connectorId?: string,
-    latencyMs?: number,
-  ): void {
+  recordMessageProcessed(tenantId: string, connectorId?: string, latencyMs?: number): void {
     const key = this.buildKey(tenantId, connectorId);
     const now = new Date();
 
@@ -94,9 +90,7 @@ export class IntegrationMetricsService {
     errors.push({ type: errorType, timestamp: now, message: errorMessage });
     this.errorData.set(key, errors);
 
-    this.logger.debug(
-      `Recorded message failure for tenant ${tenantId}: ${errorType}`,
-    );
+    this.logger.debug(`Recorded message failure for tenant ${tenantId}: ${errorType}`);
   }
 
   /**
@@ -134,9 +128,7 @@ export class IntegrationMetricsService {
     generalLatencies.push(latencyMs);
     this.latencyData.set(key, generalLatencies);
 
-    this.logger.debug(
-      `Recorded latency ${latencyMs}ms for operation ${operation}`,
-    );
+    this.logger.debug(`Recorded latency ${latencyMs}ms for operation ${operation}`);
   }
 
   /**
@@ -151,14 +143,8 @@ export class IntegrationMetricsService {
     const windowMs = this.getWindowMs(period);
     const cutoff = new Date(Date.now() - windowMs);
 
-    const received = this.countPointsInWindow(
-      `${key}:received`,
-      cutoff,
-    );
-    const processed = this.countPointsInWindow(
-      `${key}:processed`,
-      cutoff,
-    );
+    const received = this.countPointsInWindow(`${key}:received`, cutoff);
+    const processed = this.countPointsInWindow(`${key}:processed`, cutoff);
     const failed = this.countPointsInWindow(`${key}:failed`, cutoff);
     const retried = this.countPointsInWindow(`${key}:retried`, cutoff);
 
@@ -172,9 +158,7 @@ export class IntegrationMetricsService {
     for (const [k, points] of this.throughputData.entries()) {
       if (k.startsWith(`${key}:event:`)) {
         const eventType = k.split(':event:')[1];
-        byEventType[eventType] = points.filter(
-          (p) => p.timestamp >= cutoff,
-        ).length;
+        byEventType[eventType] = points.filter((p) => p.timestamp >= cutoff).length;
       }
     }
 
@@ -186,9 +170,7 @@ export class IntegrationMetricsService {
           const parts = k.split(':');
           if (parts.length > 2 && parts[1] !== 'received') {
             const cId = parts[1];
-            byConnector[cId] = points.filter(
-              (p) => p.timestamp >= cutoff,
-            ).length;
+            byConnector[cId] = points.filter((p) => p.timestamp >= cutoff).length;
           }
         }
       }
@@ -214,11 +196,7 @@ export class IntegrationMetricsService {
   /**
    * Get latency metrics for a tenant
    */
-  getLatencyMetrics(
-    tenantId: string,
-    period: TimeWindow,
-    connectorId?: string,
-  ): LatencyMetrics {
+  getLatencyMetrics(tenantId: string, period: TimeWindow, connectorId?: string): LatencyMetrics {
     const key = this.buildKey(tenantId, connectorId);
     const latencies = this.latencyData.get(key) || [];
 
@@ -277,18 +255,12 @@ export class IntegrationMetricsService {
   /**
    * Get error metrics for a tenant
    */
-  getErrorMetrics(
-    tenantId: string,
-    period: TimeWindow,
-    connectorId?: string,
-  ): ErrorMetrics {
+  getErrorMetrics(tenantId: string, period: TimeWindow, connectorId?: string): ErrorMetrics {
     const key = this.buildKey(tenantId, connectorId);
     const windowMs = this.getWindowMs(period);
     const cutoff = new Date(Date.now() - windowMs);
 
-    const errors = (this.errorData.get(key) || []).filter(
-      (e) => e.timestamp >= cutoff,
-    );
+    const errors = (this.errorData.get(key) || []).filter((e) => e.timestamp >= cutoff);
     const totalErrors = errors.length;
 
     const requestKey = `${key}:total`;
@@ -296,10 +268,7 @@ export class IntegrationMetricsService {
     const errorRate = totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0;
 
     // Group by error type
-    const byErrorType: Record<
-      string,
-      { count: number; lastOccurred: Date; sample?: string }
-    > = {};
+    const byErrorType: Record<string, { count: number; lastOccurred: Date; sample?: string }> = {};
 
     for (const error of errors) {
       if (!byErrorType[error.type]) {
@@ -319,19 +288,14 @@ export class IntegrationMetricsService {
     }
 
     // By connector
-    const byConnector: Record<
-      string,
-      { errors: number; total: number; rate: number }
-    > = {};
+    const byConnector: Record<string, { errors: number; total: number; rate: number }> = {};
 
     if (!connectorId) {
       for (const [k, connectorErrors] of this.errorData.entries()) {
         if (k.startsWith(`${tenantId}:`) && k !== key) {
           const cId = k.split(':')[1];
           const connectorTotal = this.requestData.get(`${tenantId}:${cId}:total`) || 0;
-          const connectorErrorCount = connectorErrors.filter(
-            (e) => e.timestamp >= cutoff,
-          ).length;
+          const connectorErrorCount = connectorErrors.filter((e) => e.timestamp >= cutoff).length;
           byConnector[cId] = {
             errors: connectorErrorCount,
             total: connectorTotal,
@@ -392,16 +356,13 @@ export class IntegrationMetricsService {
     const windowMs = this.getWindowMs(period);
     const cutoff = new Date(Date.now() - windowMs);
 
-    const points = (this.throughputData.get(metricKey) || []).filter(
-      (p) => p.timestamp >= cutoff,
-    );
+    const points = (this.throughputData.get(metricKey) || []).filter((p) => p.timestamp >= cutoff);
 
     // Bucket points by interval
     const buckets: Map<number, number[]> = new Map();
     for (const point of points) {
       const bucketTime =
-        Math.floor(point.timestamp.getTime() / (intervalSeconds * 1000)) *
-        (intervalSeconds * 1000);
+        Math.floor(point.timestamp.getTime() / (intervalSeconds * 1000)) * (intervalSeconds * 1000);
       const bucket = buckets.get(bucketTime) || [];
       bucket.push(point.value);
       buckets.set(bucketTime, bucket);
@@ -428,7 +389,10 @@ export class IntegrationMetricsService {
           value = values.length;
           break;
         case 'percentile':
-          value = this.percentile([...values].sort((a, b) => a - b), 95);
+          value = this.percentile(
+            [...values].sort((a, b) => a - b),
+            95,
+          );
           break;
         default:
           value = values.reduce((a, b) => a + b, 0);
@@ -592,8 +556,7 @@ export class IntegrationMetricsService {
   private calculateStdDev(values: number[], mean: number): number {
     if (values.length === 0) return 0;
     const squaredDiffs = values.map((v) => Math.pow(v - mean, 2));
-    const avgSquaredDiff =
-      squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
+    const avgSquaredDiff = squaredDiffs.reduce((a, b) => a + b, 0) / values.length;
     return Math.sqrt(avgSquaredDiff);
   }
 }

@@ -73,12 +73,8 @@ export class ApprovalsService {
             approverRoleId: level.approverRoleId,
             minApprovers: level.minApprovers ?? 1,
             allowDelegation: level.allowDelegation ?? false,
-            thresholdMin: level.thresholdMin
-              ? new Prisma.Decimal(level.thresholdMin)
-              : null,
-            thresholdMax: level.thresholdMax
-              ? new Prisma.Decimal(level.thresholdMax)
-              : null,
+            thresholdMin: level.thresholdMin ? new Prisma.Decimal(level.thresholdMin) : null,
+            thresholdMax: level.thresholdMax ? new Prisma.Decimal(level.thresholdMax) : null,
             timeoutHours: level.timeoutHours,
             escalationLevel: level.escalationLevel,
           })),
@@ -178,7 +174,9 @@ export class ApprovalsService {
           ...(dto.name && { name: dto.name }),
           ...(dto.description !== undefined && { description: dto.description }),
           ...(dto.isDefault !== undefined && { isDefault: dto.isDefault }),
-          ...(dto.conditions !== undefined && { conditions: dto.conditions as Prisma.InputJsonValue }),
+          ...(dto.conditions !== undefined && {
+            conditions: dto.conditions as Prisma.InputJsonValue,
+          }),
           ...(dto.levels && {
             levels: {
               create: dto.levels.map((level) => ({
@@ -189,12 +187,8 @@ export class ApprovalsService {
                 approverRoleId: level.approverRoleId,
                 minApprovers: level.minApprovers ?? 1,
                 allowDelegation: level.allowDelegation ?? false,
-                thresholdMin: level.thresholdMin
-                  ? new Prisma.Decimal(level.thresholdMin)
-                  : null,
-                thresholdMax: level.thresholdMax
-                  ? new Prisma.Decimal(level.thresholdMax)
-                  : null,
+                thresholdMin: level.thresholdMin ? new Prisma.Decimal(level.thresholdMin) : null,
+                thresholdMax: level.thresholdMax ? new Prisma.Decimal(level.thresholdMax) : null,
                 timeoutHours: level.timeoutHours,
                 escalationLevel: level.escalationLevel,
               })),
@@ -226,18 +220,13 @@ export class ApprovalsService {
     });
 
     if (activeRequests > 0) {
-      throw new BadRequestException(
-        'Cannot delete chain with active approval requests',
-      );
+      throw new BadRequestException('Cannot delete chain with active approval requests');
     }
 
     await this.prisma.approvalChain.delete({ where: { id } });
   }
 
-  async setDefaultChain(
-    id: string,
-    tenantId: string,
-  ): Promise<ApprovalChainResponseDto> {
+  async setDefaultChain(id: string, tenantId: string): Promise<ApprovalChainResponseDto> {
     const chain = await this.prisma.approvalChain.findFirst({
       where: { id, tenantId },
     });
@@ -293,9 +282,7 @@ export class ApprovalsService {
         include: { levels: { orderBy: { level: 'asc' } } },
       });
       if (!chain) {
-        throw new BadRequestException(
-          `No default approval chain found for ${dto.entityType}`,
-        );
+        throw new BadRequestException(`No default approval chain found for ${dto.entityType}`);
       }
     }
 
@@ -314,9 +301,7 @@ export class ApprovalsService {
     });
 
     if (existingRequest) {
-      throw new BadRequestException(
-        'An approval request is already pending for this entity',
-      );
+      throw new BadRequestException('An approval request is already pending for this entity');
     }
 
     // Get approvers for first level
@@ -647,10 +632,7 @@ export class ApprovalsService {
     return results;
   }
 
-  async getRequestById(
-    id: string,
-    tenantId: string,
-  ): Promise<ApprovalRequestResponseDto> {
+  async getRequestById(id: string, tenantId: string): Promise<ApprovalRequestResponseDto> {
     const request = await this.prisma.approvalRequest.findFirst({
       where: { id, tenantId },
       include: { steps: { orderBy: { level: 'asc' } } },
@@ -699,7 +681,10 @@ export class ApprovalsService {
       throw new ForbiddenException('Only the requester can cancel the request');
     }
 
-    const cancellableStatuses: ApprovalRequestStatus[] = [ApprovalRequestStatus.PENDING, ApprovalRequestStatus.IN_PROGRESS];
+    const cancellableStatuses: ApprovalRequestStatus[] = [
+      ApprovalRequestStatus.PENDING,
+      ApprovalRequestStatus.IN_PROGRESS,
+    ];
     if (!cancellableStatuses.includes(request.status)) {
       throw new BadRequestException('Only pending requests can be cancelled');
     }

@@ -689,25 +689,22 @@
             },
             {
               "endpoint": "GET /api/v1/catalog/categories",
-              "status": "needed",
-              "notes": "Need categories endpoint"
+              "status": "available"
             },
             {
               "endpoint": "GET /api/v1/catalog/products/:id",
-              "status": "needed",
-              "notes": "Need single product detail"
+              "status": "available"
             },
             {
               "endpoint": "GET /api/v1/users/me/discount-tier",
-              "status": "needed",
-              "notes": "Need user's discount tier"
+              "status": "available"
             }
           ],
           "dependencies": [
             "FE-013"
           ],
           "max_iterations": 12,
-          "status": "pending"
+          "status": "complete"
         },
         {
           "id": "FE-022",
@@ -728,28 +725,23 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/cart",
-              "status": "needed",
-              "notes": "Get user's cart"
+              "status": "available"
             },
             {
               "endpoint": "POST /api/v1/cart/items",
-              "status": "needed",
-              "notes": "Add item to cart"
+              "status": "available"
             },
             {
               "endpoint": "PATCH /api/v1/cart/items/:id",
-              "status": "needed",
-              "notes": "Update cart item quantity"
+              "status": "available"
             },
             {
               "endpoint": "DELETE /api/v1/cart/items/:id",
-              "status": "needed",
-              "notes": "Remove item from cart"
+              "status": "available"
             },
             {
               "endpoint": "DELETE /api/v1/cart",
-              "status": "needed",
-              "notes": "Clear cart"
+              "status": "available"
             }
           ],
           "dependencies": [
@@ -777,27 +769,27 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/users/me/addresses",
-              "status": "needed",
+              "status": "available",
               "notes": "User's saved addresses"
             },
             {
               "endpoint": "POST /api/v1/users/me/addresses",
-              "status": "needed",
+              "status": "available",
               "notes": "Add new address"
             },
             {
               "endpoint": "GET /api/v1/delivery-methods",
-              "status": "needed",
+              "status": "available",
               "notes": "Available delivery options"
             },
             {
               "endpoint": "POST /api/v1/orders",
-              "status": "needed",
+              "status": "available",
               "notes": "Create order from cart"
             },
             {
               "endpoint": "GET /api/v1/orders/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Get order details"
             }
           ],
@@ -825,22 +817,22 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/payment-methods",
-              "status": "needed",
+              "status": "available",
               "notes": "Available payment methods for user type"
             },
             {
               "endpoint": "GET /api/v1/users/me/salary-deduction",
-              "status": "needed",
+              "status": "available",
               "notes": "Employee's salary deduction status/limit"
             },
             {
               "endpoint": "POST /api/v1/orders/:id/pay",
-              "status": "needed",
+              "status": "available",
               "notes": "Process payment for order"
             },
             {
               "endpoint": "GET /api/v1/users/me/payment-history",
-              "status": "needed",
+              "status": "available",
               "notes": "User's payment history"
             }
           ],
@@ -868,17 +860,17 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/orders/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Order details with status"
             },
             {
               "endpoint": "GET /api/v1/orders/:id/tracking",
-              "status": "needed",
+              "status": "available",
               "notes": "Tracking information"
             },
             {
               "endpoint": "POST /api/v1/orders/:id/cancel",
-              "status": "needed",
+              "status": "available",
               "notes": "Cancel order"
             }
           ],
@@ -905,17 +897,17 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/orders",
-              "status": "needed",
+              "status": "available",
               "notes": "List user's orders"
             },
             {
               "endpoint": "GET /api/v1/orders/:id/invoice",
-              "status": "needed",
+              "status": "available",
               "notes": "Download invoice PDF"
             },
             {
               "endpoint": "POST /api/v1/orders/:id/reorder",
-              "status": "needed",
+              "status": "available",
               "notes": "Add order items to cart"
             }
           ],
@@ -942,22 +934,22 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/users/me/salary-deduction",
-              "status": "needed",
+              "status": "available",
               "notes": "Salary deduction details"
             },
             {
               "endpoint": "GET /api/v1/users/me/salary-deduction/history",
-              "status": "needed",
+              "status": "available",
               "notes": "Deduction history"
             },
             {
               "endpoint": "PATCH /api/v1/users/me/salary-deduction",
-              "status": "needed",
+              "status": "available",
               "notes": "Update deduction preferences"
             },
             {
               "endpoint": "POST /api/v1/users/me/salary-deduction/limit-request",
-              "status": "needed",
+              "status": "available",
               "notes": "Request limit increase"
             }
           ],
@@ -992,27 +984,27 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/admin/discount-tiers",
-              "status": "needed",
+              "status": "available",
               "notes": "List all discount tiers"
             },
             {
               "endpoint": "POST /api/v1/admin/discount-tiers",
-              "status": "needed",
+              "status": "available",
               "notes": "Create discount tier"
             },
             {
               "endpoint": "PATCH /api/v1/admin/discount-tiers/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Update discount tier"
             },
             {
               "endpoint": "DELETE /api/v1/admin/discount-tiers/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Delete discount tier"
             },
             {
               "endpoint": "POST /api/v1/admin/discount-tiers/:id/assign",
-              "status": "needed",
+              "status": "available",
               "notes": "Assign tier to users/orgs"
             }
           ],
@@ -1020,7 +1012,7 @@
             "FE-008"
           ],
           "max_iterations": 12,
-          "status": "waiting_for_api"
+          "status": "pending"
         },
         {
           "id": "FE-029",
@@ -1040,27 +1032,27 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/admin/promotions",
-              "status": "needed",
+              "status": "available",
               "notes": "List promotions"
             },
             {
               "endpoint": "POST /api/v1/admin/promotions",
-              "status": "needed",
+              "status": "available",
               "notes": "Create promotion"
             },
             {
               "endpoint": "PATCH /api/v1/admin/promotions/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Update promotion"
             },
             {
               "endpoint": "GET /api/v1/admin/promotions/:id/analytics",
-              "status": "needed",
+              "status": "available",
               "notes": "Promotion usage stats"
             },
             {
               "endpoint": "POST /api/v1/admin/coupons/generate",
-              "status": "needed",
+              "status": "available",
               "notes": "Generate coupon codes"
             }
           ],
@@ -1088,27 +1080,27 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/admin/orders",
-              "status": "needed",
+              "status": "available",
               "notes": "List all orders"
             },
             {
               "endpoint": "GET /api/v1/admin/orders/:id",
-              "status": "needed",
+              "status": "available",
               "notes": "Order details"
             },
             {
               "endpoint": "PATCH /api/v1/admin/orders/:id/status",
-              "status": "needed",
+              "status": "available",
               "notes": "Update order status"
             },
             {
               "endpoint": "POST /api/v1/admin/orders",
-              "status": "needed",
+              "status": "available",
               "notes": "Create order manually"
             },
             {
               "endpoint": "POST /api/v1/admin/orders/:id/refund",
-              "status": "needed",
+              "status": "available",
               "notes": "Process refund"
             }
           ],
@@ -1116,7 +1108,7 @@
             "FE-012"
           ],
           "max_iterations": 12,
-          "status": "waiting_for_api"
+          "status": "pending"
         },
         {
           "id": "FE-031",
@@ -1135,27 +1127,27 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/admin/salary-deductions",
-              "status": "needed",
+              "status": "available",
               "notes": "List all employee deductions"
             },
             {
               "endpoint": "PATCH /api/v1/admin/salary-deductions/:userId",
-              "status": "needed",
+              "status": "available",
               "notes": "Update employee limit"
             },
             {
               "endpoint": "GET /api/v1/admin/salary-deductions/report",
-              "status": "needed",
+              "status": "available",
               "notes": "Monthly report"
             },
             {
               "endpoint": "GET /api/v1/admin/salary-deductions/limit-requests",
-              "status": "needed",
+              "status": "available",
               "notes": "Pending limit requests"
             },
             {
               "endpoint": "POST /api/v1/admin/salary-deductions/limit-requests/:id/approve",
-              "status": "needed",
+              "status": "available",
               "notes": "Approve limit request"
             }
           ],
@@ -1163,7 +1155,7 @@
             "FE-008"
           ],
           "max_iterations": 10,
-          "status": "waiting_for_api"
+          "status": "pending"
         },
         {
           "id": "FE-032",
@@ -1182,22 +1174,22 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/users/me/discount-tier",
-              "status": "needed",
+              "status": "available",
               "notes": "User's discount tier"
             },
             {
               "endpoint": "GET /api/v1/users/me/savings",
-              "status": "needed",
+              "status": "available",
               "notes": "Savings statistics"
             },
             {
               "endpoint": "GET /api/v1/promotions/available",
-              "status": "needed",
+              "status": "available",
               "notes": "Available promotions for user"
             },
             {
               "endpoint": "POST /api/v1/cart/apply-coupon",
-              "status": "needed",
+              "status": "available",
               "notes": "Apply coupon to cart"
             }
           ],
@@ -1224,22 +1216,22 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/partners/me",
-              "status": "needed",
+              "status": "available",
               "notes": "Partner profile"
             },
             {
               "endpoint": "GET /api/v1/partners/me/commission",
-              "status": "needed",
+              "status": "available",
               "notes": "Commission details"
             },
             {
               "endpoint": "GET /api/v1/partners/me/team",
-              "status": "needed",
+              "status": "available",
               "notes": "Team members"
             },
             {
               "endpoint": "GET /api/v1/partners/me/resources",
-              "status": "needed",
+              "status": "available",
               "notes": "Partner resources"
             }
           ],
@@ -1265,17 +1257,17 @@
           "api_dependencies": [
             {
               "endpoint": "GET /api/v1/partners/me/team",
-              "status": "needed",
+              "status": "available",
               "notes": "Team members list"
             },
             {
               "endpoint": "POST /api/v1/orders/on-behalf",
-              "status": "needed",
+              "status": "available",
               "notes": "Create order on behalf"
             },
             {
               "endpoint": "GET /api/v1/users/:id/addresses",
-              "status": "needed",
+              "status": "available",
               "notes": "Team member addresses"
             }
           ],

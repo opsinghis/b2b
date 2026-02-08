@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  ConflictException,
-  BadRequestException,
-} from '@nestjs/common';
+import { NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { PrismaService } from '@infrastructure/database';
 import { Organization } from '@prisma/client';
@@ -194,9 +190,7 @@ describe('OrganizationsService', () => {
     it('should throw NotFoundException if organization not found', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findOne(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -212,9 +206,7 @@ describe('OrganizationsService', () => {
     it('should throw NotFoundException if organization not found', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findByCode(tenantId, 'NON-EXISTENT')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findByCode(tenantId, 'NON-EXISTENT')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -245,9 +237,9 @@ describe('OrganizationsService', () => {
         .mockResolvedValueOnce(mockOrganization) // findOne
         .mockResolvedValueOnce(existingOrg); // Code check
 
-      await expect(
-        service.update(tenantId, 'org-id-123', { code: 'EXISTING' }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.update(tenantId, 'org-id-123', { code: 'EXISTING' })).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should throw BadRequestException if setting self as parent', async () => {
@@ -289,18 +281,14 @@ describe('OrganizationsService', () => {
     it('should throw NotFoundException if organization not found', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.remove(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.remove(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if organization has children', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(mockOrganization);
       (prismaService.organization.count as jest.Mock).mockResolvedValue(1);
 
-      await expect(service.remove(tenantId, 'org-id-123')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.remove(tenantId, 'org-id-123')).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -321,17 +309,13 @@ describe('OrganizationsService', () => {
     it('should throw NotFoundException if organization not found', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.restore(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.restore(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ConflictException if organization is not deleted', async () => {
       (prismaService.organization.findFirst as jest.Mock).mockResolvedValue(mockOrganization);
 
-      await expect(service.restore(tenantId, 'org-id-123')).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.restore(tenantId, 'org-id-123')).rejects.toThrow(ConflictException);
     });
   });
 
@@ -365,9 +349,9 @@ describe('OrganizationsService', () => {
     it('should throw NotFoundException if rootId not found', async () => {
       (prismaService.organization.findMany as jest.Mock).mockResolvedValue([mockOrganization]);
 
-      await expect(
-        service.getHierarchy(tenantId, 'non-existent-id'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getHierarchy(tenantId, 'non-existent-id')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

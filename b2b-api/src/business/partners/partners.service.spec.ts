@@ -189,7 +189,8 @@ describe('PartnersService', () => {
   describe('getCommissionSummary', () => {
     it('should return commission summary', async () => {
       prismaService.partner.findUnique = jest.fn().mockResolvedValue(mockPartner);
-      prismaService.partnerCommission.aggregate = jest.fn()
+      prismaService.partnerCommission.aggregate = jest
+        .fn()
         .mockResolvedValueOnce({ _sum: { amount: 500 } })
         .mockResolvedValueOnce({ _sum: { amount: 200 } })
         .mockResolvedValueOnce({ _sum: { amount: 300 } })
@@ -336,9 +337,9 @@ describe('PartnersService', () => {
       prismaService.partner.findUnique = jest.fn().mockResolvedValue(mockPartner);
       prismaService.partnerTeamMember.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(
-        service.removeTeamMember(mockTenantId, mockUserId, 'not-found'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.removeTeamMember(mockTenantId, mockUserId, 'not-found')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -487,7 +488,8 @@ describe('PartnersService', () => {
     });
 
     it('should throw ConflictException if user already has partner', async () => {
-      prismaService.partner.findUnique = jest.fn()
+      prismaService.partner.findUnique = jest
+        .fn()
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(mockPartner);
 
@@ -634,7 +636,13 @@ describe('PartnersService', () => {
       prismaService.partner.findUnique = jest.fn().mockResolvedValue(null);
 
       await expect(
-        service.calculateCommission(mockTenantId, 'not-found', mockOrderId, 1000, mockTeamMemberUserId),
+        service.calculateCommission(
+          mockTenantId,
+          'not-found',
+          mockOrderId,
+          1000,
+          mockTeamMemberUserId,
+        ),
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -654,9 +662,9 @@ describe('PartnersService', () => {
     it('should throw NotFoundException if partner not found', async () => {
       prismaService.partner.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(
-        service.getPartnerCommissions(mockTenantId, 'not-found', {}),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.getPartnerCommissions(mockTenantId, 'not-found', {})).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should filter by date range', async () => {

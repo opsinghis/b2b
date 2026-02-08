@@ -280,10 +280,7 @@ export class CategoriesService {
   /**
    * Check for circular reference in category hierarchy
    */
-  private async checkCircularReference(
-    categoryId: string,
-    newParentId: string,
-  ): Promise<boolean> {
+  private async checkCircularReference(categoryId: string, newParentId: string): Promise<boolean> {
     let currentId: string | null = newParentId;
 
     while (currentId) {

@@ -97,12 +97,7 @@ describe('OrchestratorService', () => {
         parameters: { title: 'Test Contract' },
       };
 
-      const result = await service.executeTool(
-        mockTenantId,
-        mockUserId,
-        dto,
-        mockUserPermissions,
-      );
+      const result = await service.executeTool(mockTenantId, mockUserId, dto, mockUserPermissions);
 
       expect(result.success).toBe(true);
       expect(result.toolName).toBe('create_contract');
@@ -195,12 +190,7 @@ describe('OrchestratorService', () => {
         context: { requestId: 'req-123' },
       };
 
-      const result = await service.executeTool(
-        mockTenantId,
-        mockUserId,
-        dto,
-        [],
-      );
+      const result = await service.executeTool(mockTenantId, mockUserId, dto, []);
 
       expect(result.success).toBe(true);
       expect(result.result).toBeDefined();
@@ -218,10 +208,7 @@ describe('OrchestratorService', () => {
     });
 
     it('should execute multiple tools sequentially', async () => {
-      const tools: ExecuteToolDto[] = [
-        { toolName: 'list_items' },
-        { toolName: 'list_items' },
-      ];
+      const tools: ExecuteToolDto[] = [{ toolName: 'list_items' }, { toolName: 'list_items' }];
 
       const result = await service.executeMultipleTools(
         mockTenantId,
@@ -324,10 +311,7 @@ describe('OrchestratorService', () => {
           resetAt: new Date(),
         });
 
-      const tools: ExecuteToolDto[] = [
-        { toolName: 'list_items' },
-        { toolName: 'list_items' },
-      ];
+      const tools: ExecuteToolDto[] = [{ toolName: 'list_items' }, { toolName: 'list_items' }];
 
       const result = await service.executeMultipleTools(
         mockTenantId,
@@ -355,9 +339,7 @@ describe('OrchestratorService', () => {
       const result = await service.getRateLimitInfo(mockTenantId, mockUserId);
 
       expect(result).toEqual(mockInfo);
-      expect(rateLimiter.getRemainingLimit).toHaveBeenCalledWith(
-        `${mockTenantId}:${mockUserId}`,
-      );
+      expect(rateLimiter.getRemainingLimit).toHaveBeenCalledWith(`${mockTenantId}:${mockUserId}`);
     });
   });
 

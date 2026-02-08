@@ -66,10 +66,7 @@ export class UsersController {
     status: 200,
     description: 'List of users',
   })
-  async findAll(
-    @CurrentUser() currentUser: User,
-    @Query() query: UserListQueryDto,
-  ) {
+  async findAll(@CurrentUser() currentUser: User, @Query() query: UserListQueryDto) {
     const result = await this.usersService.findAll(currentUser.tenantId, query);
     return {
       ...result,
@@ -179,10 +176,7 @@ export class UsersController {
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 204, description: 'User deleted successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  async remove(
-    @CurrentUser() currentUser: User,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async remove(@CurrentUser() currentUser: User, @Param('id') id: string): Promise<void> {
     await this.usersService.remove(currentUser.tenantId, id);
   }
 

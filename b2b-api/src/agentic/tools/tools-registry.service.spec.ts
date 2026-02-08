@@ -318,10 +318,7 @@ describe('ToolsRegistryService with registered tools', () => {
     });
 
     it('should return all tools with empty permissions', () => {
-      const tools = service.getToolsWithPermission([
-        'create_contract',
-        'read_contract',
-      ]);
+      const tools = service.getToolsWithPermission(['create_contract', 'read_contract']);
 
       expect(tools).toHaveLength(3);
     });

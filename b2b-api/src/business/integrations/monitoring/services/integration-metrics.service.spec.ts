@@ -196,7 +196,12 @@ describe('IntegrationMetricsService', () => {
     });
 
     it('should store sample error messages', () => {
-      service.recordMessageFailed(tenantId, 'TIMEOUT', connectorId, 'Connection timed out after 30s');
+      service.recordMessageFailed(
+        tenantId,
+        'TIMEOUT',
+        connectorId,
+        'Connection timed out after 30s',
+      );
 
       const errors = service.getErrorMetrics(tenantId, '1h', connectorId);
       expect(errors.byErrorType['TIMEOUT'].sample).toBe('Connection timed out after 30s');

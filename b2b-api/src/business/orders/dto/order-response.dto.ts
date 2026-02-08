@@ -44,8 +44,10 @@ export class OrderItemResponseDto {
     dto.productSku = item.productSku || undefined;
     dto.description = item.description || undefined;
     dto.quantity = item.quantity;
-    dto.unitPrice = item.unitPrice instanceof Decimal ? item.unitPrice.toString() : String(item.unitPrice);
-    dto.discount = item.discount instanceof Decimal ? item.discount.toString() : String(item.discount);
+    dto.unitPrice =
+      item.unitPrice instanceof Decimal ? item.unitPrice.toString() : String(item.unitPrice);
+    dto.discount =
+      item.discount instanceof Decimal ? item.discount.toString() : String(item.discount);
     dto.total = item.total instanceof Decimal ? item.total.toString() : String(item.total);
     dto.masterProductId = item.masterProductId || undefined;
     dto.metadata = (item.metadata as Record<string, unknown>) || undefined;
@@ -196,10 +198,15 @@ export class OrderResponseDto {
     dto.id = order.id;
     dto.orderNumber = order.orderNumber;
     dto.status = order.status;
-    dto.subtotal = order.subtotal instanceof Decimal ? order.subtotal.toString() : String(order.subtotal);
-    dto.discount = order.discount instanceof Decimal ? order.discount.toString() : String(order.discount);
+    dto.subtotal =
+      order.subtotal instanceof Decimal ? order.subtotal.toString() : String(order.subtotal);
+    dto.discount =
+      order.discount instanceof Decimal ? order.discount.toString() : String(order.discount);
     dto.couponCode = order.couponCode || undefined;
-    dto.couponDiscount = order.couponDiscount instanceof Decimal ? order.couponDiscount.toString() : String(order.couponDiscount);
+    dto.couponDiscount =
+      order.couponDiscount instanceof Decimal
+        ? order.couponDiscount.toString()
+        : String(order.couponDiscount);
     dto.tax = order.tax instanceof Decimal ? order.tax.toString() : String(order.tax);
     dto.total = order.total instanceof Decimal ? order.total.toString() : String(order.total);
     dto.currency = order.currency;

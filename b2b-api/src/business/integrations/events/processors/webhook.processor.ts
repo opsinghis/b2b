@@ -41,9 +41,7 @@ export class WebhookProcessor extends WorkerHost {
       }
 
       // Max retries reached or non-retryable error
-      this.logger.warn(
-        `Webhook delivery for event ${eventId} failed permanently: ${result.error}`,
-      );
+      this.logger.warn(`Webhook delivery for event ${eventId} failed permanently: ${result.error}`);
     }
 
     return {

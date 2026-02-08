@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  ConflictException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from './users.service';
 import { PrismaService } from '@infrastructure/database';
@@ -206,9 +202,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       (prismaService.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findOne(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -346,9 +340,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       (prismaService.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.remove(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.remove(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -369,17 +361,13 @@ describe('UsersService', () => {
     it('should throw NotFoundException if user not found', async () => {
       (prismaService.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.restore(tenantId, 'non-existent-id')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.restore(tenantId, 'non-existent-id')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ConflictException if user is not deleted', async () => {
       (prismaService.user.findFirst as jest.Mock).mockResolvedValue(mockUser);
 
-      await expect(service.restore(tenantId, 'user-id-123')).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.restore(tenantId, 'user-id-123')).rejects.toThrow(ConflictException);
     });
   });
 });

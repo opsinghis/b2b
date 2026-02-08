@@ -21,7 +21,9 @@
       "Bash(/Users/omsingh0/code/b2b/b2b-web/.claude/ralph.sh:*)",
       "Bash(chmod:*)",
       "Bash(pnpm run lint:check:*)",
-      "Bash(pnpm run build:*)"
+      "Bash(pnpm run build:*)",
+      "Bash(tail:*)",
+      "Bash(npx prisma migrate:*)"
     ],
     "deny": [],
     "ask": []

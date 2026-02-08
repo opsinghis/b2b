@@ -180,9 +180,9 @@ describe('OrdersService', () => {
     it('should throw NotFoundException if order not found', async () => {
       (prismaService.order.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(
-        service.findOne('non-existent', tenantId, userId),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('non-existent', tenantId, userId)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -215,11 +215,7 @@ describe('OrdersService', () => {
       (prismaService.order.findMany as jest.Mock).mockResolvedValue([mockOrder]);
       (prismaService.order.count as jest.Mock).mockResolvedValue(1);
 
-      await service.findAll(
-        { status: OrderStatus.PENDING, search: 'ORD-2026' },
-        tenantId,
-        userId,
-      );
+      await service.findAll({ status: OrderStatus.PENDING, search: 'ORD-2026' }, tenantId, userId);
 
       expect(prismaService.order.findMany).toHaveBeenCalled();
     });
@@ -276,18 +272,18 @@ describe('OrdersService', () => {
       const shippedOrder = { ...mockOrder, status: OrderStatus.SHIPPED };
       (prismaService.order.findFirst as jest.Mock).mockResolvedValue(shippedOrder);
 
-      await expect(
-        service.cancel('order-id-123', {}, tenantId, userId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.cancel('order-id-123', {}, tenantId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw BadRequestException for delivered order', async () => {
       const deliveredOrder = { ...mockOrder, status: OrderStatus.DELIVERED };
       (prismaService.order.findFirst as jest.Mock).mockResolvedValue(deliveredOrder);
 
-      await expect(
-        service.cancel('order-id-123', {}, tenantId, userId),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.cancel('order-id-123', {}, tenantId, userId)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

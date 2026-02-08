@@ -1,11 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  EventType,
-  EventReplayRequest,
-  EventReplayResult,
-  EventLogEntry,
-} from '../interfaces';
+import { EventType, EventReplayRequest, EventReplayResult, EventLogEntry } from '../interfaces';
 import { EventPublisherService } from './event-publisher.service';
 import { EventLogService } from './event-log.service';
 
@@ -102,20 +97,15 @@ export class EventReplayService {
 
         for (const entry of batch) {
           try {
-            await this.eventPublisher.publish(
-              entry.tenantId,
-              entry.type,
-              entry.payload,
-              {
-                correlationId: `replay:${requestId}`,
-                causationId: entry.eventId,
-                metadata: {
-                  ...entry.metadata,
-                  replayedFrom: entry.eventId,
-                  replayRequestId: requestId,
-                },
+            await this.eventPublisher.publish(entry.tenantId, entry.type, entry.payload, {
+              correlationId: `replay:${requestId}`,
+              causationId: entry.eventId,
+              metadata: {
+                ...entry.metadata,
+                replayedFrom: entry.eventId,
+                replayRequestId: requestId,
               },
-            );
+            });
             result.processedEvents++;
           } catch (error) {
             result.failedEvents++;
@@ -146,7 +136,10 @@ export class EventReplayService {
   /**
    * Apply filter to entries
    */
-  private applyFilter(entries: EventLogEntry[], filter: EventReplayRequest['filter']): EventLogEntry[] {
+  private applyFilter(
+    entries: EventLogEntry[],
+    filter: EventReplayRequest['filter'],
+  ): EventLogEntry[] {
     if (!filter) {
       return entries;
     }

@@ -112,9 +112,7 @@ export class QuoteResponseDto {
   @ApiProperty({ type: [QuoteLineItemResponseDto] })
   lineItems!: QuoteLineItemResponseDto[];
 
-  static fromEntity(
-    quote: Quote & { lineItems?: QuoteLineItem[] },
-  ): QuoteResponseDto {
+  static fromEntity(quote: Quote & { lineItems?: QuoteLineItem[] }): QuoteResponseDto {
     const dto = new QuoteResponseDto();
     dto.id = quote.id;
     dto.quoteNumber = quote.quoteNumber;
@@ -137,9 +135,7 @@ export class QuoteResponseDto {
     dto.updatedAt = quote.updatedAt;
     dto.deletedAt = quote.deletedAt;
 
-    dto.lineItems = quote.lineItems
-      ? quote.lineItems.map(QuoteLineItemResponseDto.fromEntity)
-      : [];
+    dto.lineItems = quote.lineItems ? quote.lineItems.map(QuoteLineItemResponseDto.fromEntity) : [];
 
     return dto;
   }

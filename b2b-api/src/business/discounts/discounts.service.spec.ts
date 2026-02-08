@@ -1,9 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  BadRequestException,
-  ConflictException,
-} from '@nestjs/common';
+import { NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { DiscountsService } from './discounts.service';
 import { PrismaService } from '@infrastructure/database';
 
@@ -139,11 +135,13 @@ describe('DiscountsService', () => {
   describe('getUserSavings', () => {
     it('should return savings with current and next tier', async () => {
       prismaService.userDiscountTier.findUnique = jest.fn().mockResolvedValue(mockUserTier);
-      prismaService.discountTier.findMany = jest.fn().mockResolvedValue([
-        { ...mockTier, level: 1, code: 'SILVER', minSpend: 500 },
-        mockTier,
-        { ...mockTier, level: 3, code: 'PLATINUM', minSpend: 2000 },
-      ]);
+      prismaService.discountTier.findMany = jest
+        .fn()
+        .mockResolvedValue([
+          { ...mockTier, level: 1, code: 'SILVER', minSpend: 500 },
+          mockTier,
+          { ...mockTier, level: 3, code: 'PLATINUM', minSpend: 2000 },
+        ]);
 
       const result = await service.getUserSavings(mockTenantId, mockUserId);
 
@@ -154,9 +152,9 @@ describe('DiscountsService', () => {
 
     it('should return savings without current tier for new user', async () => {
       prismaService.userDiscountTier.findUnique = jest.fn().mockResolvedValue(null);
-      prismaService.discountTier.findMany = jest.fn().mockResolvedValue([
-        { ...mockTier, level: 1, code: 'BRONZE', minSpend: 100 },
-      ]);
+      prismaService.discountTier.findMany = jest
+        .fn()
+        .mockResolvedValue([{ ...mockTier, level: 1, code: 'BRONZE', minSpend: 100 }]);
 
       const result = await service.getUserSavings(mockTenantId, mockUserId);
 
@@ -258,9 +256,7 @@ describe('DiscountsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.discountTier.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(service.findOne(mockTenantId, 'not-found')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(mockTenantId, 'not-found')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw NotFoundException if wrong tenant', async () => {
@@ -269,9 +265,7 @@ describe('DiscountsService', () => {
         tenantId: 'other-tenant',
       });
 
-      await expect(service.findOne(mockTenantId, mockTierId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(mockTenantId, mockTierId)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -318,9 +312,9 @@ describe('DiscountsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.discountTier.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(
-        service.update(mockTenantId, 'not-found', { name: 'Test' }),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update(mockTenantId, 'not-found', { name: 'Test' })).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -342,9 +336,7 @@ describe('DiscountsService', () => {
     it('should throw NotFoundException if not found', async () => {
       prismaService.discountTier.findUnique = jest.fn().mockResolvedValue(null);
 
-      await expect(service.delete(mockTenantId, 'not-found')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.delete(mockTenantId, 'not-found')).rejects.toThrow(NotFoundException);
     });
 
     it('should throw BadRequestException if has assignments', async () => {
@@ -353,9 +345,7 @@ describe('DiscountsService', () => {
         _count: { userAssignments: 5 },
       });
 
-      await expect(service.delete(mockTenantId, mockTierId)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.delete(mockTenantId, mockTierId)).rejects.toThrow(BadRequestException);
     });
   });
 

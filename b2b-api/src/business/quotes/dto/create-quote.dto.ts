@@ -79,7 +79,10 @@ export class CreateQuoteDto {
   @MaxLength(200)
   title!: string;
 
-  @ApiPropertyOptional({ example: 'Annual software licensing quote', description: 'Quote description' })
+  @ApiPropertyOptional({
+    example: 'Annual software licensing quote',
+    description: 'Quote description',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(2000)

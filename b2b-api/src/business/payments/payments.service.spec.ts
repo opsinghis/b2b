@@ -3,12 +3,7 @@ import { NotFoundException, BadRequestException, ForbiddenException } from '@nes
 import { PaymentsService } from './payments.service';
 import { PaymentMethodsService } from './payment-methods.service';
 import { PrismaService } from '@infrastructure/database';
-import {
-  PaymentMethodType,
-  PaymentStatus,
-  OrderStatus,
-  UserRole,
-} from '@prisma/client';
+import { PaymentMethodType, PaymentStatus, OrderStatus, UserRole } from '@prisma/client';
 
 describe('PaymentsService', () => {
   let service: PaymentsService;
@@ -108,7 +103,9 @@ describe('PaymentsService', () => {
       paymentMethodsService.findOne = jest.fn().mockResolvedValue(mockPaymentMethod);
       prismaService.payment.create = jest.fn().mockResolvedValue(mockPayment);
       prismaService.payment.update = jest.fn().mockResolvedValue(mockPayment);
-      prismaService.order.update = jest.fn().mockResolvedValue({ ...mockOrder, status: OrderStatus.CONFIRMED });
+      prismaService.order.update = jest
+        .fn()
+        .mockResolvedValue({ ...mockOrder, status: OrderStatus.CONFIRMED });
 
       const dto = { paymentMethodId: mockPaymentMethodId };
       const result = await service.processPayment(

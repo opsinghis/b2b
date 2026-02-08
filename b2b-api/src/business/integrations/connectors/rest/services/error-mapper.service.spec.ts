@@ -320,7 +320,7 @@ describe('ErrorMapperService', () => {
       const result = service.validateErrorMappingRules(rules);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('matching condition'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('matching condition'))).toBe(true);
     });
 
     it('should reject invalid status range', () => {
@@ -329,7 +329,7 @@ describe('ErrorMapperService', () => {
       const result = service.validateErrorMappingRules(rules);
 
       expect(result.valid).toBe(false);
-      expect(result.errors.some(e => e.includes('statusRange'))).toBe(true);
+      expect(result.errors.some((e) => e.includes('statusRange'))).toBe(true);
     });
   });
 });

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { AuditService } from '@core/audit';
 import { Contract, ContractVersion, Prisma, ContractStatus } from '@prisma/client';
@@ -30,8 +25,16 @@ export type ContractWithVersions = Contract & { versions?: ContractVersion[] };
  */
 const VALID_TRANSITIONS: Record<ContractStatus, ContractStatus[]> = {
   [ContractStatus.DRAFT]: [ContractStatus.PENDING_APPROVAL, ContractStatus.CANCELLED],
-  [ContractStatus.PENDING_APPROVAL]: [ContractStatus.APPROVED, ContractStatus.DRAFT, ContractStatus.CANCELLED],
-  [ContractStatus.APPROVED]: [ContractStatus.ACTIVE, ContractStatus.DRAFT, ContractStatus.CANCELLED],
+  [ContractStatus.PENDING_APPROVAL]: [
+    ContractStatus.APPROVED,
+    ContractStatus.DRAFT,
+    ContractStatus.CANCELLED,
+  ],
+  [ContractStatus.APPROVED]: [
+    ContractStatus.ACTIVE,
+    ContractStatus.DRAFT,
+    ContractStatus.CANCELLED,
+  ],
   [ContractStatus.ACTIVE]: [ContractStatus.EXPIRED, ContractStatus.TERMINATED],
   [ContractStatus.EXPIRED]: [],
   [ContractStatus.TERMINATED]: [],
@@ -247,10 +250,7 @@ export class ContractsService {
     const contract = await this.findOne(id, tenantId);
 
     // Only allow deletion if contract is in DRAFT or CANCELLED status
-    if (
-      contract.status !== ContractStatus.DRAFT &&
-      contract.status !== ContractStatus.CANCELLED
-    ) {
+    if (contract.status !== ContractStatus.DRAFT && contract.status !== ContractStatus.CANCELLED) {
       throw new BadRequestException(
         `Cannot delete contract in '${contract.status}' status. Only DRAFT or CANCELLED contracts can be deleted.`,
       );
@@ -292,10 +292,7 @@ export class ContractsService {
     return this.findOne(id, tenantId);
   }
 
-  async getVersionHistory(
-    id: string,
-    tenantId: string,
-  ): Promise<ContractVersion[]> {
+  async getVersionHistory(id: string, tenantId: string): Promise<ContractVersion[]> {
     // Verify contract exists and belongs to tenant
     await this.findOne(id, tenantId);
 
@@ -305,11 +302,7 @@ export class ContractsService {
     });
   }
 
-  async getVersion(
-    id: string,
-    version: number,
-    tenantId: string,
-  ): Promise<ContractVersion> {
+  async getVersion(id: string, version: number, tenantId: string): Promise<ContractVersion> {
     // Verify contract exists and belongs to tenant
     await this.findOne(id, tenantId);
 
@@ -323,9 +316,7 @@ export class ContractsService {
     });
 
     if (!contractVersion) {
-      throw new NotFoundException(
-        `Version ${version} not found for contract '${id}'`,
-      );
+      throw new NotFoundException(`Version ${version} not found for contract '${id}'`);
     }
 
     return contractVersion;
@@ -432,9 +423,7 @@ export class ContractsService {
 
     // Validate effective/expiration dates before activation
     if (!contract.effectiveDate) {
-      throw new BadRequestException(
-        'Cannot activate contract without an effective date',
-      );
+      throw new BadRequestException('Cannot activate contract without an effective date');
     }
 
     return this.transitionStatus(
@@ -488,9 +477,7 @@ export class ContractsService {
       contract.status === ContractStatus.TERMINATED ||
       contract.status === ContractStatus.CANCELLED
     ) {
-      throw new BadRequestException(
-        `Cannot cancel contract in '${contract.status}' status.`,
-      );
+      throw new BadRequestException(`Cannot cancel contract in '${contract.status}' status.`);
     }
 
     return this.transitionStatusDirect(

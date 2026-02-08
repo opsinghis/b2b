@@ -60,9 +60,7 @@ export class MasterCatalogController {
     description: 'List of master products',
     type: MasterProductListResponseDto,
   })
-  async findAll(
-    @Query() query: MasterProductListQueryDto,
-  ): Promise<MasterProductListResponseDto> {
+  async findAll(@Query() query: MasterProductListQueryDto): Promise<MasterProductListResponseDto> {
     const result = await this.masterCatalogService.findAll(query);
     return {
       ...result,

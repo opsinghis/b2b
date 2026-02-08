@@ -188,7 +188,10 @@ export class EventPublisherService {
   /**
    * Get events by tenant
    */
-  getEventsByTenant(tenantId: string, options?: { limit?: number; type?: EventType }): PublishedEvent[] {
+  getEventsByTenant(
+    tenantId: string,
+    options?: { limit?: number; type?: EventType },
+  ): PublishedEvent[] {
     let events = Array.from(this.publishedEvents.values()).filter((e) => e.tenantId === tenantId);
 
     if (options?.type) {

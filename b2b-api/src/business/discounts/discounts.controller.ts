@@ -23,7 +23,14 @@ import {
 import { UserRole } from '@prisma/client';
 import { TenantContext } from '@core/tenants';
 import { CurrentUser, JwtAuthGuard, Roles, RolesGuard } from '@core/auth';
-import { AuthorizationGuard, CanRead, CanCreate, CanUpdate, CanDelete, CanManage } from '@core/authorization';
+import {
+  AuthorizationGuard,
+  CanRead,
+  CanCreate,
+  CanUpdate,
+  CanDelete,
+  CanManage,
+} from '@core/authorization';
 import { DiscountsService } from './discounts.service';
 import {
   CreateDiscountTierDto,
@@ -59,7 +66,11 @@ export class UserDiscountTierController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanRead('DiscountTier')
   @ApiOperation({ summary: 'Get current user discount tier' })
-  @ApiResponse({ status: 200, description: 'User discount tier', type: UserDiscountTierResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'User discount tier',
+    type: UserDiscountTierResponseDto,
+  })
   async getMyTier(
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
@@ -96,7 +107,11 @@ export class AdminDiscountTierController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   @CanRead('DiscountTier')
   @ApiOperation({ summary: 'List all discount tiers' })
-  @ApiResponse({ status: 200, description: 'List of discount tiers', type: DiscountTiersListResponseDto })
+  @ApiResponse({
+    status: 200,
+    description: 'List of discount tiers',
+    type: DiscountTiersListResponseDto,
+  })
   async findAll(
     @TenantContext() tenantId: string,
     @Query() query: QueryDiscountTiersDto,
@@ -155,10 +170,7 @@ export class AdminDiscountTierController {
   @ApiResponse({ status: 204, description: 'Discount tier deleted' })
   @ApiResponse({ status: 400, description: 'Cannot delete tier with active assignments' })
   @ApiResponse({ status: 404, description: 'Discount tier not found' })
-  async delete(
-    @TenantContext() tenantId: string,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async delete(@TenantContext() tenantId: string, @Param('id') id: string): Promise<void> {
     return this.discountsService.delete(tenantId, id);
   }
 

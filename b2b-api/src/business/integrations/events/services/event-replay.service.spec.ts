@@ -165,9 +165,7 @@ describe('EventReplayService', () => {
       ]);
 
       // Mock publish to never resolve (keep replays in progress)
-      mockEventPublisher.publish.mockImplementation(
-        () => new Promise(() => {}),
-      );
+      mockEventPublisher.publish.mockImplementation(() => new Promise(() => {}));
 
       const request: EventReplayRequest = {
         tenantId: 'tenant-1',
@@ -183,9 +181,7 @@ describe('EventReplayService', () => {
       await service.startReplay(request);
 
       // 6th should fail
-      await expect(service.startReplay(request)).rejects.toThrow(
-        'Maximum concurrent replays',
-      );
+      await expect(service.startReplay(request)).rejects.toThrow('Maximum concurrent replays');
     });
   });
 

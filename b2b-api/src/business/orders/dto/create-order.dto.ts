@@ -1,10 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsOptional,
-  IsString,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
+import { IsOptional, IsString, IsObject, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class AddressDto {

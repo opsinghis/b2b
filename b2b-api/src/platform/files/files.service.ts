@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { MinioService } from './minio.service';
 import { UploadFileDto, FileResponseDto, ListFilesQueryDto } from './dto';
@@ -56,17 +51,11 @@ export class FilesService {
     const filename = `${uniqueId}${extension}`;
     const key = this.generateKey(tenantId, dto.entityType, filename);
 
-    await this.minioService.uploadFile(
-      key,
-      file.buffer,
-      file.size,
-      file.mimetype,
-      {
-        'x-amz-meta-tenant-id': tenantId,
-        'x-amz-meta-uploaded-by': userId,
-        'x-amz-meta-original-name': encodeURIComponent(file.originalname),
-      },
-    );
+    await this.minioService.uploadFile(key, file.buffer, file.size, file.mimetype, {
+      'x-amz-meta-tenant-id': tenantId,
+      'x-amz-meta-uploaded-by': userId,
+      'x-amz-meta-original-name': encodeURIComponent(file.originalname),
+    });
 
     const fileRecord = await this.prisma.file.create({
       data: {
@@ -120,10 +109,7 @@ export class FilesService {
       throw new NotFoundException(`File with ID ${fileId} not found`);
     }
 
-    const downloadUrl = await this.minioService.getPresignedUrl(
-      file.key,
-      expirySeconds,
-    );
+    const downloadUrl = await this.minioService.getPresignedUrl(file.key, expirySeconds);
 
     return {
       ...fileResponse,
@@ -156,10 +142,7 @@ export class FilesService {
     };
   }
 
-  async listFiles(
-    tenantId: string,
-    query: ListFilesQueryDto,
-  ): Promise<PaginatedFiles> {
+  async listFiles(tenantId: string, query: ListFilesQueryDto): Promise<PaginatedFiles> {
     const { entityType, entityId, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
 
@@ -297,11 +280,7 @@ export class FilesService {
     }
   }
 
-  private generateKey(
-    tenantId: string,
-    entityType: string | undefined,
-    filename: string,
-  ): string {
+  private generateKey(tenantId: string, entityType: string | undefined, filename: string): string {
     const datePath = new Date().toISOString().slice(0, 10).replace(/-/g, '/');
 
     if (entityType) {

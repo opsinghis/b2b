@@ -207,9 +207,7 @@ export class AdminSalaryDeductionController {
     description: 'Report data',
     type: SalaryDeductionReportResponseDto,
   })
-  async getReport(
-    @TenantContext() tenantId: string,
-  ): Promise<SalaryDeductionReportResponseDto> {
+  async getReport(@TenantContext() tenantId: string): Promise<SalaryDeductionReportResponseDto> {
     const report = await this.salaryDeductionService.getReport(tenantId);
     return {
       periodStart: report.periodStart,

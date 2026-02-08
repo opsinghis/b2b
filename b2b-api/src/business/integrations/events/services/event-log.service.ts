@@ -1,13 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  BaseEvent,
-  EventType,
-  EventStatus,
-  EventLogEntry,
-  EventStats,
-} from '../interfaces';
+import { BaseEvent, EventType, EventStatus, EventLogEntry, EventStats } from '../interfaces';
 
 /**
  * Event log query options

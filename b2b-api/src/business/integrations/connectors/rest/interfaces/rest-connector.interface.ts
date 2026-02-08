@@ -16,7 +16,11 @@ export type ApiKeyPlacement = 'header' | 'query' | 'cookie';
 /**
  * OAuth2 grant types
  */
-export type OAuth2GrantType = 'authorization_code' | 'client_credentials' | 'password' | 'refresh_token';
+export type OAuth2GrantType =
+  | 'authorization_code'
+  | 'client_credentials'
+  | 'password'
+  | 'refresh_token';
 
 /**
  * Pagination strategies

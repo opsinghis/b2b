@@ -36,10 +36,7 @@ export class ToolsRegistryService implements OnModuleInit {
           const methodRef = instance[methodName];
           if (!methodRef) return;
 
-          const metadata = this.reflector.get<AgentToolMetadata>(
-            AGENT_TOOL_KEY,
-            methodRef,
-          );
+          const metadata = this.reflector.get<AgentToolMetadata>(AGENT_TOOL_KEY, methodRef);
 
           if (metadata) {
             const methodPath = this.getMethodPath(methodRef) || methodName;

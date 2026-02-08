@@ -78,10 +78,7 @@ export class RestConnectorService {
       );
 
       // Execute request with retry logic
-      const response = await this.executeWithRetry(
-        requestConfig,
-        endpoint.retry || config.retry,
-      );
+      const response = await this.executeWithRetry(requestConfig, endpoint.retry || config.retry);
 
       // Log response
       this.requestLogger.logResponse(
@@ -338,7 +335,9 @@ export class RestConnectorService {
         const statusCode = axiosError.response?.status;
         const shouldRetry =
           retryCount < maxRetries &&
-          (statusCode === undefined || retryOn.includes(statusCode) || this.isRetryableError(axiosError));
+          (statusCode === undefined ||
+            retryOn.includes(statusCode) ||
+            this.isRetryableError(axiosError));
 
         if (!shouldRetry) {
           throw error;
@@ -549,7 +548,9 @@ export class RestConnectorService {
 
     // Validate global pagination
     if (config.pagination) {
-      const paginationValidation = this.paginationHandler.validatePaginationConfig(config.pagination);
+      const paginationValidation = this.paginationHandler.validatePaginationConfig(
+        config.pagination,
+      );
       errors.push(...paginationValidation.errors);
     }
 

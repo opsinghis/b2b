@@ -143,16 +143,10 @@ export class AuditLogService {
     for (const entry of this.auditLogs.values()) {
       if (entry.tenantId !== tenantId) continue;
       if (options?.action && entry.action !== options.action) continue;
-      if (options?.resourceType && entry.resource.type !== options.resourceType)
-        continue;
-      if (options?.resourceId && entry.resource.id !== options.resourceId)
-        continue;
+      if (options?.resourceType && entry.resource.type !== options.resourceType) continue;
+      if (options?.resourceId && entry.resource.id !== options.resourceId) continue;
       if (options?.actorId && entry.actor.id !== options.actorId) continue;
-      if (
-        options?.success !== undefined &&
-        entry.result.success !== options.success
-      )
-        continue;
+      if (options?.success !== undefined && entry.result.success !== options.success) continue;
       if (options?.startTime && entry.timestamp < options.startTime) continue;
       if (options?.endTime && entry.timestamp > options.endTime) continue;
 
@@ -236,11 +230,7 @@ export class AuditLogService {
   /**
    * Get action counts by type
    */
-  getActionCounts(
-    tenantId: string,
-    startTime?: Date,
-    endTime?: Date,
-  ): Record<AuditAction, number> {
+  getActionCounts(tenantId: string, startTime?: Date, endTime?: Date): Record<AuditAction, number> {
     const counts: Record<string, number> = {};
 
     for (const entry of this.auditLogs.values()) {
@@ -257,11 +247,7 @@ export class AuditLogService {
   /**
    * Export audit logs to array (for archival)
    */
-  exportLogs(
-    tenantId: string,
-    startTime: Date,
-    endTime: Date,
-  ): AuditLogEntry[] {
+  exportLogs(tenantId: string, startTime: Date, endTime: Date): AuditLogEntry[] {
     const { entries } = this.query(tenantId, {
       startTime,
       endTime,
@@ -290,13 +276,8 @@ export class AuditLogService {
   /**
    * Clean up old logs based on retention policy
    */
-  cleanupOldLogs(
-    retentionDays: number,
-    byAction?: Record<string, number>,
-  ): number {
-    const defaultCutoff = new Date(
-      Date.now() - retentionDays * 24 * 60 * 60 * 1000,
-    );
+  cleanupOldLogs(retentionDays: number, byAction?: Record<string, number>): number {
+    const defaultCutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
     let deleted = 0;
 
     for (const [id, entry] of this.auditLogs.entries()) {
@@ -356,8 +337,7 @@ export class AuditLogService {
         (stats.byResourceType[entry.resource.type] || 0) + 1;
 
       if (entry.actor.id) {
-        stats.byActor[entry.actor.id] =
-          (stats.byActor[entry.actor.id] || 0) + 1;
+        stats.byActor[entry.actor.id] = (stats.byActor[entry.actor.id] || 0) + 1;
       }
     }
 

@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JSONPath } from 'jsonpath-plus';
-import {
-  JsonPathMapping,
-  RequestMapping,
-  ResponseMapping,
-} from '../interfaces';
+import { JsonPathMapping, RequestMapping, ResponseMapping } from '../interfaces';
 
 /**
  * JSON Path Mapper Service
@@ -23,7 +19,9 @@ export class JsonPathMapperService {
       const result = JSONPath({ path, json, wrap: false });
       return result;
     } catch (error) {
-      this.logger.debug(`JSONPath extraction failed for path '${path}': ${(error as Error).message}`);
+      this.logger.debug(
+        `JSONPath extraction failed for path '${path}': ${(error as Error).message}`,
+      );
       return undefined;
     }
   }
@@ -37,7 +35,9 @@ export class JsonPathMapperService {
       const result = JSONPath({ path, json, wrap: true });
       return Array.isArray(result) ? result : [result];
     } catch (error) {
-      this.logger.debug(`JSONPath extraction failed for path '${path}': ${(error as Error).message}`);
+      this.logger.debug(
+        `JSONPath extraction failed for path '${path}': ${(error as Error).message}`,
+      );
       return [];
     }
   }

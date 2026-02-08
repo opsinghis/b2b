@@ -50,7 +50,9 @@ export class RateLimiterService {
     };
   }
 
-  async getRemainingLimit(key: string): Promise<{ remaining: number; limit: number; resetAt: Date }> {
+  async getRemainingLimit(
+    key: string,
+  ): Promise<{ remaining: number; limit: number; resetAt: Date }> {
     const now = Date.now();
     const entry = this.limits.get(key);
 

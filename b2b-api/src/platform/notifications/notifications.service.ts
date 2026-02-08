@@ -35,10 +35,7 @@ export class NotificationsService {
   /**
    * Create a single in-app notification
    */
-  async create(
-    dto: CreateNotificationDto,
-    tenantId: string,
-  ): Promise<Notification> {
+  async create(dto: CreateNotificationDto, tenantId: string): Promise<Notification> {
     const notification = await this.prisma.notification.create({
       data: {
         type: dto.type,
@@ -50,9 +47,7 @@ export class NotificationsService {
       },
     });
 
-    this.logger.log(
-      `Notification created: ${notification.id} for user ${dto.userId}`,
-    );
+    this.logger.log(`Notification created: ${notification.id} for user ${dto.userId}`);
 
     return notification;
   }
@@ -60,10 +55,7 @@ export class NotificationsService {
   /**
    * Create notifications for multiple users
    */
-  async createBulk(
-    dto: BulkCreateNotificationDto,
-    tenantId: string,
-  ): Promise<{ count: number }> {
+  async createBulk(dto: BulkCreateNotificationDto, tenantId: string): Promise<{ count: number }> {
     const result = await this.prisma.notification.createMany({
       data: dto.userIds.map((userId) => ({
         type: dto.type,
@@ -149,11 +141,7 @@ export class NotificationsService {
   /**
    * Get a single notification
    */
-  async findOne(
-    id: string,
-    tenantId: string,
-    userId: string,
-  ): Promise<Notification> {
+  async findOne(id: string, tenantId: string, userId: string): Promise<Notification> {
     const notification = await this.prisma.notification.findFirst({
       where: { id, tenantId, userId },
     });
@@ -168,11 +156,7 @@ export class NotificationsService {
   /**
    * Mark a notification as read
    */
-  async markAsRead(
-    id: string,
-    tenantId: string,
-    userId: string,
-  ): Promise<Notification> {
+  async markAsRead(id: string, tenantId: string, userId: string): Promise<Notification> {
     await this.findOne(id, tenantId, userId);
 
     const notification = await this.prisma.notification.update({
@@ -209,9 +193,7 @@ export class NotificationsService {
       },
     });
 
-    this.logger.debug(
-      `${result.count} notifications marked as read for user ${userId}`,
-    );
+    this.logger.debug(`${result.count} notifications marked as read for user ${userId}`);
 
     return { markedCount: result.count };
   }
@@ -219,10 +201,7 @@ export class NotificationsService {
   /**
    * Mark all unread notifications as read for a user
    */
-  async markAllAsRead(
-    tenantId: string,
-    userId: string,
-  ): Promise<{ markedCount: number }> {
+  async markAllAsRead(tenantId: string, userId: string): Promise<{ markedCount: number }> {
     const result = await this.prisma.notification.updateMany({
       where: {
         tenantId,
@@ -235,9 +214,7 @@ export class NotificationsService {
       },
     });
 
-    this.logger.log(
-      `All ${result.count} unread notifications marked as read for user ${userId}`,
-    );
+    this.logger.log(`All ${result.count} unread notifications marked as read for user ${userId}`);
 
     return { markedCount: result.count };
   }
@@ -343,9 +320,7 @@ export class NotificationsService {
 
     const jobIds = jobs.map((job) => job.id as string);
 
-    this.logger.log(
-      `Bulk emails queued: ${jobIds.length} emails for tenant ${tenantId}`,
-    );
+    this.logger.log(`Bulk emails queued: ${jobIds.length} emails for tenant ${tenantId}`);
 
     return { jobIds };
   }

@@ -8,12 +8,7 @@ import {
 import { PrismaService } from '@infrastructure/database';
 import { CartService, CartWithItems } from '@business/cart';
 import { Order, OrderItem, OrderStatus, Prisma } from '@prisma/client';
-import {
-  CreateOrderDto,
-  ListOrdersQueryDto,
-  AdminListOrdersQueryDto,
-  CancelOrderDto,
-} from './dto';
+import { CreateOrderDto, ListOrdersQueryDto, AdminListOrdersQueryDto, CancelOrderDto } from './dto';
 
 export type OrderWithItems = Order & { items: OrderItem[] };
 
@@ -264,9 +259,7 @@ export class OrdersService {
     // Check if order can be cancelled
     const allowedTransitions = STATUS_TRANSITIONS[order.status];
     if (!allowedTransitions.includes(OrderStatus.CANCELLED)) {
-      throw new BadRequestException(
-        `Cannot cancel order in '${order.status}' status`,
-      );
+      throw new BadRequestException(`Cannot cancel order in '${order.status}' status`);
     }
 
     const updatedOrder = await this.prisma.order.update({

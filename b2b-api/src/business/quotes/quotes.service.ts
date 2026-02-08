@@ -10,12 +10,7 @@ import { AuditService } from '@core/audit';
 import { ContractsService } from '@business/contracts';
 import { TenantCatalogService } from '@business/tenant-catalog';
 import { Quote, QuoteLineItem, Prisma, QuoteStatus, UserRole } from '@prisma/client';
-import {
-  CreateQuoteDto,
-  CreateQuoteLineItemDto,
-  UpdateQuoteDto,
-  QuoteListQueryDto,
-} from './dto';
+import { CreateQuoteDto, CreateQuoteLineItemDto, UpdateQuoteDto, QuoteListQueryDto } from './dto';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -92,9 +87,7 @@ export class QuotesService {
     return `${prefix}-${sequence.toString().padStart(4, '0')}`;
   }
 
-  private calculateLineItemTotal(
-    lineItem: CreateQuoteLineItemDto & { unitPrice: number },
-  ): {
+  private calculateLineItemTotal(lineItem: CreateQuoteLineItemDto & { unitPrice: number }): {
     subtotal: number;
     discount: number;
     total: number;
@@ -116,10 +109,7 @@ export class QuotesService {
     // If masterProductId is provided, resolve from catalog
     if (item.masterProductId) {
       // Validate tenant access
-      const hasAccess = await this.tenantCatalogService.hasAccess(
-        item.masterProductId,
-        tenantId,
-      );
+      const hasAccess = await this.tenantCatalogService.hasAccess(item.masterProductId, tenantId);
 
       if (!hasAccess) {
         throw new ForbiddenException(
@@ -128,10 +118,7 @@ export class QuotesService {
       }
 
       // Get product with tenant pricing
-      const product = await this.tenantCatalogService.findOne(
-        item.masterProductId,
-        tenantId,
-      );
+      const product = await this.tenantCatalogService.findOne(item.masterProductId, tenantId);
 
       // Use provided values or resolve from catalog
       return {
@@ -145,15 +132,11 @@ export class QuotesService {
 
     // Manual entry - validate required fields
     if (!item.productName) {
-      throw new BadRequestException(
-        'productName is required when masterProductId is not provided',
-      );
+      throw new BadRequestException('productName is required when masterProductId is not provided');
     }
 
     if (item.unitPrice === undefined || item.unitPrice === null) {
-      throw new BadRequestException(
-        'unitPrice is required when masterProductId is not provided',
-      );
+      throw new BadRequestException('unitPrice is required when masterProductId is not provided');
     }
 
     return item as CreateQuoteLineItemDto & { unitPrice: number; productName: string };
@@ -166,14 +149,10 @@ export class QuotesService {
     lineItems: CreateQuoteLineItemDto[],
     tenantId: string,
   ): Promise<Array<CreateQuoteLineItemDto & { unitPrice: number; productName: string }>> {
-    return Promise.all(
-      lineItems.map((item) => this.resolveLineItem(item, tenantId)),
-    );
+    return Promise.all(lineItems.map((item) => this.resolveLineItem(item, tenantId)));
   }
 
-  private calculateQuoteTotals(
-    lineItems: Array<CreateQuoteLineItemDto & { unitPrice: number }>,
-  ): {
+  private calculateQuoteTotals(lineItems: Array<CreateQuoteLineItemDto & { unitPrice: number }>): {
     subtotal: number;
     discount: number;
     tax: number;
@@ -195,11 +174,7 @@ export class QuotesService {
     return { subtotal, discount, tax, total };
   }
 
-  async create(
-    dto: CreateQuoteDto,
-    tenantId: string,
-    userId: string,
-  ): Promise<QuoteWithLineItems> {
+  async create(dto: CreateQuoteDto, tenantId: string, userId: string): Promise<QuoteWithLineItems> {
     // Resolve line items with catalog integration
     const resolvedLineItems = await this.resolveLineItems(dto.lineItems, tenantId);
 
@@ -498,9 +473,7 @@ export class QuotesService {
       quote.status !== QuoteStatus.APPROVED &&
       quote.status !== QuoteStatus.SENT
     ) {
-      throw new BadRequestException(
-        `Cannot reject quote in '${quote.status}' status.`,
-      );
+      throw new BadRequestException(`Cannot reject quote in '${quote.status}' status.`);
     }
 
     return this.transitionStatusDirect(

@@ -420,7 +420,10 @@ export class WebhookConfigDto {
   @IsOptional()
   signatureHeader?: string;
 
-  @ApiPropertyOptional({ description: 'Signature algorithm', enum: ['hmac-sha1', 'hmac-sha256', 'hmac-sha512'] })
+  @ApiPropertyOptional({
+    description: 'Signature algorithm',
+    enum: ['hmac-sha1', 'hmac-sha256', 'hmac-sha512'],
+  })
   @IsString()
   @IsOptional()
   signatureAlgorithm?: 'hmac-sha1' | 'hmac-sha256' | 'hmac-sha512';

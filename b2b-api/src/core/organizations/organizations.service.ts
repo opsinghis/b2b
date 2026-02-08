@@ -39,7 +39,9 @@ export class OrganizationsService {
     });
 
     if (existingOrg) {
-      throw new ConflictException(`Organization with code '${dto.code}' already exists in this tenant`);
+      throw new ConflictException(
+        `Organization with code '${dto.code}' already exists in this tenant`,
+      );
     }
 
     // Verify parent exists if provided
@@ -67,7 +69,9 @@ export class OrganizationsService {
       },
     });
 
-    this.logger.log(`Organization created: ${organization.name} (${organization.code}) in tenant ${tenantId}`);
+    this.logger.log(
+      `Organization created: ${organization.name} (${organization.code}) in tenant ${tenantId}`,
+    );
 
     return organization;
   }
@@ -159,11 +163,7 @@ export class OrganizationsService {
     return organization;
   }
 
-  async update(
-    tenantId: string,
-    id: string,
-    dto: UpdateOrganizationDto,
-  ): Promise<Organization> {
+  async update(tenantId: string, id: string, dto: UpdateOrganizationDto): Promise<Organization> {
     // Verify organization exists
     await this.findOne(tenantId, id);
 
@@ -179,7 +179,9 @@ export class OrganizationsService {
       });
 
       if (existingOrg) {
-        throw new ConflictException(`Organization with code '${dto.code}' already exists in this tenant`);
+        throw new ConflictException(
+          `Organization with code '${dto.code}' already exists in this tenant`,
+        );
       }
     }
 

@@ -53,9 +53,7 @@ export class PaymentsService {
 
     // Validate order status
     if (order.status !== OrderStatus.PENDING && order.status !== OrderStatus.CONFIRMED) {
-      throw new BadRequestException(
-        `Cannot process payment for order in '${order.status}' status`,
-      );
+      throw new BadRequestException(`Cannot process payment for order in '${order.status}' status`);
     }
 
     // Check if order already has a completed payment
@@ -71,10 +69,7 @@ export class PaymentsService {
     }
 
     // Validate payment method
-    const paymentMethod = await this.paymentMethodsService.findOne(
-      dto.paymentMethodId,
-      tenantId,
-    );
+    const paymentMethod = await this.paymentMethodsService.findOne(dto.paymentMethodId, tenantId);
 
     // Check if user role can use this payment method
     const allowedRoles = paymentMethod.userTypeAccess.map((a) => a.userRole);
@@ -85,14 +80,10 @@ export class PaymentsService {
     // Check amount limits
     const orderTotal = order.total.toNumber();
     if (paymentMethod.minAmount && orderTotal < paymentMethod.minAmount.toNumber()) {
-      throw new BadRequestException(
-        `Order total is below minimum amount for this payment method`,
-      );
+      throw new BadRequestException(`Order total is below minimum amount for this payment method`);
     }
     if (paymentMethod.maxAmount && orderTotal > paymentMethod.maxAmount.toNumber()) {
-      throw new BadRequestException(
-        `Order total exceeds maximum amount for this payment method`,
-      );
+      throw new BadRequestException(`Order total exceeds maximum amount for this payment method`);
     }
 
     // Generate payment number
@@ -277,9 +268,7 @@ export class PaymentsService {
     return `${prefix}${sequence.toString().padStart(6, '0')}`;
   }
 
-  private async simulatePaymentProcessing(
-    payment: PaymentWithMethod,
-  ): Promise<PaymentWithMethod> {
+  private async simulatePaymentProcessing(payment: PaymentWithMethod): Promise<PaymentWithMethod> {
     // Simulate a successful payment
     // In production, this would call actual payment gateway APIs
     const updatedPayment = await this.prisma.payment.update({

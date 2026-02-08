@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import {
   MasterProduct,
@@ -148,10 +143,7 @@ export class TenantCatalogService {
   /**
    * Get a single product with tenant-specific pricing
    */
-  async findOne(
-    productId: string,
-    tenantId: string,
-  ): Promise<TenantProductResponseDto> {
+  async findOne(productId: string, tenantId: string): Promise<TenantProductResponseDto> {
     const product = await this.prisma.masterProduct.findUnique({
       where: { id: productId },
       include: {
@@ -172,10 +164,7 @@ export class TenantCatalogService {
   /**
    * Get a product by SKU with tenant-specific pricing
    */
-  async findBySku(
-    sku: string,
-    tenantId: string,
-  ): Promise<TenantProductResponseDto> {
+  async findBySku(sku: string, tenantId: string): Promise<TenantProductResponseDto> {
     const product = await this.prisma.masterProduct.findUnique({
       where: { sku },
       include: {
@@ -386,9 +375,7 @@ export class TenantCatalogService {
         masterProductId: productId,
         isActive: dto.isActive,
         agreedPrice: dto.agreedPrice ? new Prisma.Decimal(dto.agreedPrice) : null,
-        discountPercent: dto.discountPercent
-          ? new Prisma.Decimal(dto.discountPercent)
-          : null,
+        discountPercent: dto.discountPercent ? new Prisma.Decimal(dto.discountPercent) : null,
         minQuantity: dto.minQuantity || null,
         maxQuantity: dto.maxQuantity || null,
         validFrom: dto.validFrom ? new Date(dto.validFrom) : null,
@@ -397,9 +384,7 @@ export class TenantCatalogService {
       update: {
         isActive: dto.isActive,
         agreedPrice: dto.agreedPrice ? new Prisma.Decimal(dto.agreedPrice) : null,
-        discountPercent: dto.discountPercent
-          ? new Prisma.Decimal(dto.discountPercent)
-          : null,
+        discountPercent: dto.discountPercent ? new Prisma.Decimal(dto.discountPercent) : null,
         minQuantity: dto.minQuantity || null,
         maxQuantity: dto.maxQuantity || null,
         validFrom: dto.validFrom ? new Date(dto.validFrom) : null,
@@ -536,9 +521,7 @@ export class TenantCatalogService {
 
     // Priority 2: Discount percentage
     if (access.discountPercent) {
-      const discount = listPrice
-        .mul(access.discountPercent)
-        .div(100);
+      const discount = listPrice.mul(access.discountPercent).div(100);
       return listPrice.sub(discount);
     }
 

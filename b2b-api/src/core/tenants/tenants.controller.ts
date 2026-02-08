@@ -11,21 +11,10 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { TenantsService } from './tenants.service';
-import {
-  CreateTenantDto,
-  UpdateTenantDto,
-  TenantResponseDto,
-  TenantListQueryDto,
-} from './dto';
+import { CreateTenantDto, UpdateTenantDto, TenantResponseDto, TenantListQueryDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthorizationGuard, CanManage } from '../authorization';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -110,10 +99,7 @@ export class TenantsController {
   })
   @ApiResponse({ status: 404, description: 'Tenant not found' })
   @ApiResponse({ status: 409, description: 'Tenant with this slug already exists' })
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateTenantDto,
-  ): Promise<TenantResponseDto> {
+  async update(@Param('id') id: string, @Body() dto: UpdateTenantDto): Promise<TenantResponseDto> {
     const tenant = await this.tenantsService.update(id, dto);
     return TenantResponseDto.fromEntity(tenant);
   }

@@ -1,11 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  LoggingConfig,
-  RestRequestLog,
-  RestResponseLog,
-  HttpMethod,
-} from '../interfaces';
+import { LoggingConfig, RestRequestLog, RestResponseLog, HttpMethod } from '../interfaces';
 
 /**
  * Log entry for storage
@@ -233,18 +228,15 @@ export class RequestLoggerService {
   /**
    * Mask sensitive fields in body
    */
-  private maskBody(
-    body: unknown,
-    additionalMaskFields?: string[],
-    maxSize?: number,
-  ): unknown {
+  private maskBody(body: unknown, additionalMaskFields?: string[], maxSize?: number): unknown {
     if (!body) return body;
 
     const maskFields = [...this.defaultMaskFields, ...(additionalMaskFields || [])];
 
     // Handle string body
     if (typeof body === 'string') {
-      const truncated = maxSize && body.length > maxSize ? body.substring(0, maxSize) + '...[truncated]' : body;
+      const truncated =
+        maxSize && body.length > maxSize ? body.substring(0, maxSize) + '...[truncated]' : body;
       return truncated;
     }
 
@@ -269,10 +261,7 @@ export class RequestLoggerService {
   /**
    * Recursively mask object fields
    */
-  private maskObject(
-    obj: Record<string, unknown>,
-    maskFields: string[],
-  ): Record<string, unknown> {
+  private maskObject(obj: Record<string, unknown>, maskFields: string[]): Record<string, unknown> {
     if (Array.isArray(obj)) {
       return obj.map((item) =>
         typeof item === 'object' && item !== null
@@ -338,7 +327,10 @@ export class RequestLoggerService {
   /**
    * Log response to console
    */
-  private logResponseInternal(log: RestResponseLog, level: 'debug' | 'info' | 'warn' | 'error'): void {
+  private logResponseInternal(
+    log: RestResponseLog,
+    level: 'debug' | 'info' | 'warn' | 'error',
+  ): void {
     const message = `REST Response: ${log.statusCode} ${log.statusText} (${log.durationMs}ms)`;
     const details = {
       requestId: log.requestId,

@@ -277,7 +277,8 @@ export class PaginationHandlerService {
     }
 
     // Calculate hasMore based on available info
-    const hasMore = totalPages !== undefined && page !== undefined ? page < totalPages : itemsArray.length > 0;
+    const hasMore =
+      totalPages !== undefined && page !== undefined ? page < totalPages : itemsArray.length > 0;
 
     return {
       items: itemsArray,
@@ -309,7 +310,12 @@ export class PaginationHandlerService {
   /**
    * Parse RFC 5988 Link header
    */
-  private parseLinkHeader(header: string): { next?: string; prev?: string; first?: string; last?: string } {
+  private parseLinkHeader(header: string): {
+    next?: string;
+    prev?: string;
+    first?: string;
+    last?: string;
+  } {
     const links: Record<string, string> = {};
     const parts = header.split(',');
 

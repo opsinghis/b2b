@@ -65,10 +65,7 @@ export class OrganizationsController {
     status: 200,
     description: 'List of organizations',
   })
-  async findAll(
-    @CurrentUser() user: User,
-    @Query() query: OrganizationListQueryDto,
-  ) {
+  async findAll(@CurrentUser() user: User, @Query() query: OrganizationListQueryDto) {
     const result = await this.organizationsService.findAll(user.tenantId, query);
     return {
       ...result,
@@ -173,10 +170,7 @@ export class OrganizationsController {
   @ApiResponse({ status: 204, description: 'Organization deleted successfully' })
   @ApiResponse({ status: 404, description: 'Organization not found' })
   @ApiResponse({ status: 400, description: 'Cannot delete organization with children' })
-  async remove(
-    @CurrentUser() user: User,
-    @Param('id') id: string,
-  ): Promise<void> {
+  async remove(@CurrentUser() user: User, @Param('id') id: string): Promise<void> {
     await this.organizationsService.remove(user.tenantId, id);
   }
 
