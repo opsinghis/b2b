@@ -92,5 +92,7 @@ export {
 export { ToastProvider, useToast } from "./components/toast";
 export type { Toast } from "./components/toast";
 
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/tabs";
+
 // Utilities
 export { cn } from "./lib/utils";
