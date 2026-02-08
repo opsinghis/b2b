@@ -1,4 +1,4 @@
-# Implement: FE-029 - Admin - Promotion & Coupon Management (Iteration 1)
+# Implement: FE-030 - Admin - Order Management (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,51 +18,51 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-029
-**Title:** Admin - Promotion & Coupon Management
+**ID:** FE-030
+**Title:** Admin - Order Management
 **Module:** apps/admin
 
 ## Completion Criteria (ALL must be met)
-- Promotions list with status
-- Create promotion form
-- Promotion types (percentage, fixed, BOGO)
-- Promotion conditions (min order, specific products)
-- Coupon code generator
-- Coupon usage limits
-- Promotion scheduling (start/end dates)
-- Promotion analytics
+- All orders list with filters
+- Order detail view
+- Order status management
+- Manual order creation
+- Order notes/comments
+- Refund processing
+- Order export to CSV
+- Bulk status update
 
 ## API Dependencies
-- GET /api/v1/admin/promotions - List promotions
-- POST /api/v1/admin/promotions - Create promotion
-- PATCH /api/v1/admin/promotions/:id - Update promotion
-- GET /api/v1/admin/promotions/:id/analytics - Promotion usage stats
-- POST /api/v1/admin/coupons/generate - Generate coupon codes
+- GET /api/v1/admin/orders - List all orders
+- GET /api/v1/admin/orders/:id - Order details
+- PATCH /api/v1/admin/orders/:id/status - Update order status
+- POST /api/v1/admin/orders - Create order manually
+- POST /api/v1/admin/orders/:id/refund - Process refund
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-029 - Admin - Promotion & Coupon Management
+# Plan: FE-030 - Admin - Order Management
 
 ## Module: apps/admin
 
 ## Completion Criteria
-- [ ] Promotions list with status
-- [ ] Create promotion form
-- [ ] Promotion types (percentage, fixed, BOGO)
-- [ ] Promotion conditions (min order, specific products)
-- [ ] Coupon code generator
-- [ ] Coupon usage limits
-- [ ] Promotion scheduling (start/end dates)
-- [ ] Promotion analytics
+- [ ] All orders list with filters
+- [ ] Order detail view
+- [ ] Order status management
+- [ ] Manual order creation
+- [ ] Order notes/comments
+- [ ] Refund processing
+- [ ] Order export to CSV
+- [ ] Bulk status update
 
 ## API Dependencies
-- GET /api/v1/admin/promotions [available]
-- POST /api/v1/admin/promotions [available]
-- PATCH /api/v1/admin/promotions/:id [available]
-- GET /api/v1/admin/promotions/:id/analytics [available]
-- POST /api/v1/admin/coupons/generate [available]
+- GET /api/v1/admin/orders [available]
+- GET /api/v1/admin/orders/:id [available]
+- PATCH /api/v1/admin/orders/:id/status [available]
+- POST /api/v1/admin/orders [available]
+- POST /api/v1/admin/orders/:id/refund [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -92,7 +92,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-029</promise>
+<promise>COMPLETE:FE-030</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

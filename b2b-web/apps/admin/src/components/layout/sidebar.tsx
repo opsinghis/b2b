@@ -11,6 +11,7 @@ import {
   Package,
   Percent,
   Settings,
+  ShoppingCart,
   Tags,
   Users,
 } from "lucide-react";
@@ -23,6 +24,7 @@ const navigation = [
   { name: "Organizations", href: "/organizations", icon: Network },
   { name: "Users", href: "/users", icon: Users },
   { name: "Catalog", href: "/catalog", icon: Package },
+  { name: "Orders", href: "/orders", icon: ShoppingCart },
   { name: "Discount Tiers", href: "/discount-tiers", icon: Percent },
   { name: "Promotions", href: "/promotions", icon: Tags },
   { name: "Audit Log", href: "/audit", icon: FileText },

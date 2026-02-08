@@ -1108,7 +1108,7 @@
             "FE-012"
           ],
           "max_iterations": 12,
-          "status": "pending"
+          "status": "complete"
         },
         {
           "id": "FE-031",
