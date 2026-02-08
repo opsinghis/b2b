@@ -11,6 +11,7 @@ import {
   Package,
   Percent,
   Settings,
+  Tags,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -23,6 +24,7 @@ const navigation = [
   { name: "Users", href: "/users", icon: Users },
   { name: "Catalog", href: "/catalog", icon: Package },
   { name: "Discount Tiers", href: "/discount-tiers", icon: Percent },
+  { name: "Promotions", href: "/promotions", icon: Tags },
   { name: "Audit Log", href: "/audit", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
