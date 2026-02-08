@@ -1,4 +1,4 @@
-# Implement: FE-034 - Portal - Partner Order on Behalf (Iteration 1)
+# Implement: FE-016 - Portal - Quote Builder (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,43 +18,45 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-034
-**Title:** Portal - Partner Order on Behalf
+**ID:** FE-016
+**Title:** Portal - Quote Builder
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Select team member dropdown
-- Order on behalf indicator
-- Apply team member's discount
-- Delivery to team member address
-- Notification to team member
-- Order attribution tracking
+- Quote wizard (multi-step form)
+- Product selector with search
+- Line item editor (quantity, price override)
+- Real-time total calculation
+- Save as draft
+- Submit for approval
 
 ## API Dependencies
-- GET /api/v1/partners/me/team - Team members list
-- POST /api/v1/orders/on-behalf - Create order on behalf
-- GET /api/v1/users/:id/addresses - Team member addresses
+- GET /api/v1/catalog/products - available
+- POST /api/v1/quotes - available
+- PATCH /api/v1/quotes/:id - available
+- POST /api/v1/quotes/:id/submit - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-034 - Portal - Partner Order on Behalf
+# Plan: FE-016 - Portal - Quote Builder
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Select team member dropdown
-- [ ] Order on behalf indicator
-- [ ] Apply team member's discount
-- [ ] Delivery to team member address
-- [ ] Notification to team member
-- [ ] Order attribution tracking
+- [ ] Quote wizard (multi-step form)
+- [ ] Product selector with search
+- [ ] Line item editor (quantity, price override)
+- [ ] Real-time total calculation
+- [ ] Save as draft
+- [ ] Submit for approval
 
 ## API Dependencies
-- GET /api/v1/partners/me/team [available]
-- POST /api/v1/orders/on-behalf [available]
-- GET /api/v1/users/:id/addresses [available]
+- GET /api/v1/catalog/products [available]
+- POST /api/v1/quotes [available]
+- PATCH /api/v1/quotes/:id [available]
+- POST /api/v1/quotes/:id/submit [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -84,7 +86,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-034</promise>
+<promise>COMPLETE:FE-016</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
