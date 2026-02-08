@@ -1,4 +1,4 @@
-# Implement: FE-026 - Portal - Order History (Iteration 1)
+# Implement: FE-027 - Portal - Salary Deduction Dashboard (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,45 +18,47 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-026
-**Title:** Portal - Order History
+**ID:** FE-027
+**Title:** Portal - Salary Deduction Dashboard
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Orders list with filters (status, date range)
-- Order status badges
-- Order detail expandable row
-- Reorder button (add items to cart)
-- Download invoice/receipt
-- Pagination and search
-- Export orders to CSV
+- Monthly deduction limit display
+- Current month usage/remaining
+- Deduction history by month
+- Pending deductions list
+- Upcoming payroll deduction preview
+- Opt-in/opt-out toggle
+- Deduction limit request form
 
 ## API Dependencies
-- GET /api/v1/orders - List user's orders
-- GET /api/v1/orders/:id/invoice - Download invoice PDF
-- POST /api/v1/orders/:id/reorder - Add order items to cart
+- GET /api/v1/users/me/salary-deduction - Salary deduction details
+- GET /api/v1/users/me/salary-deduction/history - Deduction history
+- PATCH /api/v1/users/me/salary-deduction - Update deduction preferences
+- POST /api/v1/users/me/salary-deduction/limit-request - Request limit increase
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-026 - Portal - Order History
+# Plan: FE-027 - Portal - Salary Deduction Dashboard
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Orders list with filters (status, date range)
-- [ ] Order status badges
-- [ ] Order detail expandable row
-- [ ] Reorder button (add items to cart)
-- [ ] Download invoice/receipt
-- [ ] Pagination and search
-- [ ] Export orders to CSV
+- [ ] Monthly deduction limit display
+- [ ] Current month usage/remaining
+- [ ] Deduction history by month
+- [ ] Pending deductions list
+- [ ] Upcoming payroll deduction preview
+- [ ] Opt-in/opt-out toggle
+- [ ] Deduction limit request form
 
 ## API Dependencies
-- GET /api/v1/orders [available]
-- GET /api/v1/orders/:id/invoice [available]
-- POST /api/v1/orders/:id/reorder [available]
+- GET /api/v1/users/me/salary-deduction [available]
+- GET /api/v1/users/me/salary-deduction/history [available]
+- PATCH /api/v1/users/me/salary-deduction [available]
+- POST /api/v1/users/me/salary-deduction/limit-request [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -86,7 +88,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-026</promise>
+<promise>COMPLETE:FE-027</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
