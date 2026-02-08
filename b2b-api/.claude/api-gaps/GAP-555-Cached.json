@@ -1,0 +1,25 @@
+{
+  "id": "GAP-555",
+  "requested_by": "[0;34mℹ[0m Fetching Swagger spec from http://localhost:3000/docs-json...
+[0;32m✓[0m Cached Swagger spec with 192 endpoints
+FE-028",
+  "requested_at": "2026-02-08T08:51:17Z",
+  "status": "open",
+  
+  "endpoint": {
+    "method": "[0;32m✓[0m",
+    "path": "Cached",
+    "description": ""
+  },
+  
+  "context": {
+    "frontend_feature": "[0;34mℹ[0m Fetching Swagger spec from http://localhost:3000/docs-json...
+[0;32m✓[0m Cached Swagger spec with 192 endpoints
+FE-028",
+    "frontend_prd": "/Users/omsingh0/code/b2b/b2b-web/.claude/execution/prd.json",
+    "blocker_details": "See /Users/omsingh0/code/b2b/b2b-web/.claude/planning/backlog/api-blockers/ for detailed specs"
+  },
+  
+  "priority": "P1",
+  "notes": "Auto-generated from frontend gap analysis"
+}

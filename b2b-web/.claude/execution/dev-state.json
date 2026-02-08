@@ -22,8 +22,11 @@
     "FE-015",
     "FE-019",
     "FE-020",
-    "FE-021"
+    "FE-021",
+    "FE-022"
   ],
-  "waiting_for_api": [],
-  "gap_counter": 535
+  "waiting_for_api": [
+    "\u001b[0;34mℹ\u001b[0m Fetching Swagger spec from http://localhost:3000/docs-json...\n\u001b[0;32m✓\u001b[0m Cached Swagger spec with 192 endpoints\nFE-028"
+  ],
+  "gap_counter": 773
 }

@@ -23,7 +23,8 @@
       "Bash(pnpm run lint:check:*)",
       "Bash(pnpm run build:*)",
       "Bash(tail:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(bash -c '\nsource .claude/ralph.sh 2>/dev/null || true\n\n# Test the fetch\ncurl -sf \"\"http://localhost:3000/docs-json\"\" > \"\".claude/execution/.swagger-cache.json\"\" 2>/dev/null\necho \"\"Cached $(jq \"\".paths | keys | length\"\" \"\".claude/execution/.swagger-cache.json\"\" 2>/dev/null || echo 0) endpoints\"\"\n\n# Test a few endpoints manually\necho \"\"\"\"\necho \"\"Testing endpoint detection:\"\"\nfor endpoint in \"\"/api/v1/cart GET\"\" \"\"/api/v1/orders POST\"\" \"\"/api/v1/catalog/products GET\"\"; do\n    path=$(echo \"\"$endpoint\"\" | awk \"\"{print \\$1}\"\")\n    method=$(echo \"\"$endpoint\"\" | awk \"\"{print \\$2}\"\" | tr \"\"[:upper:]\"\" \"\"[:lower:]\"\")\n    \n    if jq -e --arg path \"\"$path\"\" --arg method \"\"$method\"\" \"\".paths[\\$path][\\$method] != null\"\" \"\".claude/execution/.swagger-cache.json\"\" >/dev/null 2>&1; then\n        echo \"\"✓ FOUND: $method $path\"\"\n    else\n        echo \"\"✗ NOT FOUND: $method $path\"\"\n    fi\ndone\n')"
     ],
     "deny": [],
     "ask": []

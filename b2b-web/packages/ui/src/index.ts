@@ -76,5 +76,21 @@ export type { DatePickerProps } from "./components/date-picker";
 
 export { Switch } from "./components/switch";
 
+export {
+  Sheet,
+  SheetPortal,
+  SheetOverlay,
+  SheetTrigger,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from "./components/sheet";
+
+export { ToastProvider, useToast } from "./components/toast";
+export type { Toast } from "./components/toast";
+
 // Utilities
 export { cn } from "./lib/utils";

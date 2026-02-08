@@ -1,4 +1,4 @@
-# Implement: FE-021 - Portal - Product Catalog Browser (Iteration 1)
+# Implement: FE-022 - Portal - Shopping Cart (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,49 +18,53 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-021
-**Title:** Portal - Product Catalog Browser
+**ID:** FE-022
+**Title:** Portal - Shopping Cart
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Product grid/list view with toggle
-- Category navigation sidebar
-- Search with autocomplete
-- Filters (price range, category, availability)
-- Product quick view modal
-- Product detail page with images
-- Stock availability indicator
-- User's discount price displayed
+- Add to cart from product pages
+- Cart icon with item count badge
+- Cart drawer/sidebar
+- Update quantity in cart
+- Remove items from cart
+- Cart persistence (localStorage + API sync)
+- Real-time subtotal calculation
+- Discount applied preview
+- Proceed to checkout button
 
 ## API Dependencies
-- GET /api/v1/catalog/products - available
-- GET /api/v1/catalog/categories - available
-- GET /api/v1/catalog/products/:id - available
-- GET /api/v1/users/me/discount-tier - available
+- GET /api/v1/cart - available
+- POST /api/v1/cart/items - available
+- PATCH /api/v1/cart/items/:id - available
+- DELETE /api/v1/cart/items/:id - available
+- DELETE /api/v1/cart - available
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-021 - Portal - Product Catalog Browser
+# Plan: FE-022 - Portal - Shopping Cart
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Product grid/list view with toggle
-- [ ] Category navigation sidebar
-- [ ] Search with autocomplete
-- [ ] Filters (price range, category, availability)
-- [ ] Product quick view modal
-- [ ] Product detail page with images
-- [ ] Stock availability indicator
-- [ ] User's discount price displayed
+- [ ] Add to cart from product pages
+- [ ] Cart icon with item count badge
+- [ ] Cart drawer/sidebar
+- [ ] Update quantity in cart
+- [ ] Remove items from cart
+- [ ] Cart persistence (localStorage + API sync)
+- [ ] Real-time subtotal calculation
+- [ ] Discount applied preview
+- [ ] Proceed to checkout button
 
 ## API Dependencies
-- GET /api/v1/catalog/products [available]
-- GET /api/v1/catalog/categories [available]
-- GET /api/v1/catalog/products/:id [available]
-- GET /api/v1/users/me/discount-tier [available]
+- GET /api/v1/cart [available]
+- POST /api/v1/cart/items [available]
+- PATCH /api/v1/cart/items/:id [available]
+- DELETE /api/v1/cart/items/:id [available]
+- DELETE /api/v1/cart [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -90,7 +94,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-021</promise>
+<promise>COMPLETE:FE-022</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

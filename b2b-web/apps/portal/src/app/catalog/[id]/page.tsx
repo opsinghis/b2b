@@ -29,6 +29,7 @@ import {
   useUserDiscountTier,
 } from "../hooks";
 
+import { useAddProductToCart } from "@/app/cart/hooks";
 import { Header } from "@/components/layout";
 
 // =============================================================================
@@ -266,6 +267,8 @@ function ProductDetailContent() {
 
   const { data: discountTierData } = useUserDiscountTier();
 
+  const { addProduct, isAdding } = useAddProductToCart();
+
   const handleQuantityChange = useCallback(
     (delta: number) => {
       setQuantity((prev) => {
@@ -280,10 +283,15 @@ function ProductDetailContent() {
 
   const handleAddToCart = useCallback(() => {
     if (product && isProductAvailable(product.availability)) {
-      // TODO: Implement add to cart
-      console.log("Add to cart:", product.id, "quantity:", quantity);
+      addProduct({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        effectivePrice: product.effectivePrice,
+        quantity,
+      });
     }
-  }, [product, quantity]);
+  }, [product, quantity, addProduct]);
 
   if (isLoading) {
     return <ProductDetailSkeleton />;
@@ -510,10 +518,10 @@ function ProductDetailContent() {
                       className="flex-1"
                       size="lg"
                       onClick={handleAddToCart}
-                      disabled={!available}
+                      disabled={!available || isAdding}
                     >
                       <ShoppingCart className="h-5 w-5 mr-2" />
-                      {available ? "Add to Cart" : "Out of Stock"}
+                      {!available ? "Out of Stock" : isAdding ? "Adding..." : "Add to Cart"}
                     </Button>
                   </div>
 

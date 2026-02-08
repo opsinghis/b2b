@@ -46,7 +46,7 @@ init() {
     mkdir -p "$SCRIPT_DIR/execution/plans"
     mkdir -p "$SCRIPT_DIR/execution/iterations"
     mkdir -p "$BACKEND_GAPS"
-    
+
     if [ ! -f "$STATE_FILE" ]; then
         cat > "$STATE_FILE" << 'EOF'
 {
@@ -60,6 +60,96 @@ init() {
 }
 EOF
     fi
+
+    # Fetch Swagger spec at startup for API validation
+    log_info "Initializing Swagger spec cache..."
+    fetch_swagger_spec || log_warning "Backend may not be running - will retry during API checks"
+}
+
+# ============================================================================
+# SWAGGER VALIDATION
+# ============================================================================
+
+fetch_swagger_spec() {
+    log_info "Fetching Swagger spec from $SWAGGER_JSON_URL..."
+
+    if curl -sf "$SWAGGER_JSON_URL" > "$SWAGGER_CACHE" 2>/dev/null; then
+        local path_count=$(jq -r '.paths | keys | length' "$SWAGGER_CACHE" 2>/dev/null || echo "0")
+        log_success "Cached Swagger spec with $path_count endpoints"
+        return 0
+    else
+        log_warning "Could not fetch Swagger spec - backend may not be running"
+        return 1
+    fi
+}
+
+# Check if an endpoint exists in the Swagger spec
+# Usage: api_exists "GET" "/api/v1/cart"
+api_exists_in_swagger() {
+    local method="$1"
+    local path="$2"
+
+    # Ensure we have a cached spec
+    if [ ! -f "$SWAGGER_CACHE" ]; then
+        fetch_swagger_spec || return 1
+    fi
+
+    # Normalize the path (add /api/v1 prefix if missing)
+    local normalized_path="$path"
+    if [[ ! "$normalized_path" =~ ^/api ]]; then
+        normalized_path="/api/v1${path}"
+    elif [[ "$normalized_path" =~ ^/api/ && ! "$normalized_path" =~ ^/api/v1 ]]; then
+        normalized_path=$(echo "$normalized_path" | sed 's|^/api/|/api/v1/|')
+    fi
+
+    # Convert path params like :id to {id} for Swagger matching
+    local swagger_path=$(echo "$normalized_path" | sed -E 's/:([a-zA-Z_]+)/{\1}/g')
+
+    local method_lower=$(echo "$method" | tr '[:upper:]' '[:lower:]')
+
+    # Check if path+method exists in Swagger
+    if jq -e --arg path "$swagger_path" --arg method "$method_lower" \
+        '.paths[$path][$method] != null' "$SWAGGER_CACHE" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Try alternative path formats
+    local alt_path=$(echo "$swagger_path" | sed 's|/v1/|/|')
+    if jq -e --arg path "$alt_path" --arg method "$method_lower" \
+        '.paths[$path][$method] != null' "$SWAGGER_CACHE" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    return 1
+}
+
+# Check all API dependencies for a feature against Swagger
+# Returns list of truly missing APIs
+get_actually_missing_apis() {
+    local fid="$1"
+    local missing_apis=""
+
+    # Ensure we have fresh Swagger spec
+    fetch_swagger_spec
+
+    # Get declared API dependencies from PRD
+    local deps=$(jq -r ".phases[].items[] | select(.id == \"$fid\") | .api_dependencies[]? | \"\(.endpoint)\"" "$PRD_FILE" 2>/dev/null)
+
+    for dep in $deps; do
+        local method=$(echo "$dep" | awk '{print $1}')
+        local path=$(echo "$dep" | awk '{print $2}')
+
+        if [ -n "$method" ] && [ -n "$path" ]; then
+            if ! api_exists_in_swagger "$method" "$path"; then
+                missing_apis="${missing_apis}${dep}\n"
+                log_warning "API NOT in Swagger: $method $path"
+            else
+                log_success "API exists in Swagger: $method $path"
+            fi
+        fi
+    done
+
+    echo -e "$missing_apis" | grep -v '^$'
 }
 
 # ============================================================================
@@ -171,40 +261,36 @@ check_feature_dependencies() {
 
 get_next_feature() {
     # Priority: 1) Resume waiting_for_api if resolved, 2) Next pending
-    
+
+    # Ensure Swagger spec is available for validation
+    fetch_swagger_spec 2>/dev/null || true
+
     # Check waiting features
     local waiting=$(jq -r '.waiting_for_api[]?' "$STATE_FILE" 2>/dev/null)
     for fid in $waiting; do
-        local missing=$(get_missing_apis "$fid")
-        local all_resolved=true
-        
-        for api in $missing; do
-            # Check if API now exists (simplified check)
-            if ! curl -s "$BACKEND_API/docs-json" 2>/dev/null | grep -q "$(echo $api | awk '{print $2}')" 2>/dev/null; then
-                all_resolved=false
-                break
-            fi
-        done
-        
-        if [ "$all_resolved" = "true" ]; then
-            # Remove from waiting, return as next
+        # Check if all APIs now exist in Swagger
+        local missing=$(get_actually_missing_apis "$fid")
+
+        if [ -z "$missing" ]; then
+            # All APIs resolved - remove from waiting, return as next
             jq --arg fid "$fid" '.waiting_for_api |= map(select(. != $fid))' "$STATE_FILE" > "${STATE_FILE}.tmp" && mv "${STATE_FILE}.tmp" "$STATE_FILE"
             update_feature_status "$fid" "pending"
+            log_success "Feature $fid APIs now available - resuming"
             echo "$fid"
             return 0
         fi
     done
-    
+
     # Get next pending feature with met dependencies
     local features=$(jq -r '.phases[].items[] | select(.status == "pending") | .id' "$PRD_FILE")
-    
+
     for fid in $features; do
         if check_feature_dependencies "$fid"; then
             echo "$fid"
             return 0
         fi
     done
-    
+
     return 1
 }
 
@@ -215,16 +301,17 @@ get_next_feature() {
 run_lisa() {
     local fid="$1"
     log_phase "LISA PHASE: Planning $fid"
-    
+
     local feature=$(jq ".phases[].items[] | select(.id == \"$fid\")" "$PRD_FILE")
     local title=$(echo "$feature" | jq -r '.title')
     local module=$(echo "$feature" | jq -r '.module')
-    
+
     log_info "Feature: $title"
     log_info "Module: $module"
-    
-    # Check API dependencies
-    local missing_apis=$(get_missing_apis "$fid")
+
+    # Check API dependencies against actual Swagger spec (not PRD status)
+    log_info "Validating APIs against Swagger spec..."
+    local missing_apis=$(get_actually_missing_apis "$fid")
     
     if [ -n "$missing_apis" ]; then
         log_warning "Missing APIs detected!"

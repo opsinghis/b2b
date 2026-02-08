@@ -23,6 +23,7 @@ import {
   useUserDiscountTier,
 } from "./hooks";
 
+import { useAddProductToCart } from "@/app/cart/hooks";
 import { Header } from "@/components/layout";
 
 // =============================================================================
@@ -126,16 +127,26 @@ function CatalogContent() {
 
   const { data: discountTierData } = useUserDiscountTier();
 
+  const { addProduct } = useAddProductToCart();
+
   // Handlers
   const handleQuickView = useCallback((product: CatalogProduct) => {
     setQuickViewProduct(product);
     setQuickViewOpen(true);
   }, []);
 
-  const handleAddToCart = useCallback((product: CatalogProduct) => {
-    // TODO: Implement add to cart functionality
-    console.log("Add to cart:", product.id);
-  }, []);
+  const handleAddToCart = useCallback(
+    (product: CatalogProduct) => {
+      addProduct({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        effectivePrice: product.effectivePrice,
+        quantity: 1,
+      });
+    },
+    [addProduct]
+  );
 
   const handleClearFilters = useCallback(() => {
     setFilters({});

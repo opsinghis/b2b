@@ -6,6 +6,7 @@ import { LogOut, User } from "lucide-react";
 import Link from "next/link";
 
 import { NotificationBell } from "@/app/(dashboard)/components/notification-bell";
+import { CartIcon } from "@/app/cart/components";
 
 interface HeaderProps {
   title?: string;
@@ -32,6 +33,7 @@ export function Header({ title = "Portal" }: HeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-4">
+        {isAuthenticated && <CartIcon />}
         {isAuthenticated && <NotificationBell />}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-3">
