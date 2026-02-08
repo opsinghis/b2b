@@ -255,6 +255,21 @@ export function useReorder() {
   });
 }
 
+export function useDownloadInvoice() {
+  const client = useApiClient();
+
+  return useMutation({
+    mutationFn: async (orderId: string): Promise<Blob> => {
+      const { data, error } = await client.GET("/api/v1/orders/{id}/invoice", {
+        params: { path: { id: orderId } },
+        parseAs: "blob",
+      });
+      if (error) throw new Error("Failed to download invoice");
+      return data as unknown as Blob;
+    },
+  });
+}
+
 // =============================================================================
 // Mappers
 // =============================================================================

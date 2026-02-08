@@ -1,4 +1,4 @@
-# Implement: FE-025 - Portal - Order Tracking (Iteration 1)
+# Implement: FE-026 - Portal - Order History (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,47 +18,45 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-025
-**Title:** Portal - Order Tracking
+**ID:** FE-026
+**Title:** Portal - Order History
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Order status timeline/stepper
-- Real-time status updates
-- Estimated delivery date
-- Tracking number with carrier link
-- Delivery address display
-- Order items summary
-- Contact support button
-- Cancel order option (if applicable)
+- Orders list with filters (status, date range)
+- Order status badges
+- Order detail expandable row
+- Reorder button (add items to cart)
+- Download invoice/receipt
+- Pagination and search
+- Export orders to CSV
 
 ## API Dependencies
-- GET /api/v1/orders/:id - Order details with status
-- GET /api/v1/orders/:id/tracking - Tracking information
-- POST /api/v1/orders/:id/cancel - Cancel order
+- GET /api/v1/orders - List user's orders
+- GET /api/v1/orders/:id/invoice - Download invoice PDF
+- POST /api/v1/orders/:id/reorder - Add order items to cart
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-025 - Portal - Order Tracking
+# Plan: FE-026 - Portal - Order History
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Order status timeline/stepper
-- [ ] Real-time status updates
-- [ ] Estimated delivery date
-- [ ] Tracking number with carrier link
-- [ ] Delivery address display
-- [ ] Order items summary
-- [ ] Contact support button
-- [ ] Cancel order option (if applicable)
+- [ ] Orders list with filters (status, date range)
+- [ ] Order status badges
+- [ ] Order detail expandable row
+- [ ] Reorder button (add items to cart)
+- [ ] Download invoice/receipt
+- [ ] Pagination and search
+- [ ] Export orders to CSV
 
 ## API Dependencies
-- GET /api/v1/orders/:id [available]
-- GET /api/v1/orders/:id/tracking [available]
-- POST /api/v1/orders/:id/cancel [available]
+- GET /api/v1/orders [available]
+- GET /api/v1/orders/:id/invoice [available]
+- POST /api/v1/orders/:id/reorder [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -88,7 +86,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-025</promise>
+<promise>COMPLETE:FE-026</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.

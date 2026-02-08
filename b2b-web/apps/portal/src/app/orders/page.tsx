@@ -5,31 +5,23 @@ import {
   Button,
   Card,
   CardContent,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
+  useToast,
 } from "@b2b/ui";
-import { Search, ChevronLeft, ChevronRight, Package, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Package } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 import {
-  useOrders,
-  formatPrice,
-  formatDate,
-  getStatusLabel,
-  getStatusColor,
-  type OrderStatus,
-} from "./hooks";
+  OrderExpandableRow,
+  OrdersFilters,
+  type OrdersFiltersState,
+} from "./components";
+import { useOrders, type Order, formatDate } from "./hooks";
 
 export default function OrdersPage() {
   return (
@@ -40,33 +32,126 @@ export default function OrdersPage() {
 }
 
 function OrdersContent() {
+  const { addToast } = useToast();
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
+  const [filters, setFilters] = useState<OrdersFiltersState>({
+    search: "",
+    status: "ALL",
+    startDate: undefined,
+    endDate: undefined,
+  });
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
 
   // Debounce search
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    const timer = setTimeout(() => setDebouncedSearch(filters.search), 300);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [filters.search]);
 
   // Reset page on filter change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, statusFilter]);
+  }, [debouncedSearch, filters.status, filters.startDate, filters.endDate]);
 
   const { data, isLoading, error } = useOrders({
     page,
     limit: 10,
     search: debouncedSearch || undefined,
-    status: statusFilter === "ALL" ? undefined : statusFilter,
+    status: filters.status === "ALL" ? undefined : filters.status,
+    startDate: filters.startDate?.toISOString().split("T")[0],
+    endDate: filters.endDate?.toISOString().split("T")[0],
     sortBy: "createdAt",
     sortOrder: "desc",
   });
 
-  const orders = data?.orders ?? [];
+  const orders = useMemo(() => data?.orders ?? [], [data?.orders]);
   const totalPages = data?.totalPages ?? 0;
+  const total = data?.total ?? 0;
+
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<OrdersFiltersState>) => {
+      setFilters((prev) => ({ ...prev, ...newFilters }));
+    },
+    []
+  );
+
+  const exportToCSV = useCallback(async () => {
+    if (orders.length === 0) return;
+
+    setIsExporting(true);
+    try {
+      // Generate CSV content
+      const headers = [
+        "Order Number",
+        "Date",
+        "Status",
+        "Items",
+        "Subtotal",
+        "Discount",
+        "Tax",
+        "Total",
+        "Currency",
+        "Shipping Address",
+        "Tracking Number",
+        "Carrier",
+      ];
+
+      const rows = orders.map((order: Order) => [
+        order.orderNumber,
+        formatDate(order.createdAt),
+        order.status,
+        order.itemCount.toString(),
+        order.subtotal,
+        order.discount,
+        order.tax,
+        order.total,
+        order.currency,
+        `"${[
+          order.shippingAddress.street1,
+          order.shippingAddress.street2,
+          order.shippingAddress.city,
+          order.shippingAddress.state,
+          order.shippingAddress.postalCode,
+          order.shippingAddress.country,
+        ]
+          .filter(Boolean)
+          .join(", ")}"`,
+        order.trackingNumber || "",
+        order.carrier || "",
+      ]);
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+      // Download file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `orders-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      addToast({
+        title: "Export successful",
+        description: `Exported ${orders.length} orders to CSV.`,
+        variant: "success",
+      });
+    } catch {
+      addToast({
+        title: "Export failed",
+        description: "Unable to export orders. Please try again.",
+        variant: "error",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  }, [orders, addToast]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -79,44 +164,13 @@ function OrdersContent() {
       </div>
 
       {/* Filters */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by order number..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            {/* Status Filter */}
-            <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                setStatusFilter(value as OrderStatus | "ALL")
-              }
-            >
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All Statuses</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
-                <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                <SelectItem value="PROCESSING">Processing</SelectItem>
-                <SelectItem value="SHIPPED">Shipped</SelectItem>
-                <SelectItem value="DELIVERED">Delivered</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem value="REFUNDED">Refunded</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
+      <OrdersFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onExportCSV={exportToCSV}
+        isExporting={isExporting}
+        totalOrders={total}
+      />
 
       {/* Error State */}
       {error && (
@@ -138,15 +192,21 @@ function OrdersContent() {
               <Package className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-4 text-lg font-semibold">No orders found</h3>
               <p className="text-muted-foreground mt-2">
-                {debouncedSearch || statusFilter !== "ALL"
+                {debouncedSearch ||
+                filters.status !== "ALL" ||
+                filters.startDate ||
+                filters.endDate
                   ? "Try adjusting your search or filter criteria."
                   : "You haven't placed any orders yet."}
               </p>
-              {!debouncedSearch && statusFilter === "ALL" && (
-                <Link href="/catalog">
-                  <Button className="mt-4">Browse Products</Button>
-                </Link>
-              )}
+              {!debouncedSearch &&
+                filters.status === "ALL" &&
+                !filters.startDate &&
+                !filters.endDate && (
+                  <Link href="/catalog">
+                    <Button className="mt-4">Browse Products</Button>
+                  </Link>
+                )}
             </div>
           </CardContent>
         </Card>
@@ -160,6 +220,7 @@ function OrdersContent() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-8"></TableHead>
                     <TableHead>Order</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Status</TableHead>
@@ -170,38 +231,7 @@ function OrdersContent() {
                 </TableHeader>
                 <TableBody>
                   {orders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell>
-                        <Link
-                          href={`/orders/${order.id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {order.orderNumber}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatDate(order.createdAt)}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(order.status)}`}
-                        >
-                          {getStatusLabel(order.status)}
-                        </span>
-                      </TableCell>
-                      <TableCell>{order.itemCount}</TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatPrice(order.total, order.currency)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Link href={`/orders/${order.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
+                    <OrderExpandableRow key={order.id} order={order} />
                   ))}
                 </TableBody>
               </Table>
@@ -209,11 +239,12 @@ function OrdersContent() {
           </Card>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground">
-                Page {page} of {totalPages}
-              </p>
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-muted-foreground">
+              Showing {(page - 1) * 10 + 1}-{Math.min(page * 10, total)} of{" "}
+              {total} orders
+            </p>
+            {totalPages > 1 && (
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -224,6 +255,31 @@ function OrdersContent() {
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Previous
                 </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (page <= 3) {
+                      pageNum = i + 1;
+                    } else if (page >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = page - 2 + i;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={page === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setPage(pageNum)}
+                        className="w-8 h-8 p-0"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
                 <Button
                   variant="outline"
                   size="sm"
@@ -234,8 +290,8 @@ function OrdersContent() {
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </>
       )}
     </div>
@@ -251,9 +307,17 @@ function OrdersPageSkeleton() {
       </div>
 
       <div className="border rounded-lg p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="h-10 flex-1 bg-muted rounded animate-pulse" />
-          <div className="h-10 w-[180px] bg-muted rounded animate-pulse" />
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="h-10 flex-1 bg-muted rounded animate-pulse" />
+            <div className="h-10 w-[180px] bg-muted rounded animate-pulse" />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="h-10 w-[200px] bg-muted rounded animate-pulse" />
+            <div className="h-10 w-[200px] bg-muted rounded animate-pulse" />
+            <div className="flex-1" />
+            <div className="h-10 w-[120px] bg-muted rounded animate-pulse" />
+          </div>
         </div>
       </div>
 
@@ -267,7 +331,7 @@ function OrdersTableSkeleton() {
     <div className="border rounded-lg">
       <div className="p-4 border-b">
         <div className="flex gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <div
               key={i}
               className="h-4 bg-muted rounded animate-pulse"
@@ -279,7 +343,7 @@ function OrdersTableSkeleton() {
       {[1, 2, 3, 4, 5].map((i) => (
         <div key={i} className="p-4 border-b last:border-b-0">
           <div className="flex gap-4">
-            {[1, 2, 3, 4, 5, 6].map((j) => (
+            {[1, 2, 3, 4, 5, 6, 7].map((j) => (
               <div
                 key={j}
                 className="h-4 bg-muted rounded animate-pulse"
