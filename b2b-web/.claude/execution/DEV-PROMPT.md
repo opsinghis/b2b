@@ -1,4 +1,4 @@
-# Implement: FE-032 - Portal - My Discounts & Savings (Iteration 1)
+# Implement: FE-033 - Portal - Partner Dashboard (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,47 +18,47 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-032
-**Title:** Portal - My Discounts & Savings
+**ID:** FE-033
+**Title:** Portal - Partner Dashboard
 **Module:** apps/portal
 
 ## Completion Criteria (ALL must be met)
-- Current discount tier display
-- Tier benefits breakdown
-- Progress to next tier
-- Total savings this month/year
-- Available promotions list
-- Apply coupon code input
-- Savings history
+- Partner-specific welcome
+- Partner tier and discount level
+- Orders placed (own org)
+- Commission earnings (if applicable)
+- Team members list
+- Quick order for team members
+- Partner resources/documents
 
 ## API Dependencies
-- GET /api/v1/users/me/discount-tier - User's discount tier
-- GET /api/v1/users/me/savings - Savings statistics
-- GET /api/v1/promotions/available - Available promotions for user
-- POST /api/v1/cart/apply-coupon - Apply coupon to cart
+- GET /api/v1/partners/me - Partner profile
+- GET /api/v1/partners/me/commission - Commission details
+- GET /api/v1/partners/me/team - Team members
+- GET /api/v1/partners/me/resources - Partner resources
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-032 - Portal - My Discounts & Savings
+# Plan: FE-033 - Portal - Partner Dashboard
 
 ## Module: apps/portal
 
 ## Completion Criteria
-- [ ] Current discount tier display
-- [ ] Tier benefits breakdown
-- [ ] Progress to next tier
-- [ ] Total savings this month/year
-- [ ] Available promotions list
-- [ ] Apply coupon code input
-- [ ] Savings history
+- [ ] Partner-specific welcome
+- [ ] Partner tier and discount level
+- [ ] Orders placed (own org)
+- [ ] Commission earnings (if applicable)
+- [ ] Team members list
+- [ ] Quick order for team members
+- [ ] Partner resources/documents
 
 ## API Dependencies
-- GET /api/v1/users/me/discount-tier [available]
-- GET /api/v1/users/me/savings [available]
-- GET /api/v1/promotions/available [available]
-- POST /api/v1/cart/apply-coupon [available]
+- GET /api/v1/partners/me [available]
+- GET /api/v1/partners/me/commission [available]
+- GET /api/v1/partners/me/team [available]
+- GET /api/v1/partners/me/resources [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -88,7 +88,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-032</promise>
+<promise>COMPLETE:FE-033</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
