@@ -1,4 +1,4 @@
-# Implement: FE-027 - Portal - Salary Deduction Dashboard (Iteration 1)
+# Implement: FE-028 - Admin - Discount Tiers Management (Iteration 1)
 
 You are building a B2B e-commerce frontend application.
 
@@ -18,47 +18,51 @@ You are building a B2B e-commerce frontend application.
 - pnpm workspaces + Turborepo
 
 ## Current Feature
-**ID:** FE-027
-**Title:** Portal - Salary Deduction Dashboard
-**Module:** apps/portal
+**ID:** FE-028
+**Title:** Admin - Discount Tiers Management
+**Module:** apps/admin
 
 ## Completion Criteria (ALL must be met)
-- Monthly deduction limit display
-- Current month usage/remaining
-- Deduction history by month
-- Pending deductions list
-- Upcoming payroll deduction preview
-- Opt-in/opt-out toggle
-- Deduction limit request form
+- Discount tiers list
+- Create/edit discount tier form
+- Tier levels (Bronze, Silver, Gold, Platinum)
+- Percentage discount per tier
+- Eligibility rules editor
+- Assign users/organizations to tiers
+- Tier validity period settings
+- Bulk tier assignment
 
 ## API Dependencies
-- GET /api/v1/users/me/salary-deduction - Salary deduction details
-- GET /api/v1/users/me/salary-deduction/history - Deduction history
-- PATCH /api/v1/users/me/salary-deduction - Update deduction preferences
-- POST /api/v1/users/me/salary-deduction/limit-request - Request limit increase
+- GET /api/v1/admin/discount-tiers - List all discount tiers
+- POST /api/v1/admin/discount-tiers - Create discount tier
+- PATCH /api/v1/admin/discount-tiers/:id - Update discount tier
+- DELETE /api/v1/admin/discount-tiers/:id - Delete discount tier
+- POST /api/v1/admin/discount-tiers/:id/assign - Assign tier to users/orgs
 
 Backend API: http://localhost:3000
 Swagger Docs: http://localhost:3000/docs
 
 ## Plan
-# Plan: FE-027 - Portal - Salary Deduction Dashboard
+# Plan: FE-028 - Admin - Discount Tiers Management
 
-## Module: apps/portal
+## Module: apps/admin
 
 ## Completion Criteria
-- [ ] Monthly deduction limit display
-- [ ] Current month usage/remaining
-- [ ] Deduction history by month
-- [ ] Pending deductions list
-- [ ] Upcoming payroll deduction preview
-- [ ] Opt-in/opt-out toggle
-- [ ] Deduction limit request form
+- [ ] Discount tiers list
+- [ ] Create/edit discount tier form
+- [ ] Tier levels (Bronze, Silver, Gold, Platinum)
+- [ ] Percentage discount per tier
+- [ ] Eligibility rules editor
+- [ ] Assign users/organizations to tiers
+- [ ] Tier validity period settings
+- [ ] Bulk tier assignment
 
 ## API Dependencies
-- GET /api/v1/users/me/salary-deduction [available]
-- GET /api/v1/users/me/salary-deduction/history [available]
-- PATCH /api/v1/users/me/salary-deduction [available]
-- POST /api/v1/users/me/salary-deduction/limit-request [available]
+- GET /api/v1/admin/discount-tiers [available]
+- POST /api/v1/admin/discount-tiers [available]
+- PATCH /api/v1/admin/discount-tiers/:id [available]
+- DELETE /api/v1/admin/discount-tiers/:id [available]
+- POST /api/v1/admin/discount-tiers/:id/assign [available]
 
 ## Implementation Plan
 <!-- Claude: Fill this section during Lisa phase -->
@@ -88,7 +92,7 @@ Swagger Docs: http://localhost:3000/docs
 ## IMPORTANT
 When you have implemented ALL completion criteria, output:
 ```
-<promise>COMPLETE:FE-027</promise>
+<promise>COMPLETE:FE-028</promise>
 ```
 
 If you cannot complete (blocked/error), explain why.
