@@ -5,8 +5,9 @@ import type { paths, components, operations } from "./generated/api";
 // Configuration
 // =============================================================================
 
+// Use empty string for relative URLs (Vercel proxy), fallback to localhost for local dev
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_API_URL ?? (typeof window !== "undefined" ? "" : "http://localhost:3000");
 
 // =============================================================================
 // Type Exports
