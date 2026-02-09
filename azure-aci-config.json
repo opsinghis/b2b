@@ -1,0 +1,13 @@
+{
+  "resourceGroup": "b2b-demo-rg",
+  "apiUrl": "http://b2b-api-2562.uksouth.azurecontainer.io",
+  "apiUrlHttps": "https://b2b-api-2562.uksouth.azurecontainer.io",
+  "swaggerUrl": "http://b2b-api-2562.uksouth.azurecontainer.io/docs",
+  "postgres": "131.145.19.85:5432",
+  "redis": "4.250.90.239:6379",
+  "acr": "b2bacr32562.azurecr.io",
+  "credentials": {
+    "dbPassword": "B2BDemo2024",
+    "redisPassword": "B2BDemo2024"
+  }
+}
