@@ -3,9 +3,9 @@ import type { NextAuthConfig, Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import type { SessionUser, UserRole } from "./types";
 
-// Use empty string for relative URLs (Vercel proxy), fallback to localhost for local dev
+// Server-side needs full URL (BACKEND_URL), client-side can use relative URLs
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "";
+  process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 // Default tenant for auth requests (can be overridden via environment)
 const DEFAULT_TENANT = process.env.NEXT_PUBLIC_DEFAULT_TENANT || "default";
