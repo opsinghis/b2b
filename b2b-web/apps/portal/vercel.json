@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "http://b2b-api-2562.uksouth.azurecontainer.io/api/v1/:path*"
+    }
+  ]
+}
