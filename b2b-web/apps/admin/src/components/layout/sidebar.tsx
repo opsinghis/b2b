@@ -4,6 +4,7 @@ import { useAuth } from "@b2b/auth/react";
 import { Button, cn } from "@b2b/ui";
 import {
   Building2,
+  ClipboardList,
   FileText,
   LayoutDashboard,
   LogOut,
@@ -25,6 +26,7 @@ const navigation = [
   { name: "Users", href: "/users", icon: Users },
   { name: "Catalog", href: "/catalog", icon: Package },
   { name: "Orders", href: "/orders", icon: ShoppingCart },
+  { name: "Quotes", href: "/quotes", icon: ClipboardList },
   { name: "Discount Tiers", href: "/discount-tiers", icon: Percent },
   { name: "Promotions", href: "/promotions", icon: Tags },
   { name: "Audit Log", href: "/audit", icon: FileText },

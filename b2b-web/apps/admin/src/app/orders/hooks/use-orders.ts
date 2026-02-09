@@ -411,6 +411,33 @@ export function useCancelOrder() {
   });
 }
 
+export function useConfirmOrder() {
+  const client = useApiClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+      notes,
+    }: {
+      orderId: string;
+      notes?: string;
+    }): Promise<Order> => {
+      // Using the PATCH endpoint to update status to CONFIRMED
+      const { data, error } = await client.PATCH("/api/v1/admin/orders/{id}", {
+        params: { path: { id: orderId } },
+        body: { status: "CONFIRMED", notes },
+      });
+      if (error) throw new Error("Failed to confirm order");
+      return mapOrderFromDto(data as unknown as OrderResponseDto);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-order", variables.orderId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+  });
+}
+
 // =============================================================================
 // Mappers
 // =============================================================================
@@ -581,6 +608,10 @@ export function canRefund(status: OrderStatus): boolean {
 
 export function canCancel(status: OrderStatus): boolean {
   return ["DRAFT", "PENDING", "CONFIRMED", "PROCESSING"].includes(status);
+}
+
+export function canConfirm(status: OrderStatus): boolean {
+  return status === "PENDING";
 }
 
 // =============================================================================

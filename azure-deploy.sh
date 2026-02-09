@@ -19,7 +19,7 @@ set -e
 # ============================================================================
 
 RESOURCE_GROUP="b2b-platform-rg"
-LOCATION="eastus"                    # Change to your preferred region
+LOCATION="uksouth"                   # UK South (London)
 ENVIRONMENT_NAME="b2b-env"
 ACR_NAME="b2bacr$(date +%s)"        # Unique ACR name
 
@@ -144,6 +144,34 @@ az containerapp env create \
 log_success "Container Apps Environment created"
 
 # ============================================================================
+# STEP 5b: Deploy MinIO for File Storage
+# ============================================================================
+
+log_info "Deploying MinIO for file storage..."
+MINIO_ROOT_USER="minioadmin"
+MINIO_ROOT_PASSWORD="MiniO@B2B$(date +%s)"
+
+az containerapp create \
+  --resource-group $RESOURCE_GROUP \
+  --name b2b-minio \
+  --environment $ENVIRONMENT_NAME \
+  --image minio/minio:latest \
+  --target-port 9000 \
+  --ingress internal \
+  --min-replicas 1 \
+  --max-replicas 1 \
+  --cpu 0.25 \
+  --memory 0.5Gi \
+  --env-vars \
+    "MINIO_ROOT_USER=${MINIO_ROOT_USER}" \
+    "MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}" \
+  --command "server" "/data" \
+  --output none
+
+MINIO_FQDN=$(az containerapp show --name b2b-minio --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
+log_success "MinIO deployed (internal): ${MINIO_FQDN}"
+
+# ============================================================================
 # STEP 6: Build and Push Docker Images
 # ============================================================================
 
@@ -203,8 +231,18 @@ az containerapp create \
     "NODE_ENV=production" \
     "DATABASE_URL=${DATABASE_URL}" \
     "REDIS_URL=${REDIS_URL}" \
+    "REDIS_HOST=${REDIS_HOST}" \
+    "REDIS_PORT=6380" \
+    "REDIS_PASSWORD=${REDIS_KEY}" \
+    "REDIS_TLS=true" \
     "JWT_SECRET=${JWT_SECRET}" \
     "JWT_EXPIRATION=24h" \
+    "MINIO_ENDPOINT=${MINIO_FQDN}" \
+    "MINIO_PORT=443" \
+    "MINIO_USE_SSL=true" \
+    "MINIO_ACCESS_KEY=${MINIO_ROOT_USER}" \
+    "MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}" \
+    "MINIO_BUCKET=b2b-files" \
   --output none
 
 API_URL=$(az containerapp show --name $API_APP_NAME --resource-group $RESOURCE_GROUP --query properties.configuration.ingress.fqdn -o tsv)
@@ -293,6 +331,7 @@ echo "  Resource Group:   $RESOURCE_GROUP"
 echo "  Container Registry: $ACR_NAME"
 echo "  PostgreSQL:       $POSTGRES_SERVER_NAME"
 echo "  Redis:            $REDIS_NAME"
+echo "  MinIO:            b2b-minio (internal)"
 echo ""
 echo -e "${YELLOW}Next Steps:${NC}"
 echo "  1. Run database migrations: npx prisma migrate deploy"
@@ -320,7 +359,14 @@ cat > azure-deployment-config.json << EOF
   "resources": {
     "containerRegistry": "$ACR_NAME",
     "postgresServer": "$POSTGRES_SERVER_NAME",
-    "redisCache": "$REDIS_NAME"
+    "redisCache": "$REDIS_NAME",
+    "minio": "b2b-minio"
+  },
+  "minio": {
+    "endpoint": "${MINIO_FQDN}",
+    "accessKey": "${MINIO_ROOT_USER}",
+    "secretKey": "${MINIO_ROOT_PASSWORD}",
+    "bucket": "b2b-files"
   }
 }
 EOF

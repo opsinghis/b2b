@@ -13,8 +13,6 @@ import {
   useSubmitContract,
 } from "../hooks";
 
-import { Header } from "@/components/layout";
-
 function NewContractContent() {
   const router = useRouter();
   const createMutation = useCreateContract();
@@ -55,7 +53,6 @@ function NewContractContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Create Contract" />
       <div className="flex-1 p-6 space-y-6">
         {/* Back Button */}
         <div className="flex items-center justify-between">
@@ -110,7 +107,6 @@ function NewContractContent() {
 function NewContractSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Create Contract" />
       <div className="flex-1 p-6 space-y-6 animate-pulse">
         <div className="h-10 w-48 bg-muted rounded" />
         <div className="space-y-4">

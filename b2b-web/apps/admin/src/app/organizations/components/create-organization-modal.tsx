@@ -170,15 +170,15 @@ export function CreateOrganizationModal({
             <div className="space-y-2">
               <Label htmlFor="modal-parent">Parent Organization (optional)</Label>
               <Select
-                value={parentId}
-                onValueChange={setParentId}
+                value={parentId || "__none__"}
+                onValueChange={(value) => setParentId(value === "__none__" ? "" : value)}
                 disabled={isLoading}
               >
                 <SelectTrigger id="modal-parent">
                   <SelectValue placeholder="Select a parent organization" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None (Root organization)</SelectItem>
+                  <SelectItem value="__none__">None (Root organization)</SelectItem>
                   {availableParents.map((org) => (
                     <SelectItem key={org.id} value={org.id}>
                       {org.name} ({org.code})

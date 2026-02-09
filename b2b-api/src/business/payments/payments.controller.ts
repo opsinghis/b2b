@@ -26,7 +26,7 @@ import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -64,7 +64,7 @@ export class PaymentsController {
       orderId,
       dto,
       tenantId,
-      user.userId,
+      user.id,
       user.role,
     );
     return PaymentResponseDto.fromEntity(payment);
@@ -89,7 +89,7 @@ export class PaymentsController {
   ): Promise<PaymentHistoryResponseDto> {
     const { payments, total } = await this.paymentsService.getPaymentHistory(
       tenantId,
-      user.userId,
+      user.id,
       page || 1,
       limit || 20,
     );

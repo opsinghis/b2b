@@ -165,22 +165,18 @@ export interface PromotionsQueryParams {
 
 export interface PromotionsResponse {
   data: Promotion[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface CouponsResponse {
   data: CouponCode[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // =============================================================================

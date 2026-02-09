@@ -29,11 +29,18 @@ import {
   QuoteWorkflowActionDto,
 } from './dto';
 import { JwtAuthGuard, Roles, RolesGuard, CurrentUser } from '@core/auth';
-import { AuthorizationGuard, CanManage, CanRead } from '@core/authorization';
+import {
+  AuthorizationGuard,
+  CanCreate,
+  CanManage,
+  CanRead,
+  CanSubmit,
+  CanUpdate,
+} from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -48,8 +55,8 @@ export class QuotesController {
   constructor(private readonly quotesService: QuotesService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  @CanManage('Quote')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @CanCreate('Quote')
   @ApiOperation({ summary: 'Create a new quote with line items' })
   @ApiResponse({
     status: 201,
@@ -63,12 +70,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.create(dto, tenantId, user.userId);
+    const quote = await this.quotesService.create(dto, tenantId, user.id);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER, UserRole.VIEWER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER, UserRole.VIEWER)
   @CanRead('Quote')
   @ApiOperation({ summary: 'List all quotes' })
   @ApiResponse({
@@ -84,7 +91,7 @@ export class QuotesController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER, UserRole.VIEWER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER, UserRole.VIEWER)
   @CanRead('Quote')
   @ApiOperation({ summary: 'Get a quote by ID' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -103,8 +110,8 @@ export class QuotesController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  @CanManage('Quote')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @CanUpdate('Quote')
   @ApiOperation({ summary: 'Update a quote' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
   @ApiResponse({
@@ -120,12 +127,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.update(id, dto, tenantId, user.userId);
+    const quote = await this.quotesService.update(id, dto, tenantId, user.id);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Quote')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete a quote' })
@@ -138,7 +145,7 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<void> {
-    await this.quotesService.remove(id, tenantId, user.userId);
+    await this.quotesService.remove(id, tenantId, user.id);
   }
 
   // ==========================================
@@ -146,8 +153,8 @@ export class QuotesController {
   // ==========================================
 
   @Post(':id/submit')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  @CanManage('Quote')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @CanSubmit('Quote')
   @ApiOperation({ summary: 'Submit a quote for approval' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
   @ApiResponse({
@@ -163,12 +170,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.submit(id, tenantId, user.userId, dto.comments);
+    const quote = await this.quotesService.submit(id, tenantId, user.id, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/approve')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Approve a quote (subject to approval threshold)' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -188,18 +195,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.approve(
-      id,
-      tenantId,
-      user.userId,
-      user.role,
-      dto.comments,
-    );
+    const quote = await this.quotesService.approve(id, tenantId, user.id, user.role, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/reject')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Reject a quote (send back to draft)' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -216,12 +217,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.reject(id, tenantId, user.userId, dto.comments);
+    const quote = await this.quotesService.reject(id, tenantId, user.id, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/send')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Send an approved quote to customer' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -238,12 +239,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.send(id, tenantId, user.userId, dto.comments);
+    const quote = await this.quotesService.send(id, tenantId, user.id, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/accept')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Mark quote as accepted by customer' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -260,12 +261,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.accept(id, tenantId, user.userId, dto.comments);
+    const quote = await this.quotesService.accept(id, tenantId, user.id, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/customer-reject')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Mark quote as rejected by customer' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -282,17 +283,12 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QuoteResponseDto> {
-    const quote = await this.quotesService.rejectByCustomer(
-      id,
-      tenantId,
-      user.userId,
-      dto.comments,
-    );
+    const quote = await this.quotesService.rejectByCustomer(id, tenantId, user.id, dto.comments);
     return QuoteResponseDto.fromEntity(quote);
   }
 
   @Post(':id/convert-to-contract')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Quote')
   @ApiOperation({ summary: 'Convert an accepted quote to a contract' })
   @ApiParam({ name: 'id', description: 'Quote ID' })
@@ -308,12 +304,7 @@ export class QuotesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const result = await this.quotesService.convertToContract(
-      id,
-      tenantId,
-      user.userId,
-      dto.comments,
-    );
+    const result = await this.quotesService.convertToContract(id, tenantId, user.id, dto.comments);
     return {
       quote: QuoteResponseDto.fromEntity(result.quote),
       contractId: result.contractId,

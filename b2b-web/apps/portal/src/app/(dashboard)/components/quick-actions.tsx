@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@b2b/ui";
-import { FilePlus, FileText, FileCheck, ShoppingCart } from "lucide-react";
+import { FilePlus, FileText, FileCheck, ShoppingCart, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface QuickAction {
@@ -19,6 +19,12 @@ const quickActions: QuickAction[] = [
     icon: FilePlus,
     href: "/quotes/new",
     variant: "default",
+  },
+  {
+    title: "My Orders",
+    description: "View your order history",
+    icon: Package,
+    href: "/orders",
   },
   {
     title: "View Contracts",

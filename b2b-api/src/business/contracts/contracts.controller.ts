@@ -34,7 +34,7 @@ import { AuthorizationGuard, CanManage, CanRead } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -64,7 +64,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.create(dto, tenantId, user.userId);
+    const contract = await this.contractsService.create(dto, tenantId, user.id);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -79,8 +79,13 @@ export class ContractsController {
   async findAll(@Query() query: ContractListQueryDto, @TenantContext() tenantId: string) {
     const result = await this.contractsService.findAll(query, tenantId);
     return {
-      ...result,
       data: result.data.map(ContractResponseDto.fromEntity),
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
     };
   }
 
@@ -162,7 +167,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.update(id, dto, tenantId, user.userId);
+    const contract = await this.contractsService.update(id, dto, tenantId, user.id);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -180,7 +185,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<void> {
-    await this.contractsService.remove(id, tenantId, user.userId);
+    await this.contractsService.remove(id, tenantId, user.id);
   }
 
   @Post(':id/restore')
@@ -200,7 +205,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.restore(id, tenantId, user.userId);
+    const contract = await this.contractsService.restore(id, tenantId, user.id);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -226,7 +231,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.submit(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.submit(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -248,7 +253,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.approve(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.approve(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -270,7 +275,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.reject(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.reject(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -295,7 +300,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.activate(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.activate(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -317,7 +322,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.terminate(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.terminate(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 
@@ -339,7 +344,7 @@ export class ContractsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<ContractResponseDto> {
-    const contract = await this.contractsService.cancel(id, tenantId, user.userId, dto.comments);
+    const contract = await this.contractsService.cancel(id, tenantId, user.id, dto.comments);
     return ContractResponseDto.fromEntity(contract);
   }
 }

@@ -32,14 +32,14 @@ export function OrdersFilters({
   return (
     <div className="flex items-center gap-4">
       <Select
-        value={status}
-        onValueChange={(value) => onStatusChange(value as OrderStatus | "")}
+        value={status || "__all__"}
+        onValueChange={(value) => onStatusChange(value === "__all__" ? "" : value as OrderStatus)}
       >
         <SelectTrigger className="w-[150px]">
           <SelectValue placeholder="All Status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Status</SelectItem>
+          <SelectItem value="__all__">All Status</SelectItem>
           {ORDER_STATUSES.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {s.label}

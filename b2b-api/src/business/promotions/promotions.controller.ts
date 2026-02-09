@@ -46,7 +46,7 @@ import {
 } from './dto';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -73,7 +73,7 @@ export class PromotionsController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<PromotionResponseDto[]> {
-    return this.promotionsService.getAvailablePromotions(tenantId, user.userId, user.role);
+    return this.promotionsService.getAvailablePromotions(tenantId, user.id, user.role);
   }
 
   @Post('validate')
@@ -89,7 +89,7 @@ export class PromotionsController {
   ): Promise<ApplyCouponResponseDto> {
     return this.promotionsService.validateCoupon(
       tenantId,
-      user.userId,
+      user.id,
       user.role,
       dto.code,
       dto.orderAmount,
@@ -146,7 +146,7 @@ export class AdminPromotionsController {
     @Body() dto: CreatePromotionDto,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<PromotionResponseDto> {
-    return this.promotionsService.create(tenantId, dto, user.userId);
+    return this.promotionsService.create(tenantId, dto, user.id);
   }
 
   @Patch(':id')

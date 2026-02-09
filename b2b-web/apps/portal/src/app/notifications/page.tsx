@@ -26,7 +26,6 @@ import {
   useMarkAllNotificationsRead,
   Notification,
 } from "@/app/(dashboard)/hooks/use-notifications";
-import { Header } from "@/components/layout";
 
 const categoryIcons: Record<Notification["category"], typeof Bell> = {
   QUOTE: FileText,
@@ -52,7 +51,6 @@ const categoryLabels: Record<Notification["category"], string> = {
 function NotificationsPageSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Notifications" />
       <div className="flex-1 p-6 space-y-4 animate-pulse">
         <div className="flex items-center justify-between gap-4">
           <div className="h-8 w-48 bg-muted rounded" />
@@ -185,7 +183,6 @@ function NotificationsContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Notifications" />
       <div className="flex-1 p-6 space-y-6">
         {/* Page Header */}
         <div className="flex items-center justify-between">

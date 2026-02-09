@@ -17,12 +17,9 @@ import {
   type ContractStatus,
 } from "./hooks";
 
-import { Header } from "@/components/layout";
-
 function ContractsPageSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Contracts" />
       <div className="flex-1 p-6 space-y-4 animate-pulse">
         <div className="flex items-center justify-between gap-4">
           <div className="h-10 w-64 bg-muted rounded" />
@@ -91,12 +88,11 @@ function ContractsContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Contracts" />
       <div className="flex-1 p-6 space-y-4">
         {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">My Contracts</h2>
+            <h1 className="text-2xl font-bold tracking-tight">My Contracts</h1>
             <p className="text-muted-foreground">
               View and manage your contracts
             </p>
@@ -178,12 +174,12 @@ function ContractsContent() {
         {data && (
           <>
             <ContractsTable contracts={data.data} />
-            {data.meta.totalPages > 1 && (
+            {data.totalPages > 1 && (
               <Pagination
-                currentPage={data.meta.page}
-                totalPages={data.meta.totalPages}
-                total={data.meta.total}
-                limit={data.meta.limit}
+                currentPage={data.page}
+                totalPages={data.totalPages}
+                total={data.total}
+                limit={data.limit}
                 onPageChange={setPage}
               />
             )}

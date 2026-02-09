@@ -26,6 +26,9 @@ export interface QuoteLineItemDraft {
 
 export interface QuoteBuilderState {
   currentStep: QuoteBuilderStep;
+  // Edit Mode
+  isEditMode: boolean;
+  editingQuoteId: string | null;
   // Quote Details
   title: string;
   description: string;
@@ -45,6 +48,30 @@ export interface QuoteBuilderState {
   error: string | null;
 }
 
+export interface InitializeFromQuoteData {
+  id: string;
+  quoteNumber: string;
+  title: string;
+  description?: string;
+  customerName?: string;
+  customerEmail?: string;
+  validUntil?: string;
+  notes?: string;
+  internalNotes?: string;
+  discountPercent?: string;
+  lineItems: Array<{
+    id: string;
+    productId: string;
+    productName: string;
+    productSku: string;
+    quantity: number;
+    unitPrice: string;
+    originalPrice: string;
+    priceOverride: boolean;
+    notes?: string;
+  }>;
+}
+
 type QuoteBuilderAction =
   | { type: "SET_STEP"; step: QuoteBuilderStep }
   | { type: "SET_TITLE"; title: string }
@@ -62,7 +89,8 @@ type QuoteBuilderAction =
   | { type: "SET_SAVED_QUOTE"; quoteId: string; quoteNumber: string }
   | { type: "SET_PROCESSING"; isProcessing: boolean }
   | { type: "SET_ERROR"; error: string | null }
-  | { type: "RESET" };
+  | { type: "RESET" }
+  | { type: "INITIALIZE_FROM_QUOTE"; quote: InitializeFromQuoteData };
 
 interface QuoteBuilderContextValue {
   state: QuoteBuilderState;
@@ -88,6 +116,7 @@ interface QuoteBuilderContextValue {
   setError: (error: string | null) => void;
   reset: () => void;
   canProceed: () => boolean;
+  initializeFromQuote: (quote: InitializeFromQuoteData) => void;
   // Computed values
   subtotal: number;
   discountAmount: number;
@@ -100,6 +129,8 @@ interface QuoteBuilderContextValue {
 
 const initialState: QuoteBuilderState = {
   currentStep: "details",
+  isEditMode: false,
+  editingQuoteId: null,
   title: "",
   description: "",
   customerName: "",
@@ -180,6 +211,45 @@ function quoteBuilderReducer(
       return { ...state, error: action.error };
     case "RESET":
       return initialState;
+    case "INITIALIZE_FROM_QUOTE": {
+      const { quote } = action;
+      return {
+        ...initialState,
+        isEditMode: true,
+        editingQuoteId: quote.id,
+        quoteNumber: quote.quoteNumber,
+        title: quote.title,
+        description: quote.description || "",
+        customerName: quote.customerName || "",
+        customerEmail: quote.customerEmail || "",
+        validUntil: quote.validUntil || "",
+        notes: quote.notes || "",
+        internalNotes: quote.internalNotes || "",
+        discountPercent: quote.discountPercent ? parseFloat(quote.discountPercent) : 0,
+        lineItems: quote.lineItems.map((item) => ({
+          id: item.id,
+          // Create a minimal product object for display purposes
+          // The full product data is not needed for editing - we only need id, name, sku for display
+          product: {
+            id: item.productId,
+            name: item.productName,
+            sku: item.productSku,
+            effectivePrice: item.unitPrice,
+            listPrice: item.originalPrice,
+            uom: "EA",
+            currency: "USD",
+            status: "ACTIVE",
+            availability: "IN_STOCK",
+            hasAccess: true,
+          } as unknown as CatalogProduct,
+          quantity: item.quantity,
+          unitPrice: parseFloat(item.unitPrice),
+          originalPrice: parseFloat(item.originalPrice),
+          priceOverride: item.priceOverride,
+          notes: item.notes,
+        })),
+      };
+    }
     default:
       return state;
   }
@@ -276,6 +346,10 @@ export function QuoteBuilderProvider({ children }: { children: ReactNode }) {
 
   const reset = () => dispatch({ type: "RESET" });
 
+  // Initialize from existing quote (for edit mode)
+  const initializeFromQuote = (quote: InitializeFromQuoteData) =>
+    dispatch({ type: "INITIALIZE_FROM_QUOTE", quote });
+
   // Validation
   const canProceed = (): boolean => {
     switch (state.currentStep) {
@@ -315,6 +389,7 @@ export function QuoteBuilderProvider({ children }: { children: ReactNode }) {
         setError,
         reset,
         canProceed,
+        initializeFromQuote,
         subtotal,
         discountAmount,
         total,

@@ -9,7 +9,8 @@ import { PrismaService } from '@infrastructure/database';
 import { AuditService } from '@core/audit';
 import { ContractsService } from '@business/contracts';
 import { TenantCatalogService } from '@business/tenant-catalog';
-import { Quote, QuoteLineItem, Prisma, QuoteStatus, UserRole } from '@prisma/client';
+import { NotificationsService } from '@platform/notifications';
+import { Quote, QuoteLineItem, Prisma, QuoteStatus, UserRole, NotificationType } from '@prisma/client';
 import { CreateQuoteDto, CreateQuoteLineItemDto, UpdateQuoteDto, QuoteListQueryDto } from './dto';
 
 export interface PaginatedResult<T> {
@@ -61,6 +62,7 @@ export class QuotesService {
     private readonly auditService: AuditService,
     private readonly contractsService: ContractsService,
     private readonly tenantCatalogService: TenantCatalogService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private async generateQuoteNumber(tenantId: string): Promise<string> {
@@ -186,13 +188,18 @@ export class QuotesService {
         quoteNumber,
         title: dto.title,
         description: dto.description,
+        customerName: dto.customerName || null,
+        customerEmail: dto.customerEmail || null,
         validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
         subtotal: new Prisma.Decimal(totals.subtotal),
         discount: new Prisma.Decimal(totals.discount),
+        discountPercent:
+          dto.discountPercent !== undefined ? new Prisma.Decimal(dto.discountPercent) : null,
         tax: new Prisma.Decimal(totals.tax),
         total: new Prisma.Decimal(totals.total),
         currency: dto.currency || 'USD',
         notes: dto.notes,
+        internalNotes: dto.internalNotes || null,
         metadata: (dto.metadata || {}) as Prisma.InputJsonValue,
         tenantId,
         contractId: dto.contractId || null,
@@ -356,11 +363,18 @@ export class QuotesService {
         data: {
           ...(dto.title !== undefined && { title: dto.title }),
           ...(dto.description !== undefined && { description: dto.description }),
+          ...(dto.customerName !== undefined && { customerName: dto.customerName || null }),
+          ...(dto.customerEmail !== undefined && { customerEmail: dto.customerEmail || null }),
           ...(dto.validUntil !== undefined && {
             validUntil: dto.validUntil ? new Date(dto.validUntil) : null,
           }),
           ...(dto.currency !== undefined && { currency: dto.currency }),
           ...(dto.notes !== undefined && { notes: dto.notes }),
+          ...(dto.internalNotes !== undefined && { internalNotes: dto.internalNotes || null }),
+          ...(dto.discountPercent !== undefined && {
+            discountPercent:
+              dto.discountPercent !== undefined ? new Prisma.Decimal(dto.discountPercent) : null,
+          }),
           ...(dto.contractId !== undefined && { contractId: dto.contractId }),
           ...(dto.metadata !== undefined && { metadata: dto.metadata as Prisma.InputJsonValue }),
           ...totalsUpdate,
@@ -457,6 +471,27 @@ export class QuotesService {
       data: { approvedById: userId },
     });
 
+    // Send notification to quote creator
+    if (quote.createdById) {
+      const message = comments
+        ? `Your quote ${quote.quoteNumber} has been approved. Comments: ${comments}`
+        : `Your quote ${quote.quoteNumber} has been approved and is ready to be sent to the customer.`;
+
+      await this.notificationsService.notifyUser(
+        tenantId,
+        quote.createdById,
+        NotificationType.SUCCESS,
+        'Quote Approved',
+        message,
+        {
+          quoteId: quote.id,
+          quoteNumber: quote.quoteNumber,
+          action: 'approved',
+          comments,
+        },
+      );
+    }
+
     return this.findOne(id, tenantId);
   }
 
@@ -476,7 +511,7 @@ export class QuotesService {
       throw new BadRequestException(`Cannot reject quote in '${quote.status}' status.`);
     }
 
-    return this.transitionStatusDirect(
+    await this.transitionStatusDirect(
       id,
       tenantId,
       userId,
@@ -485,6 +520,29 @@ export class QuotesService {
       'REJECT',
       comments,
     );
+
+    // Send notification to quote creator about rejection
+    if (quote.createdById) {
+      const message = comments
+        ? `Your quote ${quote.quoteNumber} has been rejected. Reason: ${comments}`
+        : `Your quote ${quote.quoteNumber} has been rejected and returned to draft status.`;
+
+      await this.notificationsService.notifyUser(
+        tenantId,
+        quote.createdById,
+        NotificationType.WARNING,
+        'Quote Rejected',
+        message,
+        {
+          quoteId: quote.id,
+          quoteNumber: quote.quoteNumber,
+          action: 'rejected',
+          comments,
+        },
+      );
+    }
+
+    return this.findOne(id, tenantId);
   }
 
   async send(

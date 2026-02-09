@@ -26,7 +26,7 @@ import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -53,7 +53,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.getCart(tenantId, user.userId);
+    const cart = await this.cartService.getCart(tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
@@ -73,7 +73,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.addItem(dto, tenantId, user.userId);
+    const cart = await this.cartService.addItem(dto, tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
@@ -95,7 +95,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.updateItem(id, dto, tenantId, user.userId);
+    const cart = await this.cartService.updateItem(id, dto, tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
@@ -115,7 +115,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.removeItem(id, tenantId, user.userId);
+    const cart = await this.cartService.removeItem(id, tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
@@ -133,11 +133,12 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.clearCart(tenantId, user.userId);
+    const cart = await this.cartService.clearCart(tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
   @Post('apply-coupon')
+  @HttpCode(HttpStatus.OK)
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Cart')
   @ApiOperation({ summary: 'Apply coupon code to cart' })
@@ -152,7 +153,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.applyCoupon(dto, tenantId, user.userId);
+    const cart = await this.cartService.applyCoupon(dto, tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 
@@ -170,7 +171,7 @@ export class CartController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CartResponseDto> {
-    const cart = await this.cartService.removeCoupon(tenantId, user.userId);
+    const cart = await this.cartService.removeCoupon(tenantId, user.id);
     return CartResponseDto.fromEntity(cart);
   }
 }

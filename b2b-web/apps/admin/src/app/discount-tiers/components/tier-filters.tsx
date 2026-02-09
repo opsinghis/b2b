@@ -26,14 +26,14 @@ export function TierFilters({
   return (
     <div className="flex items-center gap-4">
       <Select
-        value={level}
-        onValueChange={(value) => onLevelChange(value as TierLevel | "")}
+        value={level || "__all__"}
+        onValueChange={(value) => onLevelChange(value === "__all__" ? "" : value as TierLevel)}
       >
         <SelectTrigger className="w-[150px]">
           <SelectValue placeholder="All Levels" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Levels</SelectItem>
+          <SelectItem value="__all__">All Levels</SelectItem>
           {TIER_LEVELS.map((tier) => (
             <SelectItem key={tier.value} value={tier.value}>
               {tier.label}

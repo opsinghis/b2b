@@ -353,15 +353,15 @@ function EditOrganizationContent() {
               <div className="space-y-2">
                 <Label htmlFor="parentId">Parent Organization</Label>
                 <Select
-                  value={parentId}
-                  onValueChange={setParentId}
+                  value={parentId || "__none__"}
+                  onValueChange={(value) => setParentId(value === "__none__" ? "" : value)}
                   disabled={updateMutation.isPending}
                 >
                   <SelectTrigger id="parentId">
                     <SelectValue placeholder="Select a parent organization" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None (Root organization)</SelectItem>
+                    <SelectItem value="__none__">None (Root organization)</SelectItem>
                     {availableParents.map((org) => (
                       <SelectItem key={org.id} value={org.id}>
                         {org.name} ({org.code})

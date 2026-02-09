@@ -30,9 +30,10 @@ export class AuthHelper {
     };
   }
 
-  async login(email: string, password: string): Promise<TestTokens> {
+  async login(email: string, password: string, tenantId: string): Promise<TestTokens> {
     const response = await request(this.app.getHttpServer())
-      .post('/api/v1/auth/login')
+      .post('/auth/login')
+      .set('x-tenant-id', tenantId)
       .send({ email, password })
       .expect(200);
 

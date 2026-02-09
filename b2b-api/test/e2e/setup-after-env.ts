@@ -10,21 +10,8 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-beforeEach(async () => {
-  // Truncate all tables between tests
-  const tablenames = await prisma.$queryRaw<
-    Array<{ tablename: string }>
-  >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
-
-  const tables = tablenames
-    .map(({ tablename }) => tablename)
-    .filter((name) => name !== '_prisma_migrations')
-    .map((name) => `"public"."${name}"`)
-    .join(', ');
-
-  if (tables.length > 0) {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
-  }
-});
+// Note: E2E tests run sequential flows that depend on data from previous tests.
+// We do NOT truncate tables between tests - each test file manages its own cleanup in afterAll.
+// This differs from integration tests which isolate each test case.
 
 export { prisma };

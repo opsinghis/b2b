@@ -50,7 +50,7 @@ import {
 } from './dto';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -78,7 +78,7 @@ export class PartnersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<PartnerResponseDto | null> {
-    return this.partnersService.getMyProfile(tenantId, user.userId);
+    return this.partnersService.getMyProfile(tenantId, user.id);
   }
 
   @Get('me/commission')
@@ -95,7 +95,7 @@ export class PartnersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<CommissionSummaryResponseDto> {
-    return this.partnersService.getCommissionSummary(tenantId, user.userId);
+    return this.partnersService.getCommissionSummary(tenantId, user.id);
   }
 
   @Get('me/commissions')
@@ -109,7 +109,7 @@ export class PartnersController {
     @CurrentUser() user: AuthenticatedUser,
     @Query() query: QueryCommissionsDto,
   ): Promise<CommissionsListResponseDto> {
-    return this.partnersService.getMyCommissions(tenantId, user.userId, query);
+    return this.partnersService.getMyCommissions(tenantId, user.id, query);
   }
 
   @Get('me/team')
@@ -128,7 +128,7 @@ export class PartnersController {
   ): Promise<{ members: TeamMemberResponseDto[]; total: number }> {
     return this.partnersService.getTeamMembers(
       tenantId,
-      user.userId,
+      user.id,
       page ? Number(page) : 1,
       limit ? Number(limit) : 20,
     );
@@ -146,7 +146,7 @@ export class PartnersController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: AddTeamMemberDto,
   ): Promise<TeamMemberResponseDto> {
-    return this.partnersService.addTeamMember(tenantId, user.userId, dto);
+    return this.partnersService.addTeamMember(tenantId, user.id, dto);
   }
 
   @Delete('me/team/:userId')
@@ -162,7 +162,7 @@ export class PartnersController {
     @CurrentUser() user: AuthenticatedUser,
     @Param('userId') memberUserId: string,
   ): Promise<void> {
-    return this.partnersService.removeTeamMember(tenantId, user.userId, memberUserId);
+    return this.partnersService.removeTeamMember(tenantId, user.id, memberUserId);
   }
 
   @Get('me/resources')
@@ -181,7 +181,7 @@ export class PartnersController {
   ): Promise<{ resources: ResourceResponseDto[]; total: number }> {
     return this.partnersService.getResources(
       tenantId,
-      user.userId,
+      user.id,
       page ? Number(page) : 1,
       limit ? Number(limit) : 20,
     );
@@ -199,7 +199,7 @@ export class PartnersController {
     @CurrentUser() user: AuthenticatedUser,
     @Body() dto: CreateOrderOnBehalfDto,
   ): Promise<{ orderId: string; commissionAmount: number }> {
-    return this.partnersService.createOrderOnBehalf(tenantId, user.userId, dto);
+    return this.partnersService.createOrderOnBehalf(tenantId, user.id, dto);
   }
 }
 
@@ -328,7 +328,7 @@ export class AdminPartnersController {
     @CurrentUser() user: AuthenticatedUser,
     @Query('partnerId') partnerId?: string,
   ): Promise<ResourceResponseDto> {
-    return this.partnersService.createResource(tenantId, dto, user.userId, partnerId);
+    return this.partnersService.createResource(tenantId, dto, user.id, partnerId);
   }
 
   @Delete('resources/:id')

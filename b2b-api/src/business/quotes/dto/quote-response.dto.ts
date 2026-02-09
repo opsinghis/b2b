@@ -8,6 +8,9 @@ export class QuoteLineItemResponseDto {
   @ApiProperty({ example: 1 })
   lineNumber!: number;
 
+  @ApiPropertyOptional({ example: 'master-product-id-123' })
+  productId?: string | null;
+
   @ApiProperty({ example: 'Enterprise Software License' })
   productName!: string;
 
@@ -23,27 +26,32 @@ export class QuoteLineItemResponseDto {
   @ApiProperty({ example: '1000.00' })
   unitPrice!: string;
 
-  @ApiProperty({ example: '100.00' })
-  discount!: string;
+  @ApiProperty({ example: '1000.00' })
+  originalPrice!: string;
+
+  @ApiProperty({ example: false })
+  priceOverride!: boolean;
 
   @ApiProperty({ example: '9900.00' })
-  total!: string;
+  totalPrice!: string;
 
-  @ApiPropertyOptional({ example: 'master-product-id-123' })
-  masterProductId?: string | null;
+  @ApiPropertyOptional({ example: 'Item notes' })
+  notes?: string | null;
 
   static fromEntity(lineItem: QuoteLineItem): QuoteLineItemResponseDto {
     const dto = new QuoteLineItemResponseDto();
     dto.id = lineItem.id;
     dto.lineNumber = lineItem.lineNumber;
+    dto.productId = lineItem.masterProductId;
     dto.productName = lineItem.productName;
     dto.productSku = lineItem.productSku;
     dto.description = lineItem.description;
     dto.quantity = lineItem.quantity;
     dto.unitPrice = lineItem.unitPrice.toString();
-    dto.discount = lineItem.discount.toString();
-    dto.total = lineItem.total.toString();
-    dto.masterProductId = lineItem.masterProductId;
+    dto.originalPrice = lineItem.unitPrice.toString(); // Same as unitPrice for now
+    dto.priceOverride = false; // Default to false
+    dto.totalPrice = lineItem.total.toString();
+    dto.notes = lineItem.description; // Use description as notes
     return dto;
   }
 }
@@ -64,6 +72,12 @@ export class QuoteResponseDto {
   @ApiProperty({ enum: QuoteStatus, example: 'DRAFT' })
   status!: QuoteStatus;
 
+  @ApiPropertyOptional({ example: 'John Doe' })
+  customerName?: string | null;
+
+  @ApiPropertyOptional({ example: 'john.doe@example.com' })
+  customerEmail?: string | null;
+
   @ApiPropertyOptional({ example: '2024-03-31T00:00:00.000Z' })
   validUntil?: Date | null;
 
@@ -71,19 +85,25 @@ export class QuoteResponseDto {
   subtotal!: string;
 
   @ApiProperty({ example: '500.00' })
-  discount!: string;
+  discountAmount!: string;
+
+  @ApiPropertyOptional({ example: '10.00' })
+  discountPercent?: string | null;
 
   @ApiProperty({ example: '950.00' })
-  tax!: string;
+  taxAmount!: string;
 
   @ApiProperty({ example: '10450.00' })
-  total!: string;
+  totalAmount!: string;
 
   @ApiProperty({ example: 'USD' })
   currency!: string;
 
   @ApiPropertyOptional({ example: 'Terms and conditions apply' })
   notes?: string | null;
+
+  @ApiPropertyOptional({ example: 'Internal review notes' })
+  internalNotes?: string | null;
 
   @ApiProperty({ example: { priority: 'high' } })
   metadata!: Record<string, unknown>;
@@ -119,13 +139,17 @@ export class QuoteResponseDto {
     dto.title = quote.title;
     dto.description = quote.description;
     dto.status = quote.status;
+    dto.customerName = quote.customerName;
+    dto.customerEmail = quote.customerEmail;
     dto.validUntil = quote.validUntil;
     dto.subtotal = quote.subtotal.toString();
-    dto.discount = quote.discount.toString();
-    dto.tax = quote.tax.toString();
-    dto.total = quote.total.toString();
+    dto.discountAmount = quote.discount.toString();
+    dto.discountPercent = quote.discountPercent?.toString() || null;
+    dto.taxAmount = quote.tax.toString();
+    dto.totalAmount = quote.total.toString();
     dto.currency = quote.currency;
     dto.notes = quote.notes;
+    dto.internalNotes = quote.internalNotes;
     dto.metadata = quote.metadata as Record<string, unknown>;
     dto.tenantId = quote.tenantId;
     dto.contractId = quote.contractId;

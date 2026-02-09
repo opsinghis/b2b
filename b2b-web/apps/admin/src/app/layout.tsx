@@ -1,4 +1,5 @@
 import { AuthProvider } from "@b2b/auth/react";
+import { ToastProvider } from "@b2b/ui";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -24,10 +25,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <QueryProvider>
           <AuthProvider>
-            <div className="flex h-screen">
-              <Sidebar />
-              <main className="flex-1 overflow-auto">{children}</main>
-            </div>
+            <ToastProvider>
+              <div className="flex h-screen">
+                <Sidebar />
+                <main className="flex-1 overflow-auto">{children}</main>
+              </div>
+            </ToastProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

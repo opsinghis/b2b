@@ -40,7 +40,7 @@ import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -67,7 +67,7 @@ export class SalaryDeductionController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<SalaryDeductionResponseDto> {
-    const deduction = await this.salaryDeductionService.getStatus(tenantId, user.userId);
+    const deduction = await this.salaryDeductionService.getStatus(tenantId, user.id);
     return SalaryDeductionResponseDto.fromEntity(deduction);
   }
 
@@ -90,7 +90,7 @@ export class SalaryDeductionController {
   ): Promise<SalaryDeductionHistoryResponseDto> {
     const { transactions, total } = await this.salaryDeductionService.getHistory(
       tenantId,
-      user.userId,
+      user.id,
       page || 1,
       limit || 20,
     );
@@ -118,7 +118,7 @@ export class SalaryDeductionController {
   ): Promise<SalaryDeductionResponseDto> {
     const deduction = await this.salaryDeductionService.updatePreferences(
       tenantId,
-      user.userId,
+      user.id,
       dto,
     );
     return SalaryDeductionResponseDto.fromEntity(deduction);
@@ -142,7 +142,7 @@ export class SalaryDeductionController {
   ): Promise<LimitRequestResponseDto> {
     const request = await this.salaryDeductionService.createLimitRequest(
       tenantId,
-      user.userId,
+      user.id,
       dto,
     );
     return LimitRequestResponseDto.fromEntity(request);
@@ -268,7 +268,7 @@ export class AdminSalaryDeductionController {
     const request = await this.salaryDeductionService.approveLimitRequest(
       id,
       tenantId,
-      user.userId,
+      user.id,
       dto.reviewNotes,
     );
     return LimitRequestResponseDto.fromEntity(request);
@@ -296,7 +296,7 @@ export class AdminSalaryDeductionController {
     const request = await this.salaryDeductionService.rejectLimitRequest(
       id,
       tenantId,
-      user.userId,
+      user.id,
       dto.reviewNotes,
     );
     return LimitRequestResponseDto.fromEntity(request);

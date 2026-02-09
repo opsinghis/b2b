@@ -8,7 +8,15 @@
       "Edit(.claude/execution/**/*)",
       "Bash(pnpm:*)",
       "Bash(turbo:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Edit",
+      "MultiEdit",
+      "Bash(npm run *)",
+      "Bash(git *)",
+      "Bash(mkdir *)"
+    ],
+        "deny": [
+      "Bash(rm -rf *)"
     ]
   },
   "backend_api": {

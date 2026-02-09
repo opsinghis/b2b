@@ -30,12 +30,9 @@ import Link from "next/link";
 
 import { useNotificationPreferences } from "./use-notification-preferences";
 
-import { Header } from "@/components/layout";
-
 function NotificationPreferencesSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Notification Preferences" />
       <div className="flex-1 p-6 space-y-6 animate-pulse">
         <div className="flex items-center gap-4">
           <div className="h-10 w-10 bg-muted rounded" />
@@ -102,7 +99,6 @@ function NotificationPreferencesContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Notification Preferences" />
       <div className="flex-1 p-6 space-y-6 max-w-3xl">
         {/* Page Header */}
         <div className="flex items-center justify-between">

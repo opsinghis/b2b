@@ -219,12 +219,12 @@ function OrganizationsContent() {
               onDelete={handleDelete}
               isUpdating={isUpdating}
             />
-            {listData.meta.totalPages > 1 && (
+            {listData.totalPages > 1 && (
               <Pagination
-                currentPage={listData.meta.page}
-                totalPages={listData.meta.totalPages}
-                total={listData.meta.total}
-                limit={listData.meta.limit}
+                currentPage={listData.page}
+                totalPages={listData.totalPages}
+                total={listData.total}
+                limit={listData.limit}
                 onPageChange={setPage}
               />
             )}

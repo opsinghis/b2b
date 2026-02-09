@@ -100,12 +100,10 @@ export interface DiscountTiersQueryParams {
 
 export interface DiscountTiersResponse {
   data: DiscountTier[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface TierAssignment {
@@ -128,12 +126,10 @@ export interface TierAssignment {
 
 export interface TierAssignmentsResponse {
   data: TierAssignment[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // =============================================================================

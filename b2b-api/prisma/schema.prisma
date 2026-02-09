@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -234,22 +235,26 @@ model ContractVersion {
 }
 
 model Quote {
-  id           String      @id @default(cuid())
-  quoteNumber  String
-  title        String
-  description  String?
-  status       QuoteStatus @default(DRAFT)
-  validUntil   DateTime?
-  subtotal     Decimal     @db.Decimal(15, 2)
-  discount     Decimal     @default(0) @db.Decimal(15, 2)
-  tax          Decimal     @default(0) @db.Decimal(15, 2)
-  total        Decimal     @db.Decimal(15, 2)
-  currency     String      @default("USD")
-  notes        String?
-  metadata     Json        @default("{}")
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  deletedAt    DateTime?
+  id              String      @id @default(cuid())
+  quoteNumber     String
+  title           String
+  description     String?
+  status          QuoteStatus @default(DRAFT)
+  validUntil      DateTime?
+  subtotal        Decimal     @db.Decimal(15, 2)
+  discount        Decimal     @default(0) @db.Decimal(15, 2)
+  discountPercent Decimal?    @db.Decimal(5, 2)
+  tax             Decimal     @default(0) @db.Decimal(15, 2)
+  total           Decimal     @db.Decimal(15, 2)
+  currency        String      @default("USD")
+  notes           String?
+  internalNotes   String?
+  customerName    String?
+  customerEmail   String?
+  metadata        Json        @default("{}")
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  deletedAt       DateTime?
 
   // Foreign Keys
   tenantId     String

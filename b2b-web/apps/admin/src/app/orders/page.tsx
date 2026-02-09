@@ -19,6 +19,7 @@ import {
   useCancelOrder,
   useProcessRefund,
   useBulkUpdateStatus,
+  useConfirmOrder,
   type Order,
   type OrderStatus,
   type CreateManualOrderDto,
@@ -85,6 +86,7 @@ function OrdersContent() {
   const cancelMutation = useCancelOrder();
   const refundMutation = useProcessRefund();
   const bulkStatusMutation = useBulkUpdateStatus();
+  const confirmMutation = useConfirmOrder();
 
   const handleCreateOrder = async (orderData: CreateManualOrderDto) => {
     try {
@@ -135,6 +137,17 @@ function OrdersContent() {
       });
       setSelectedOrders([]);
       setIsBulkStatusModalOpen(false);
+    } catch {
+      // Error handled by mutation
+    }
+  };
+
+  const handleConfirmOrder = async (orderId: string) => {
+    if (!confirm("Are you sure you want to confirm this order? This will begin order processing.")) {
+      return;
+    }
+    try {
+      await confirmMutation.mutateAsync({ orderId });
     } catch {
       // Error handled by mutation
     }
@@ -304,10 +317,12 @@ function OrdersContent() {
               onSelectAll={handleSelectAll}
               onCancelOrder={handleCancelOrder}
               onRefundOrder={handleRefundOrder}
+              onConfirmOrder={handleConfirmOrder}
               isUpdating={
                 cancelMutation.isPending ||
                 refundMutation.isPending ||
-                bulkStatusMutation.isPending
+                bulkStatusMutation.isPending ||
+                confirmMutation.isPending
               }
             />
             {data.totalPages > 1 && (

@@ -192,32 +192,54 @@ export function useUserAddresses() {
   const { user, isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: ["user-addresses"],
+    // Include tenantId in queryKey to ensure refetch when user session changes
+    queryKey: ["user-addresses", user?.tenantId],
     queryFn: async (): Promise<UserAddress[]> => {
+      // Double-check we have valid auth before making request
+      if (!user?.accessToken || !user?.tenantId) {
+        return [];
+      }
       const { data, error } = await client.GET("/api/v1/users/me/addresses");
       if (error) {
+        // Check if it's an auth error
+        const errorObj = error as { status?: number };
+        if (errorObj.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
         return [];
       }
       return (data as unknown as UserAddressResponseDto[]).map(mapAddressFromDto);
     },
-    enabled: isAuthenticated && !!user?.tenantId,
+    enabled: isAuthenticated && !!user?.tenantId && !!user?.accessToken,
+    // Retry on network errors but not on auth errors
+    retry: (failureCount, error) => {
+      if (error.message.includes("Session expired")) return false;
+      return failureCount < 2;
+    },
   });
 }
 
 export function useCreateAddress() {
   const client = useApiClient();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (params: CreateAddressParams): Promise<UserAddress> => {
       const { data, error } = await client.POST("/api/v1/users/me/addresses", {
         body: params as CreateUserAddressDto,
       });
-      if (error) throw new Error("Failed to create address");
+      if (error) {
+        const errorObj = error as { status?: number };
+        if (errorObj.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
+        throw new Error("Failed to create address");
+      }
       return mapAddressFromDto(data as unknown as UserAddressResponseDto);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+      queryClient.invalidateQueries({ queryKey: ["user-addresses", user?.tenantId] });
     },
   });
 }
@@ -225,6 +247,7 @@ export function useCreateAddress() {
 export function useUpdateAddress() {
   const client = useApiClient();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -238,11 +261,17 @@ export function useUpdateAddress() {
           body: params,
         }
       );
-      if (error) throw new Error("Failed to update address");
+      if (error) {
+        const errorObj = error as { status?: number };
+        if (errorObj.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
+        throw new Error("Failed to update address");
+      }
       return mapAddressFromDto(data as unknown as UserAddressResponseDto);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+      queryClient.invalidateQueries({ queryKey: ["user-addresses", user?.tenantId] });
     },
   });
 }
@@ -250,16 +279,23 @@ export function useUpdateAddress() {
 export function useDeleteAddress() {
   const client = useApiClient();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
       const { error } = await client.DELETE("/api/v1/users/me/addresses/{id}", {
         params: { path: { id } },
       });
-      if (error) throw new Error("Failed to delete address");
+      if (error) {
+        const errorObj = error as { status?: number };
+        if (errorObj.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
+        throw new Error("Failed to delete address");
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-addresses"] });
+      queryClient.invalidateQueries({ queryKey: ["user-addresses", user?.tenantId] });
     },
   });
 }
@@ -273,17 +309,24 @@ export function useDeliveryMethods() {
   const { user, isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: ["delivery-methods"],
+    queryKey: ["delivery-methods", user?.tenantId],
     queryFn: async (): Promise<DeliveryMethod[]> => {
+      if (!user?.accessToken || !user?.tenantId) {
+        return [];
+      }
       const { data, error } = await client.GET("/api/v1/delivery-methods");
       if (error) {
+        const errorObj = error as { status?: number };
+        if (errorObj.status === 401) {
+          throw new Error("Session expired. Please log in again.");
+        }
         return [];
       }
       return (data as unknown as DeliveryMethodResponseDto[]).map(
         mapDeliveryMethodFromDto
       );
     },
-    enabled: isAuthenticated && !!user?.tenantId,
+    enabled: isAuthenticated && !!user?.tenantId && !!user?.accessToken,
   });
 }
 

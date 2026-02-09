@@ -4,10 +4,15 @@ import {
   BadRequestException,
   ForbiddenException,
   Logger,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PrismaService } from '@infrastructure/database';
 import { CartService, CartWithItems } from '@business/cart';
-import { Order, OrderItem, OrderStatus, Prisma } from '@prisma/client';
+import { UserAddressesService } from '@business/payments/user-addresses.service';
+import { DeliveryMethodsService } from '@business/payments/delivery-methods.service';
+import { PaymentMethodsService } from '@business/payments/payment-methods.service';
+import { Order, OrderItem, OrderStatus, Prisma, UserRole } from '@prisma/client';
 import { CreateOrderDto, ListOrdersQueryDto, AdminListOrdersQueryDto, CancelOrderDto } from './dto';
 
 export type OrderWithItems = Order & { items: OrderItem[] };
@@ -31,6 +36,12 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cartService: CartService,
+    @Inject(forwardRef(() => UserAddressesService))
+    private readonly userAddressesService: UserAddressesService,
+    @Inject(forwardRef(() => DeliveryMethodsService))
+    private readonly deliveryMethodsService: DeliveryMethodsService,
+    @Inject(forwardRef(() => PaymentMethodsService))
+    private readonly paymentMethodsService: PaymentMethodsService,
   ) {}
 
   /**
@@ -48,8 +59,59 @@ export class OrdersService {
       throw new BadRequestException('Cannot create order from empty cart');
     }
 
+    // Resolve shipping address (from ID or inline object)
+    let shippingAddressData: Record<string, unknown> = {};
+    if (dto.shippingAddressId) {
+      const address = await this.userAddressesService.findOne(dto.shippingAddressId, tenantId, userId);
+      shippingAddressData = this.userAddressesService.toOrderAddress(address);
+    } else if (dto.shippingAddress) {
+      shippingAddressData = dto.shippingAddress as Record<string, unknown>;
+    }
+
+    // Resolve billing address (from ID or inline object, fallback to shipping)
+    let billingAddressData: Record<string, unknown> = {};
+    if (dto.billingAddressId) {
+      const address = await this.userAddressesService.findOne(dto.billingAddressId, tenantId, userId);
+      billingAddressData = this.userAddressesService.toOrderAddress(address);
+    } else if (dto.billingAddress) {
+      billingAddressData = dto.billingAddress as Record<string, unknown>;
+    } else {
+      billingAddressData = shippingAddressData;
+    }
+
+    // Resolve delivery method
+    let deliveryMethodData: Record<string, unknown> | null = null;
+    let deliveryCost = 0;
+    if (dto.deliveryMethodId) {
+      const deliveryMethod = await this.deliveryMethodsService.findOne(dto.deliveryMethodId, tenantId);
+      deliveryCost = this.deliveryMethodsService.calculateCost(deliveryMethod, cart.total.toNumber());
+      deliveryMethodData = {
+        id: deliveryMethod.id,
+        code: deliveryMethod.code,
+        name: deliveryMethod.name,
+        cost: deliveryCost,
+        minDays: deliveryMethod.minDays,
+        maxDays: deliveryMethod.maxDays,
+      };
+    }
+
+    // Resolve payment method
+    let paymentMethodData: Record<string, unknown> | null = null;
+    if (dto.paymentMethodId) {
+      const paymentMethod = await this.paymentMethodsService.findOne(dto.paymentMethodId, tenantId);
+      paymentMethodData = {
+        id: paymentMethod.id,
+        code: paymentMethod.code,
+        name: paymentMethod.name,
+        type: paymentMethod.type,
+      };
+    }
+
     // Generate order number
     const orderNumber = await this.generateOrderNumber(tenantId);
+
+    // Calculate total with delivery cost
+    const orderTotal = cart.total.toNumber() + deliveryCost;
 
     // Create order
     const order = await this.prisma.order.create({
@@ -63,11 +125,16 @@ export class OrdersService {
         couponCode: cart.couponCode,
         couponDiscount: cart.couponDiscount,
         tax: cart.tax,
-        total: cart.total,
+        total: orderTotal,
         notes: dto.notes,
-        shippingAddress: (dto.shippingAddress || {}) as Prisma.InputJsonValue,
-        billingAddress: (dto.billingAddress || dto.shippingAddress || {}) as Prisma.InputJsonValue,
-        metadata: (dto.metadata || {}) as Prisma.InputJsonValue,
+        shippingAddress: shippingAddressData as Prisma.InputJsonValue,
+        billingAddress: billingAddressData as Prisma.InputJsonValue,
+        metadata: {
+          ...(dto.metadata || {}),
+          deliveryMethod: deliveryMethodData,
+          paymentMethod: paymentMethodData,
+          deliveryCost,
+        } as Prisma.InputJsonValue,
         items: {
           create: cart.items.map((item, index) => ({
             lineNumber: index + 1,

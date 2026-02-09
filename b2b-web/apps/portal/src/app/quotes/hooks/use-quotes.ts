@@ -79,7 +79,7 @@ export interface QuotesResponse {
 }
 
 export interface CreateQuoteLineItemData {
-  productId: string;
+  masterProductId: string;
   quantity: number;
   unitPrice?: number;
   notes?: string;
@@ -498,7 +498,7 @@ export function useCloneQuote() {
         customerName: sourceQuote.customerName,
         customerEmail: sourceQuote.customerEmail,
         lineItems: sourceQuote.lineItems.map((item) => ({
-          productId: item.productId,
+          masterProductId: item.productId,
           quantity: item.quantity,
           unitPrice: item.priceOverride ? parseFloat(item.unitPrice) : undefined,
           notes: item.notes,

@@ -307,8 +307,9 @@ export function useUserDiscountTier() {
   return useQuery({
     queryKey: ["user-discount-tier"],
     queryFn: async (): Promise<UserDiscountTierResponse | null> => {
-      const { data, error } = await client.GET(
-        "/api/v1/api/v1/users/me/discount-tier"
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (client as any).GET(
+        "/api/v1/users/me/discount-tier"
       );
       if (error) {
         // User might not have a discount tier, return null instead of throwing

@@ -44,7 +44,7 @@ import {
 } from './dto';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -75,7 +75,7 @@ export class UserDiscountTierController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserDiscountTierResponseDto | null> {
-    return this.discountsService.getUserTier(tenantId, user.userId);
+    return this.discountsService.getUserTier(tenantId, user.id);
   }
 
   @Get('savings')
@@ -87,7 +87,7 @@ export class UserDiscountTierController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserSavingsResponseDto> {
-    return this.discountsService.getUserSavings(tenantId, user.userId);
+    return this.discountsService.getUserSavings(tenantId, user.id);
   }
 }
 
@@ -188,7 +188,7 @@ export class AdminDiscountTierController {
     @Body() dto: AssignDiscountTierDto,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserDiscountTierResponseDto> {
-    return this.discountsService.assignTier(tenantId, id, dto, user.userId);
+    return this.discountsService.assignTier(tenantId, id, dto, user.id);
   }
 
   @Delete(':id/assign/:userId')

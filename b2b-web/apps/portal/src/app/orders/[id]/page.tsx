@@ -4,7 +4,8 @@ import { RequireAuth } from "@b2b/auth/react";
 import { Button, Card, CardContent, CardHeader, useToast } from "@b2b/ui";
 import { ArrowLeft, Headphones, RefreshCw, XCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { use, useState } from "react";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 
 import {
   OrderStatusTimeline,
@@ -23,12 +24,8 @@ import {
   canCancelOrder,
 } from "../hooks";
 
-interface OrderDetailPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const { id } = use(params);
+export default function OrderDetailPage() {
+  const { id } = useParams<{ id: string }>();
 
   return (
     <RequireAuth fallback={<OrderDetailSkeleton />} redirectTo="/login">

@@ -16,7 +16,6 @@ import {
 import { CheckoutProvider, useCheckout } from "./context";
 
 import { useCart } from "@/app/cart/hooks";
-import { Header } from "@/components/layout";
 
 // =============================================================================
 // Checkout Page Skeleton
@@ -25,7 +24,6 @@ import { Header } from "@/components/layout";
 function CheckoutPageSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Checkout" />
       <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
         <div className="animate-pulse space-y-8">
           {/* Progress Bar Skeleton */}
@@ -59,7 +57,6 @@ function CheckoutPageSkeleton() {
 function EmptyCartView() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Checkout" />
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -127,7 +124,6 @@ function CheckoutContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Checkout" />
       <div className="flex-1 p-6">
         <div className="max-w-5xl mx-auto">
           {/* Progress Indicator */}

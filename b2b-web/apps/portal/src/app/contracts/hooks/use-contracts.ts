@@ -66,22 +66,18 @@ export interface ContractQueryParams {
 
 export interface ContractsResponse {
   data: ContractDto[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface ContractVersionsResponse {
   data: ContractVersionDto[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // =============================================================================

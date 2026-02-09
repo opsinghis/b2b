@@ -236,12 +236,12 @@ function DiscountTiersContent() {
               onAssign={handleOpenAssignModal}
               isUpdating={toggleStatusMutation.isPending || deleteMutation.isPending}
             />
-            {data.meta.totalPages > 1 && (
+            {data.totalPages > 1 && (
               <Pagination
-                currentPage={data.meta.page}
-                totalPages={data.meta.totalPages}
-                total={data.meta.total}
-                limit={data.meta.limit}
+                currentPage={data.page}
+                totalPages={data.totalPages}
+                total={data.total}
+                limit={data.limit}
                 onPageChange={setPage}
               />
             )}

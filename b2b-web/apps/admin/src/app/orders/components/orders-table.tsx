@@ -10,7 +10,7 @@ import {
   Button,
   Checkbox,
 } from "@b2b/ui";
-import { Eye, XCircle, DollarSign } from "lucide-react";
+import { Eye, XCircle, DollarSign, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -19,6 +19,7 @@ import {
   formatDate,
   canCancel,
   canRefund,
+  canConfirm,
 } from "../hooks/use-orders";
 
 import { OrderStatusBadge } from "./order-status-badge";
@@ -30,6 +31,7 @@ interface OrdersTableProps {
   onSelectAll: (selected: boolean) => void;
   onCancelOrder: (orderId: string) => void;
   onRefundOrder: (orderId: string) => void;
+  onConfirmOrder?: (orderId: string) => void;
   isUpdating?: boolean;
 }
 
@@ -40,6 +42,7 @@ export function OrdersTable({
   onSelectAll,
   onCancelOrder,
   onRefundOrder,
+  onConfirmOrder,
   isUpdating,
 }: OrdersTableProps) {
   const router = useRouter();
@@ -126,6 +129,18 @@ export function OrdersTable({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    {canConfirm(order.status) && onConfirmOrder && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onConfirmOrder(order.id)}
+                        disabled={isUpdating}
+                        title="Confirm order"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    )}
                     {canRefund(order.status) && (
                       <Button
                         variant="ghost"

@@ -5,7 +5,7 @@ import { Button } from "@b2b/ui";
 import { useQueryClient } from "@tanstack/react-query";
 import { RefreshCw } from "lucide-react";
 
-import { KpiCards, QuickActions, RecentActivityFeed } from "./components";
+import { KpiCards, QuickActions, RecentActivityFeed, RecentOrders } from "./components";
 import { useUserDashboard, getGreeting } from "./hooks/use-dashboard";
 
 function DashboardSkeleton() {
@@ -81,6 +81,9 @@ function DashboardContent() {
 
       {/* Quick Actions */}
       <QuickActions />
+
+      {/* Recent Orders */}
+      <RecentOrders />
 
       {/* Recent Activity */}
       <RecentActivityFeed activities={data.recentActivity} />

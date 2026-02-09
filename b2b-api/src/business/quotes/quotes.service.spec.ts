@@ -5,6 +5,7 @@ import { PrismaService } from '@infrastructure/database';
 import { AuditService } from '@core/audit';
 import { ContractsService } from '@business/contracts';
 import { TenantCatalogService } from '@business/tenant-catalog';
+import { NotificationsService } from '@platform/notifications';
 import {
   Quote,
   QuoteLineItem,
@@ -44,13 +45,17 @@ describe('QuotesService', () => {
     title: 'Test Quote',
     description: 'Test description',
     status: QuoteStatus.DRAFT,
+    customerName: null,
+    customerEmail: null,
     validUntil: new Date('2024-03-31'),
     subtotal: new Prisma.Decimal(1000),
     discount: new Prisma.Decimal(50),
+    discountPercent: null,
     tax: new Prisma.Decimal(0),
     total: new Prisma.Decimal(950),
     currency: 'USD',
     notes: 'Test notes',
+    internalNotes: null,
     metadata: { priority: 'high' },
     tenantId,
     contractId: null,
@@ -122,6 +127,12 @@ describe('QuotesService', () => {
           useValue: {
             hasAccess: jest.fn(),
             findOne: jest.fn(),
+          },
+        },
+        {
+          provide: NotificationsService,
+          useValue: {
+            notifyUser: jest.fn(),
           },
         },
       ],
@@ -426,8 +437,9 @@ describe('QuotesService', () => {
       const rejectedQuote = { ...pendingQuote, status: QuoteStatus.DRAFT };
 
       (prismaService.quote.findFirst as jest.Mock)
-        .mockResolvedValueOnce(pendingQuote)
-        .mockResolvedValueOnce(rejectedQuote);
+        .mockResolvedValueOnce(pendingQuote)  // First call in reject()
+        .mockResolvedValueOnce(rejectedQuote) // Call in transitionStatusDirect
+        .mockResolvedValueOnce(rejectedQuote); // Final call in reject() after notification
       (prismaService.quote.update as jest.Mock).mockResolvedValue(rejectedQuote);
       (auditService.log as jest.Mock).mockResolvedValue({});
 

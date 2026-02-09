@@ -19,12 +19,10 @@ export interface TenantsQueryParams {
 
 export interface TenantsResponse {
   data: TenantResponseDto[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 function useApiClient() {

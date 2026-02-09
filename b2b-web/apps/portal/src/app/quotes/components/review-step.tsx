@@ -22,14 +22,16 @@ import {
   Send,
   User,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { formatPrice } from "../../catalog/hooks/use-catalog";
 import { useQuoteBuilder } from "../context/quote-builder-context";
-import { useCreateQuote, useSubmitQuote, formatDate } from "../hooks/use-quotes";
+import { useCreateQuote, useUpdateQuote, useSubmitQuote, formatDate } from "../hooks/use-quotes";
 
 export function ReviewStep() {
   const { addToast } = useToast();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const {
     state,
     prevStep,
@@ -43,9 +45,10 @@ export function ReviewStep() {
   } = useQuoteBuilder();
 
   const { mutateAsync: createQuote, isPending: isCreating } = useCreateQuote();
+  const { mutateAsync: updateQuote, isPending: isUpdating } = useUpdateQuote();
   const { mutateAsync: submitQuote, isPending: isSubmitting } = useSubmitQuote();
 
-  const isProcessing = isCreating || isSubmitting || state.isProcessing;
+  const isProcessing = isCreating || isUpdating || isSubmitting || state.isProcessing;
 
   const buildQuotePayload = () => ({
     title: state.title,
@@ -57,7 +60,7 @@ export function ReviewStep() {
     internalNotes: state.internalNotes || undefined,
     discountPercent: state.discountPercent || undefined,
     lineItems: state.lineItems.map((item) => ({
-      productId: item.product.id,
+      masterProductId: item.product.id,
       quantity: item.quantity,
       unitPrice: item.priceOverride ? item.unitPrice : undefined,
       notes: item.notes || undefined,
@@ -70,18 +73,31 @@ export function ReviewStep() {
       setError(null);
 
       const payload = buildQuotePayload();
-      const result = await createQuote(payload);
 
-      setSavedQuote(result.id, result.quoteNumber);
-
-      addToast({
-        title: "Quote saved as draft",
-        description: `Quote #${result.quoteNumber} has been saved`,
-        variant: "success",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      nextStep();
+      let result;
+      if (state.isEditMode && state.editingQuoteId) {
+        // Update existing quote
+        result = await updateQuote({ id: state.editingQuoteId, data: payload });
+        addToast({
+          title: "Quote updated",
+          description: `Quote #${result.quoteNumber} has been updated`,
+          variant: "success",
+        });
+        queryClient.invalidateQueries({ queryKey: ["quotes"] });
+        // Redirect to quote detail page after edit
+        router.push(`/quotes/${state.editingQuoteId}`);
+      } else {
+        // Create new quote
+        result = await createQuote(payload);
+        setSavedQuote(result.id, result.quoteNumber);
+        addToast({
+          title: "Quote saved as draft",
+          description: `Quote #${result.quoteNumber} has been saved`,
+          variant: "success",
+        });
+        queryClient.invalidateQueries({ queryKey: ["quotes"] });
+        nextStep();
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to save quote";
       setError(message);
@@ -100,23 +116,40 @@ export function ReviewStep() {
       setProcessing(true);
       setError(null);
 
-      // First create the quote
       const payload = buildQuotePayload();
-      const result = await createQuote(payload);
+      let quoteId: string;
+      let quoteNumber: string;
+
+      if (state.isEditMode && state.editingQuoteId) {
+        // Update existing quote first
+        const result = await updateQuote({ id: state.editingQuoteId, data: payload });
+        quoteId = result.id;
+        quoteNumber = result.quoteNumber;
+      } else {
+        // Create new quote first
+        const result = await createQuote(payload);
+        quoteId = result.id;
+        quoteNumber = result.quoteNumber;
+      }
 
       // Then submit it for approval
-      await submitQuote({ id: result.id });
-
-      setSavedQuote(result.id, result.quoteNumber);
+      await submitQuote({ id: quoteId });
 
       addToast({
         title: "Quote submitted for approval",
-        description: `Quote #${result.quoteNumber} has been submitted`,
+        description: `Quote #${quoteNumber} has been submitted`,
         variant: "success",
       });
 
       queryClient.invalidateQueries({ queryKey: ["quotes"] });
-      nextStep();
+
+      if (state.isEditMode) {
+        // Redirect to quote detail page after edit + submit
+        router.push(`/quotes/${quoteId}`);
+      } else {
+        setSavedQuote(quoteId, quoteNumber);
+        nextStep();
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to submit quote";
       setError(message);
@@ -286,12 +319,12 @@ export function ReviewStep() {
             onClick={handleSaveAsDraft}
             disabled={isProcessing}
           >
-            {isCreating && !isSubmitting ? (
+            {(isCreating || isUpdating) && !isSubmitting ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : (
               <Save className="h-4 w-4 mr-2" />
             )}
-            Save as Draft
+            {state.isEditMode ? "Save Changes" : "Save as Draft"}
           </Button>
           <Button
             onClick={handleSubmitForApproval}
@@ -302,7 +335,7 @@ export function ReviewStep() {
             ) : (
               <Send className="h-4 w-4 mr-2" />
             )}
-            Submit for Approval
+            {state.isEditMode ? "Save & Submit for Approval" : "Submit for Approval"}
           </Button>
         </div>
       </div>

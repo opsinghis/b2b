@@ -17,3 +17,5 @@ export const CanCreate = (subject: Subjects) => CheckAbility({ action: 'create',
 export const CanUpdate = (subject: Subjects) => CheckAbility({ action: 'update', subject });
 export const CanDelete = (subject: Subjects) => CheckAbility({ action: 'delete', subject });
 export const CanManage = (subject: Subjects) => CheckAbility({ action: 'manage', subject });
+export const CanSubmit = (subject: Subjects) => CheckAbility({ action: 'submit', subject });
+export const CanApprove = (subject: Subjects) => CheckAbility({ action: 'approve', subject });

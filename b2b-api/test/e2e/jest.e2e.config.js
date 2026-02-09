@@ -1,7 +1,9 @@
 const baseConfig = require('../../jest.config');
+const path = require('path');
 
 module.exports = {
   ...baseConfig,
+  rootDir: path.resolve(__dirname, '../..'),
   testRegex: '.*\\.e2e-spec\\.ts$',
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   setupFilesAfterEnv: ['<rootDir>/test/e2e/setup-after-env.ts'],

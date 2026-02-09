@@ -3,12 +3,18 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { PrismaService } from '@infrastructure/database';
 import { CartService } from '@business/cart';
+import { UserAddressesService } from '@business/payments/user-addresses.service';
+import { DeliveryMethodsService } from '@business/payments/delivery-methods.service';
+import { PaymentMethodsService } from '@business/payments/payment-methods.service';
 import { Order, OrderItem, OrderStatus, Prisma } from '@prisma/client';
 
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: jest.Mocked<PrismaService>;
   let cartService: jest.Mocked<CartService>;
+  let userAddressesService: jest.Mocked<UserAddressesService>;
+  let deliveryMethodsService: jest.Mocked<DeliveryMethodsService>;
+  let paymentMethodsService: jest.Mocked<PaymentMethodsService>;
 
   const tenantId = 'tenant-id-123';
   const userId = 'user-id-123';
@@ -128,12 +134,43 @@ describe('OrdersService', () => {
             applyCoupon: jest.fn(),
           },
         },
+        {
+          provide: UserAddressesService,
+          useValue: {
+            findOne: jest.fn(),
+            toOrderAddress: jest.fn((address) => ({
+              firstName: address.firstName,
+              lastName: address.lastName,
+              street1: address.street1,
+              city: address.city,
+              state: address.state,
+              postalCode: address.postalCode,
+              country: address.country,
+            })),
+          },
+        },
+        {
+          provide: DeliveryMethodsService,
+          useValue: {
+            findOne: jest.fn(),
+            calculateCost: jest.fn().mockReturnValue(0),
+          },
+        },
+        {
+          provide: PaymentMethodsService,
+          useValue: {
+            findOne: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<OrdersService>(OrdersService);
     prismaService = module.get(PrismaService);
     cartService = module.get(CartService);
+    userAddressesService = module.get(UserAddressesService);
+    deliveryMethodsService = module.get(DeliveryMethodsService);
+    paymentMethodsService = module.get(PaymentMethodsService);
   });
 
   it('should be defined', () => {

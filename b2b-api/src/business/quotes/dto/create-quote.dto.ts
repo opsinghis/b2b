@@ -88,6 +88,18 @@ export class CreateQuoteDto {
   @MaxLength(2000)
   description?: string;
 
+  @ApiPropertyOptional({ example: 'John Doe', description: 'Customer name' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  customerName?: string;
+
+  @ApiPropertyOptional({ example: 'john.doe@example.com', description: 'Customer email' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  customerEmail?: string;
+
   @ApiPropertyOptional({ example: '2024-03-31', description: 'Quote validity date' })
   @IsOptional()
   @IsDateString()
@@ -104,6 +116,21 @@ export class CreateQuoteDto {
   @IsString()
   @MaxLength(5000)
   notes?: string;
+
+  @ApiPropertyOptional({
+    example: 'Internal review notes',
+    description: 'Internal notes (not visible to customer)',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  internalNotes?: string;
+
+  @ApiPropertyOptional({ example: 10, description: 'Discount percentage (0-100)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  discountPercent?: number;
 
   @ApiPropertyOptional({ example: 'contract-id-123', description: 'Associated contract ID' })
   @IsOptional()

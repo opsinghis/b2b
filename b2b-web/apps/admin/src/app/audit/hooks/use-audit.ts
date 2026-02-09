@@ -56,12 +56,10 @@ export interface AuditQueryParams {
 
 export interface AuditLogsResponse {
   data: AuditLogDto[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // =============================================================================

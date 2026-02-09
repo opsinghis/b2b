@@ -36,12 +36,10 @@ import {
 } from "../hooks";
 
 import { FileList, FileUpload } from "@/components/files";
-import { Header } from "@/components/layout";
 
 function ContractDetailSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Contract Details" />
       <div className="flex-1 p-6 space-y-6 animate-pulse">
         <div className="h-10 w-48 bg-muted rounded" />
         <div className="grid gap-6 lg:grid-cols-3">
@@ -62,7 +60,6 @@ function ContractDetailSkeleton() {
 function ContractDetailError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Contract Details" />
       <div className="flex-1 p-6">
         <div className="flex flex-col items-center justify-center gap-4 min-h-[400px]">
           <FileText className="h-12 w-12 text-muted-foreground" />
@@ -110,7 +107,6 @@ function ContractDetailContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Contract Details" />
       <div className="flex-1 p-6 space-y-6">
         {/* Back Button and Actions */}
         <div className="flex items-center justify-between">

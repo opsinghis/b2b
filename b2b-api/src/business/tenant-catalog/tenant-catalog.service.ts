@@ -233,6 +233,15 @@ export class TenantCatalogService {
       const access = p.tenantAccess?.find((a) => a.tenantId === tenantId);
       const effectivePrice = this.calculateEffectivePrice(p.listPrice, access);
 
+      // Extract images from attributes.images (same logic as toTenantProductResponse)
+      let primaryImage: string | null = p.primaryImage;
+      if (!primaryImage && p.attributes) {
+        const attrs = p.attributes as Record<string, unknown>;
+        if (attrs.images && Array.isArray(attrs.images) && attrs.images.length > 0) {
+          primaryImage = attrs.images[0] as string;
+        }
+      }
+
       return {
         id: p.id,
         sku: p.sku,
@@ -240,7 +249,7 @@ export class TenantCatalogService {
         description: p.description,
         listPrice: p.listPrice.toString(),
         effectivePrice: effectivePrice.toString(),
-        primaryImage: p.primaryImage,
+        primaryImage,
         availability: p.availability,
       };
     });
@@ -540,18 +549,29 @@ export class TenantCatalogService {
     const effectivePrice = this.calculateEffectivePrice(product.listPrice, access);
     const hasAccess = this.checkAccess(access);
 
-    // Parse images from JSON
+    // Parse images from JSON - check both product.images and product.attributes.images
     let images: string[] = [];
     try {
+      // First check the images column
       if (product.images) {
         const parsed = product.images as unknown;
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           images = parsed as string[];
+        }
+      }
+      // Fallback to attributes.images if images column is empty
+      if (images.length === 0 && product.attributes) {
+        const attrs = product.attributes as Record<string, unknown>;
+        if (attrs.images && Array.isArray(attrs.images)) {
+          images = attrs.images as string[];
         }
       }
     } catch {
       images = [];
     }
+
+    // Set primaryImage from first image if not set
+    const primaryImage = product.primaryImage || (images.length > 0 ? images[0] : null);
 
     return {
       id: product.id,
@@ -568,7 +588,7 @@ export class TenantCatalogService {
       currency: product.currency,
       status: product.status,
       availability: product.availability,
-      primaryImage: product.primaryImage,
+      primaryImage,
       images,
       categoryEntity: product.categoryEntity
         ? {

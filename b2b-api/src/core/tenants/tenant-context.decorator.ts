@@ -13,11 +13,8 @@ export const TenantContext = createParamDecorator(
       return request.tenant;
     }
 
-    if (data === 'tenantId') {
-      return request.tenantId;
-    }
-
-    return request.tenant;
+    // Default to returning tenantId (most common use case)
+    return request.tenantId;
   },
 );
 

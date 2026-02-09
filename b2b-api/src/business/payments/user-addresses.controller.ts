@@ -26,7 +26,7 @@ import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -53,7 +53,7 @@ export class UserAddressesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserAddressResponseDto[]> {
-    const addresses = await this.userAddressesService.findAll(tenantId, user.userId);
+    const addresses = await this.userAddressesService.findAll(tenantId, user.id);
     return addresses.map(UserAddressResponseDto.fromEntity);
   }
 
@@ -73,7 +73,7 @@ export class UserAddressesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserAddressResponseDto> {
-    const address = await this.userAddressesService.findOne(id, tenantId, user.userId);
+    const address = await this.userAddressesService.findOne(id, tenantId, user.id);
     return UserAddressResponseDto.fromEntity(address);
   }
 
@@ -91,7 +91,7 @@ export class UserAddressesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserAddressResponseDto> {
-    const address = await this.userAddressesService.create(dto, tenantId, user.userId);
+    const address = await this.userAddressesService.create(dto, tenantId, user.id);
     return UserAddressResponseDto.fromEntity(address);
   }
 
@@ -112,7 +112,7 @@ export class UserAddressesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<UserAddressResponseDto> {
-    const address = await this.userAddressesService.update(id, dto, tenantId, user.userId);
+    const address = await this.userAddressesService.update(id, dto, tenantId, user.id);
     return UserAddressResponseDto.fromEntity(address);
   }
 
@@ -129,6 +129,6 @@ export class UserAddressesController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<void> {
-    await this.userAddressesService.delete(id, tenantId, user.userId);
+    await this.userAddressesService.delete(id, tenantId, user.id);
   }
 }

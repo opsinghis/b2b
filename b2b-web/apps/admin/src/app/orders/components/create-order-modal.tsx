@@ -217,12 +217,16 @@ export function CreateOrderModal({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="organizationId">Organization (optional)</Label>
-                  <Select value={organizationId} onValueChange={setOrganizationId} disabled={isLoading}>
+                  <Select
+                    value={organizationId || "__none__"}
+                    onValueChange={(value) => setOrganizationId(value === "__none__" ? "" : value)}
+                    disabled={isLoading}
+                  >
                     <SelectTrigger id="organizationId">
                       <SelectValue placeholder="Select organization" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None</SelectItem>
+                      <SelectItem value="__none__">None</SelectItem>
                       {organizations.map((org) => (
                         <SelectItem key={org.id} value={org.id}>
                           {org.name}

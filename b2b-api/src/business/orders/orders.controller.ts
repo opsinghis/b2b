@@ -38,7 +38,7 @@ import { AuthorizationGuard, CanManage } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
-  userId: string;
+  id: string;
   tenantId: string;
   email: string;
   role: UserRole;
@@ -53,7 +53,7 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Create order from cart' })
   @ApiResponse({
@@ -67,12 +67,12 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.createFromCart(dto, tenantId, user.userId);
+    const order = await this.ordersService.createFromCart(dto, tenantId, user.id);
     return OrderResponseDto.fromEntity(order);
   }
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @ApiOperation({ summary: 'List user orders' })
   @ApiResponse({
@@ -85,12 +85,12 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderListResponseDto> {
-    const { orders, total } = await this.ordersService.findAll(query, tenantId, user.userId);
+    const { orders, total } = await this.ordersService.findAll(query, tenantId, user.id);
     return OrderListResponseDto.fromEntities(orders, total, query.page || 1, query.limit || 20);
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Get order details' })
   @ApiParam({ name: 'id', description: 'Order ID' })
@@ -105,12 +105,12 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.findOne(id, tenantId, user.userId);
+    const order = await this.ordersService.findOne(id, tenantId, user.id);
     return OrderResponseDto.fromEntity(order);
   }
 
   @Get(':id/tracking')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Get order tracking information' })
   @ApiParam({ name: 'id', description: 'Order ID' })
@@ -125,7 +125,7 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<TrackingResponseDto> {
-    const tracking = await this.ordersService.getTracking(id, tenantId, user.userId);
+    const tracking = await this.ordersService.getTracking(id, tenantId, user.id);
     return {
       trackingNumber: tracking.trackingNumber || undefined,
       trackingUrl: tracking.trackingUrl || undefined,
@@ -138,7 +138,7 @@ export class OrdersController {
   }
 
   @Post(':id/cancel')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cancel order' })
@@ -156,12 +156,12 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.cancel(id, dto, tenantId, user.userId);
+    const order = await this.ordersService.cancel(id, dto, tenantId, user.id);
     return OrderResponseDto.fromEntity(order);
   }
 
   @Get(':id/invoice')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Download order invoice' })
   @ApiParam({ name: 'id', description: 'Order ID' })
@@ -175,7 +175,7 @@ export class OrdersController {
     @Res() res: Response,
   ): Promise<void> {
     // Get order data (validates access and status)
-    const order = await this.ordersService.findOne(id, tenantId, user.userId);
+    const order = await this.ordersService.findOne(id, tenantId, user.id);
 
     // For now, return JSON invoice data
     // In production, this would generate a PDF
@@ -213,7 +213,7 @@ export class OrdersController {
   }
 
   @Post(':id/reorder')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
   @CanManage('Order')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder - add order items to cart' })
@@ -225,7 +225,7 @@ export class OrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<{ message: string }> {
-    await this.ordersService.reorder(id, tenantId, user.userId);
+    await this.ordersService.reorder(id, tenantId, user.id);
     return { message: 'Order items added to cart' };
   }
 }
@@ -240,7 +240,7 @@ export class AdminOrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Order')
   @ApiOperation({ summary: 'List all orders (admin)' })
   @ApiResponse({
@@ -257,7 +257,7 @@ export class AdminOrdersController {
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Get order details (admin)' })
   @ApiParam({ name: 'id', description: 'Order ID' })
@@ -276,7 +276,7 @@ export class AdminOrdersController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER)
   @CanManage('Order')
   @ApiOperation({ summary: 'Update order (admin)' })
   @ApiParam({ name: 'id', description: 'Order ID' })
@@ -304,13 +304,13 @@ export class AdminOrdersController {
         notes: dto.notes,
       },
       tenantId,
-      user.userId,
+      user.id,
     );
     return OrderResponseDto.fromEntity(order);
   }
 
   @Post(':id/refund')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN)
   @CanManage('Order')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refund order (admin)' })
@@ -328,7 +328,7 @@ export class AdminOrdersController {
     @TenantContext() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<OrderResponseDto> {
-    const order = await this.ordersService.refund(id, dto.reason, tenantId, user.userId);
+    const order = await this.ordersService.refund(id, dto.reason, tenantId, user.id);
     return OrderResponseDto.fromEntity(order);
   }
 }

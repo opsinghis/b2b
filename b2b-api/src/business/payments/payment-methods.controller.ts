@@ -28,7 +28,7 @@ import {
   PaymentMethodResponseDto,
 } from './dto';
 import { JwtAuthGuard, Roles, RolesGuard, CurrentUser } from '@core/auth';
-import { AuthorizationGuard, CanManage } from '@core/authorization';
+import { AuthorizationGuard, CanManage, CanRead } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 interface AuthenticatedUser {
@@ -47,8 +47,8 @@ export class PaymentMethodsController {
   constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  @CanManage('PaymentMethod')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  @CanRead('PaymentMethod')
   @ApiOperation({ summary: 'Get available payment methods for current user' })
   @ApiResponse({
     status: 200,

@@ -30,7 +30,6 @@ import {
 } from "../hooks";
 
 import { useAddProductToCart } from "@/app/cart/hooks";
-import { Header } from "@/components/layout";
 
 // =============================================================================
 // Skeleton Loading
@@ -39,7 +38,6 @@ import { Header } from "@/components/layout";
 function ProductDetailSkeleton() {
   return (
     <div className="flex flex-col h-full">
-      <Header title="Product" />
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
           {/* Back button skeleton */}
@@ -300,7 +298,6 @@ function ProductDetailContent() {
   if (error || !product) {
     return (
       <div className="flex flex-col h-full">
-        <Header title="Product" />
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="max-w-md w-full">
             <CardContent className="pt-6 text-center space-y-4">
@@ -343,8 +340,6 @@ function ProductDetailContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Product" />
-
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto p-6">
           {/* Back Button */}

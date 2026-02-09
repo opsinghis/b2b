@@ -28,7 +28,7 @@ import {
   DeliveryMethodResponseDto,
 } from './dto';
 import { JwtAuthGuard, Roles, RolesGuard } from '@core/auth';
-import { AuthorizationGuard, CanManage } from '@core/authorization';
+import { AuthorizationGuard, CanManage, CanRead } from '@core/authorization';
 import { TenantContext } from '@core/tenants';
 
 @ApiTags('Delivery Methods')
@@ -41,7 +41,7 @@ export class DeliveryMethodsController {
 
   @Get()
   @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  @CanManage('DeliveryMethod')
+  @CanRead('DeliveryMethod')
   @ApiOperation({ summary: 'Get available delivery methods' })
   @ApiResponse({
     status: 200,

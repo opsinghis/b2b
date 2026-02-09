@@ -20,12 +20,10 @@ export interface OrganizationsQueryParams {
 
 export interface OrganizationsResponse {
   data: OrganizationResponseDto[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 function useApiClient() {

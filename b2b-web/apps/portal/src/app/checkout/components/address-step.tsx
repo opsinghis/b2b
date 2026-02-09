@@ -239,13 +239,18 @@ function NewAddressForm({
         </div>
 
         <div>
-          <Label htmlFor="country">Country</Label>
+          <Label htmlFor="country">Country Code (2-letter ISO)</Label>
           <Input
             id="country"
             placeholder="US"
             value={formData.country}
-            onChange={(e) => updateField("country", e.target.value)}
+            onChange={(e) => updateField("country", e.target.value.toUpperCase())}
+            maxLength={2}
+            className="uppercase"
           />
+          <p className="text-xs text-muted-foreground mt-1">
+            e.g., US, CA, MX, BR, GB
+          </p>
         </div>
 
         <div className="sm:col-span-2">
