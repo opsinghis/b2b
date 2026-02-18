@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "setup:planning": "bash .slingshot/scripts/setup-planning-structure.sh",
+    "lisa:generate": "node .slingshot/cli/lisa-planning-cli.js",
+    "ralph:execute": "bash .slingshot/ralph/ralph-loop.sh"
+  }
+}

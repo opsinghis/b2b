@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm vitest:*)",
+      "Bash(test:*)",
+      "Bash(pnpm --filter ui test calendar.test.tsx)",
+      "Bash(pnpm --filter ui test --run)",
+      "Bash(tee:*)",
+      "Bash(pnpm --filter ui test:*)",
+      "Bash(pnpm --filter portal test __tests__)",
+      "Bash(pnpm --filter portal test \"src/app/(dashboard)/__tests__\")",
+      "Bash(pnpm --filter admin test \"__tests__\")",
+      "Bash(pnpm --filter portal test:*)",
+      "Bash(pnpm --filter admin test:*)",
+      "Bash(cat:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm install)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm test:performance:portal:*)",
+      "Bash(pnpm test:performance:admin:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

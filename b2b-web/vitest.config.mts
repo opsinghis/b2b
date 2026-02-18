@@ -49,7 +49,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './apps/portal/src'),
       '@b2b/ui': path.resolve(__dirname, './packages/ui/src'),
       '@b2b/auth': path.resolve(__dirname, './packages/auth/src'),
       '@b2b/api-client': path.resolve(__dirname, './packages/api-client/src'),

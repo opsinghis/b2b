@@ -43,6 +43,22 @@ beforeAll(() => {
       dispatchEvent: vi.fn(),
     })),
   });
+
+  // Polyfill for hasPointerCapture (needed for Radix UI components)
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = vi.fn(() => false);
+  }
+  if (!Element.prototype.setPointerCapture) {
+    Element.prototype.setPointerCapture = vi.fn();
+  }
+  if (!Element.prototype.releasePointerCapture) {
+    Element.prototype.releasePointerCapture = vi.fn();
+  }
+
+  // Polyfill for scrollIntoView (needed for Radix UI components)
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = vi.fn();
+  }
 });
 
 // Mock ResizeObserver

@@ -90,6 +90,48 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
       },
     },
+
+    // Performance Tests - Portal
+    {
+      name: 'performance-portal',
+      testDir: './e2e/performance',
+      testMatch: '**/portal-performance.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:3003',
+      },
+    },
+
+    // Performance Tests - Admin
+    {
+      name: 'performance-admin',
+      testDir: './e2e/performance',
+      testMatch: '**/admin-performance.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:3002',
+      },
+    },
+
+    // Lighthouse Audits
+    {
+      name: 'lighthouse',
+      testDir: './e2e/performance',
+      testMatch: '**/lighthouse.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+
+    // Combined Performance project
+    {
+      name: 'performance',
+      testDir: './e2e/performance',
+      testMatch: '**/*.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
   ],
 
   // Local dev server configuration
